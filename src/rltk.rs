@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 extern crate glfw;
-use self::glfw::{Context, Key, Action};
+use self::glfw::{Context, Action};
 
 extern crate gl;
 
@@ -84,21 +84,7 @@ impl Rltk {
         let rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, &window_title);
         let con = Console::init(width_chars, height_chars, rltk);
         return con;
-    }
-
-    pub fn process_events(&mut self) {
-        for (_, event) in glfw::flush_messages(&self.events) {
-            match event {
-                glfw::WindowEvent::FramebufferSize(width, height) => {
-                    // make sure the viewport matches the new window dimensions; note that width and
-                    // height will be significantly larger than specified on retina displays.
-                    unsafe { gl::Viewport(0, 0, width, height) }
-                }
-                glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => self.window.set_should_close(true),
-                _ => {}
-            }
-        }
-    }
+    }    
 }
 
 pub struct Console {
@@ -112,7 +98,9 @@ pub struct Console {
     tiles: Vec<Tile>,
     ctx: Rltk,
     dirty: bool,
-    pub fps: f64
+    pub fps: f64,
+    pub key_pressed: bool,
+    pub key : i32
 }
 
 pub struct Tile {
@@ -218,7 +206,9 @@ impl Console {
             tiles: tiles,
             ctx: ctx,
             dirty: true,
-            fps: 0.0
+            fps: 0.0,
+            key_pressed: false,
+            key: 0
         };
     }
 
@@ -310,7 +300,7 @@ impl Console {
 
             // events
             // -----
-            self.ctx.process_events();
+            self.process_events();
             callback(self);
 
             // Console structure - doesn't really have to be every frame...
@@ -339,6 +329,29 @@ impl Console {
         }
     }
 
+    pub fn process_events(&mut self) {
+        self.key_pressed = false;
+        for (_, event) in glfw::flush_messages(&self.ctx.events) {
+
+            match event {
+                glfw::WindowEvent::FramebufferSize(width, height) => {
+                    // make sure the viewport matches the new window dimensions; note that width and
+                    // height will be significantly larger than specified on retina displays.
+                    unsafe { gl::Viewport(0, 0, width, height) }
+                }
+
+                glfw::WindowEvent::Key(_, KEY, Action::Press, _) => {
+                    self.key = KEY;
+                    self.key_pressed = true;
+                }
+                
+                _ => { }
+            }
+        }
+    }
+
+/////////////////////////////// User facing stuff
+
     pub fn at(&self, x:u32, y:u32) -> usize {
         return (((self.height-1 - y) * self.width) + x) as usize;
     }
@@ -361,6 +374,10 @@ impl Console {
                 idx += 1;
             }
         }
+    }
+
+    pub fn quit(&mut self) {
+        self.ctx.window.set_should_close(true)
     }
 }
 
