@@ -22,6 +22,33 @@ use cgmath::prelude::*;
 extern crate image;
 use image::GenericImage;
 
+unsafe fn glCheckError_(file: &str, line: u32) -> u32 {
+    let mut errorCode = gl::GetError();
+    while errorCode != gl::NO_ERROR {
+        let error = match errorCode {
+            gl::INVALID_ENUM => "INVALID_ENUM",
+            gl::INVALID_VALUE => "INVALID_VALUE",
+            gl::INVALID_OPERATION => "INVALID_OPERATION",
+            gl::STACK_OVERFLOW => "STACK_OVERFLOW",
+            gl::STACK_UNDERFLOW => "STACK_UNDERFLOW",
+            gl::OUT_OF_MEMORY => "OUT_OF_MEMORY",
+            gl::INVALID_FRAMEBUFFER_OPERATION => "INVALID_FRAMEBUFFER_OPERATION",
+            _ => "unknown GL error code"
+        };
+
+        println!("{} | {} ({})", error, file, line);
+
+        errorCode = gl::GetError();
+    }
+    errorCode
+}
+
+macro_rules! glCheckError {
+    () => (
+        glCheckError_(file!(), line!())
+    )
+}
+
 pub struct Rltk {
     pub glfw : glfw::Glfw,
     pub window : glfw::Window,
@@ -93,6 +120,9 @@ impl Console {
         // Console backing init
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
+        for _i in 0..num_tiles {
+            tiles.push(Tile{glyph: 0});
+        }
 
         // Shader init
         let mut texture = 0;
@@ -185,11 +215,86 @@ impl Console {
         };
     }
 
-    pub fn main_loop(&mut self, rltk : &mut Rltk) {
+    fn push_point(vertex_buffer: &mut Vec<f32>, x:f32, y:f32, r:f32, g:f32, b:f32, ux:f32, uy:f32) {
+        vertex_buffer.push(x);
+        vertex_buffer.push(y);
+        vertex_buffer.push(0.0);
+        vertex_buffer.push(r);
+        vertex_buffer.push(g);
+        vertex_buffer.push(b);
+        vertex_buffer.push(ux);
+        vertex_buffer.push(uy);
+    }
+
+    fn rebuild_vertices(&mut self) {
+        let mut vertex_buffer : Vec<f32> = Vec::new();
+        let mut index_buffer : Vec<i32> = Vec::new();
+
+        let glyph_size : f32 = 1.0 / 16.0;
+
+        let step_x : f32 = 2.0 / self.width as f32;
+        let step_y : f32 = 2.0 / self.height as f32;
+
+        let mut index_count : i32 = 0;
+        let mut screen_y : f32 = -1.0;
+        for y in 0 .. self.height {
+            let mut screen_x : f32 = -1.0;
+            for x in 0 .. self.width {
+                let glyph = self.tiles[((y * self.width) + x) as usize].glyph;
+                let glyph_x = glyph % 16;
+                let glyph_y = 16 - (glyph / 16);
+
+                let glyph_left = glyph_x as f32 * glyph_size;
+                let glyph_right = (glyph_x+1) as f32 * glyph_size;
+                let glyph_top = glyph_y as f32 * glyph_size;
+                let glyph_bottom = (glyph_y-1) as f32 * glyph_size;
+
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, 1.0, 1.0, 1.0, glyph_right, glyph_top);
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, 1.0, 1.0, 1.0, glyph_right, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y, 1.0, 1.0, 1.0, glyph_left, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, 1.0, 1.0, 1.0, glyph_left, glyph_top);
+
+                index_buffer.push(0 + index_count);
+                index_buffer.push(1 + index_count);
+                index_buffer.push(3 + index_count);
+                index_buffer.push(1 + index_count);
+                index_buffer.push(2 + index_count);
+                index_buffer.push(3 + index_count);
+
+                index_count += 4;
+                screen_x += step_x;
+            }
+            screen_y += step_y;
+        }
+        
+        unsafe {
+            gl::BindBuffer(gl::ARRAY_BUFFER, self.VBO);
+            glCheckError!();
+            gl::BufferData(gl::ARRAY_BUFFER,
+                        (vertex_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+                        &vertex_buffer[0] as *const f32 as *const c_void,
+                        gl::STATIC_DRAW);
+            glCheckError!();
+
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.EBO);
+            glCheckError!();
+            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
+                        (index_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+                        &index_buffer[0] as *const i32 as *const c_void,
+                        gl::STATIC_DRAW);
+            glCheckError!();
+        }
+    }
+
+    pub fn main_loop(&mut self, rltk : &mut Rltk, callback: fn()) {
         while !rltk.window.should_close() {
             // events
             // -----
             rltk.process_events();
+            callback();
+
+            // Console structure - doesn't really have to be every frame...
+            self.rebuild_vertices();
 
             unsafe {
                 gl::ClearColor(0.2, 0.3, 0.3, 1.0);
@@ -201,13 +306,29 @@ impl Console {
                 // render container
                 self.ourShader.useProgram();
                 gl::BindVertexArray(self.VAO);
-                gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, ptr::null());
+                gl::DrawElements(gl::TRIANGLES, (self.width * self.height * 6) as i32, gl::UNSIGNED_INT, ptr::null());
             }
 
             // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
             // -------------------------------------------------------------------------------
             rltk.window.swap_buffers();
             rltk.glfw.poll_events();
+        }
+    }
+
+    pub fn cls(&mut self) {
+        for tile in self.tiles.iter_mut() {
+            tile.glyph = 0;
+        }
+    }
+
+    pub fn print(&mut self, x:u32, y:u32, text:String) {
+        let mut idx : usize = (((self.height-1 - y) * self.width) + x) as usize;
+
+        let bytes = text.as_bytes();
+        for i in 0..bytes.len() {
+            self.tiles[idx].glyph = bytes[i];
+            idx += 1;
         }
     }
 }
