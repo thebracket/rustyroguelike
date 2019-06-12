@@ -13,6 +13,7 @@ use std::ffi::{CString, CStr};
 use std::fs::File;
 use std::io::Read;
 use std::str;
+use std::time::{Instant};
 
 use gl::types::*;
 
@@ -103,13 +104,15 @@ impl Rltk {
 pub struct Console {
     pub width :u32,
     pub height: u32,
-    pub console_texture: u32,
-    pub ourShader: Shader,
-    pub VBO: u32,
-    pub VAO: u32,
-    pub EBO: u32,
-    pub tiles: Vec<Tile>,
-    ctx: Rltk
+    console_texture: u32,
+    ourShader: Shader,
+    VBO: u32,
+    VAO: u32,
+    EBO: u32,
+    tiles: Vec<Tile>,
+    ctx: Rltk,
+    dirty: bool,
+    pub fps: f64
 }
 
 pub struct Tile {
@@ -213,7 +216,9 @@ impl Console {
             VAO: VAO,
             EBO: EBO,
             tiles: tiles,
-            ctx: ctx
+            ctx: ctx,
+            dirty: true,
+            fps: 0.0
         };
     }
 
@@ -288,15 +293,31 @@ impl Console {
         }
     }
 
-    pub fn main_loop(&mut self, callback: fn()) {
+    pub fn main_loop(&mut self, callback: fn(cons : &mut Console)) {
+        let now = Instant::now();
+        let mut prev_seconds = now.elapsed().as_secs();
+        let mut frames = 0;
+
         while !self.ctx.window.should_close() {
+            let now_seconds = now.elapsed().as_secs();
+            frames += 1;
+
+            if now_seconds > prev_seconds {
+                self.fps = frames as f64 / (now_seconds - prev_seconds) as f64;
+                prev_seconds = now_seconds;
+                frames = 0;
+            }
+
             // events
             // -----
             self.ctx.process_events();
-            callback();
+            callback(self);
 
             // Console structure - doesn't really have to be every frame...
-            self.rebuild_vertices();
+            if self.dirty {
+                self.rebuild_vertices();
+                self.dirty = false;
+            }
 
             unsafe {
                 gl::ClearColor(0.2, 0.3, 0.3, 1.0);
@@ -318,19 +339,27 @@ impl Console {
         }
     }
 
+    pub fn at(&self, x:u32, y:u32) -> usize {
+        return (((self.height-1 - y) * self.width) + x) as usize;
+    }
+
     pub fn cls(&mut self) {
+        self.dirty = true;
         for tile in self.tiles.iter_mut() {
             tile.glyph = 0;
         }
     }
 
     pub fn print(&mut self, x:u32, y:u32, text:String) {
-        let mut idx : usize = (((self.height-1 - y) * self.width) + x) as usize;
+        self.dirty = true;
+        let mut idx = self.at(x, y);
 
         let bytes = text.as_bytes();
         for i in 0..bytes.len() {
-            self.tiles[idx].glyph = bytes[i];
-            idx += 1;
+            if idx < self.tiles.len() {
+                self.tiles[idx].glyph = bytes[i];
+                idx += 1;
+            }
         }
     }
 }
