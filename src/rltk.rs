@@ -79,10 +79,10 @@ impl Rltk {
         return Rltk{glfw: glfw, window: window, events: events, width_pixels: width_pixels, height_pixels: height_pixels};
     }
 
-    pub fn init_simple_console(width_chars:u32, height_chars:u32, window_title: String) -> (Rltk, Console) {
+    pub fn init_simple_console(width_chars:u32, height_chars:u32, window_title: String) -> Console {
         let rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, &window_title);
-        let con = Console::init(width_chars, height_chars);
-        return (rltk, con);
+        let con = Console::init(width_chars, height_chars, rltk);
+        return con;
     }
 
     pub fn process_events(&mut self) {
@@ -108,7 +108,8 @@ pub struct Console {
     pub VBO: u32,
     pub VAO: u32,
     pub EBO: u32,
-    pub tiles: Vec<Tile>
+    pub tiles: Vec<Tile>,
+    ctx: Rltk
 }
 
 pub struct Tile {
@@ -116,7 +117,7 @@ pub struct Tile {
 }
 
 impl Console {
-    pub fn init(width:u32, height:u32) -> Console {
+    pub fn init(width:u32, height:u32, ctx:Rltk) -> Console {
         // Console backing init
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
@@ -211,7 +212,8 @@ impl Console {
             VBO: VBO,
             VAO: VAO,
             EBO: EBO,
-            tiles: tiles
+            tiles: tiles,
+            ctx: ctx
         };
     }
 
@@ -286,11 +288,11 @@ impl Console {
         }
     }
 
-    pub fn main_loop(&mut self, rltk : &mut Rltk, callback: fn()) {
-        while !rltk.window.should_close() {
+    pub fn main_loop(&mut self, callback: fn()) {
+        while !self.ctx.window.should_close() {
             // events
             // -----
-            rltk.process_events();
+            self.ctx.process_events();
             callback();
 
             // Console structure - doesn't really have to be every frame...
@@ -311,8 +313,8 @@ impl Console {
 
             // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
             // -------------------------------------------------------------------------------
-            rltk.window.swap_buffers();
-            rltk.glfw.poll_events();
+            self.ctx.window.swap_buffers();
+            self.ctx.glfw.poll_events();
         }
     }
 
