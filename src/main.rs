@@ -4,11 +4,14 @@ fn callback(console : &mut rltk::Console) {
     let timer = format!("{} FPS                 ", console.fps);
 
     console.print(0, 5, timer);
-    if console.key_pressed {
-        match console.key {
+    match console.key {
+        Some(key) => {
+            match key {
             1 => { console.quit() }
-            _ =>  { console.print(0,6, format!("You pressed: {}", console.key)) }
-        }        
+            _ =>  { console.print(0,6, format!("You pressed: {}", key)) }
+            }
+        }
+        None => {}
     }
 }
 

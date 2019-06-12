@@ -99,8 +99,7 @@ pub struct Console {
     ctx: Rltk,
     dirty: bool,
     pub fps: f64,
-    pub key_pressed: bool,
-    pub key : i32
+    pub key : Option<i32>
 }
 
 pub struct Tile {
@@ -207,8 +206,7 @@ impl Console {
             ctx: ctx,
             dirty: true,
             fps: 0.0,
-            key_pressed: false,
-            key: 0
+            key: None
         };
     }
 
@@ -330,7 +328,7 @@ impl Console {
     }
 
     pub fn process_events(&mut self) {
-        self.key_pressed = false;
+        self.key = None;
         for (_, event) in glfw::flush_messages(&self.ctx.events) {
 
             match event {
@@ -341,8 +339,7 @@ impl Console {
                 }
 
                 glfw::WindowEvent::Key(_, KEY, Action::Press, _) => {
-                    self.key = KEY;
-                    self.key_pressed = true;
+                    self.key = Some(KEY);
                 }
                 
                 _ => { }
