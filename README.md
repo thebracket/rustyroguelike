@@ -10,4 +10,4 @@ It's cheating to build both the library AND the game - but I don't know a better
 
 **Progress**:
 
-![Animated GIF](/resources/RustyRoguelike.gif)
+![Animated GIF](/resources/RustyRoguelike2.gif)
