@@ -2,6 +2,18 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Console;
 
+mod tiletype;
+use tiletype::TileType;
+
+mod player;
+use player::Player;
+
+mod mob;
+use mob::Mob;
+
+mod rect;
+use rect::Rect;
+
 extern crate rand;
 
 use rand::Rng;
@@ -11,54 +23,10 @@ const ROOM_MAX_SIZE : i32 = 10;
 const ROOM_MIN_SIZE : i32 = 6;
 const MAX_ROOMS : i32 = 30;
 
-pub enum TileType {
-    Wall, Floor
-}
-
-pub struct Player {
-    pub x : i32,
-    pub y : i32
-}
-
-pub struct Mob {
-    pub x : i32,
-    pub y : i32,
-    pub glyph : u8,
-    pub color : Color 
-}
-
-impl Mob {
-    pub fn new(x:i32, y:i32, glyph:u8, color:Color) -> Mob {
-        return Mob{x, y, glyph, color};
-    }
-}
-
 pub struct State {
     pub map_tiles : Vec<TileType>,
     pub player : Player,
     pub mobs : Vec<Mob>
-}
-
-struct Rect {
-    x1 : i32,
-    x2 : i32,
-    y1 : i32,
-    y2 : i32
-}
-
-impl Rect {
-    pub fn new(x1:i32, y1: i32, x2:i32, y2:i32) -> Rect {
-        return Rect{x1: x1, y1: y1, x2: x2, y2: y2};
-    }
-
-    // Returns true if this overlaps with other
-    pub fn intersect(&self, other:&Rect) -> bool {
-        return self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1;
-    }
-
-    pub fn center(&self) -> (i32, i32) {
-        return ((self.x1 + self.x2)/2, (self.y1 + self.y2)/2);
-    }
 }
 
 impl State {
