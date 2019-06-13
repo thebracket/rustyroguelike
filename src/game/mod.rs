@@ -3,16 +3,19 @@ use rltk::Color;
 use rltk::Console;
 
 mod tiletype;
-use tiletype::TileType;
+pub use tiletype::TileType;
 
 mod player;
-use player::Player;
+pub use player::Player;
 
 mod mob;
-use mob::Mob;
+pub use mob::Mob;
 
 mod rect;
-use rect::Rect;
+pub use rect::Rect;
+
+mod renderable;
+pub use renderable::Renderable;
 
 extern crate rand;
 
@@ -46,7 +49,7 @@ impl State {
             mobs.push(mob);
         }
 
-        return State{ map_tiles: blank_map, player: Player{ x: player_x, y:player_y }, mobs: mobs };
+        return State{ map_tiles: blank_map, player: Player::new(player_x, player_y, 64, Color::yellow()), mobs: mobs };
     }
 
     fn random_rooms_tut3(mut blank_map : &mut Vec<TileType>) -> Vec<Rect> {
@@ -136,16 +139,6 @@ impl State {
         }
     }
 
-    // Draw the @
-    fn draw_player(&mut self, console : &mut Console) {
-        console.print_color(self.player.x as u32, self.player.y as u32, Color::yellow(), Color::black(), "@".to_string());
-    }
-
-    fn draw_mob(&self, console: &mut Console, mob: &Mob) {
-        let fg = Color::new(mob.color.r, mob.color.g, mob.color.b);
-        console.print_color(mob.x as u32, mob.y as u32, fg, Color::black(), "b".to_string());
-    }
-
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
         if self.valid_tile(x, y) {
@@ -186,11 +179,11 @@ impl State {
         }
     }
 
-    pub fn tick(&mut self, mut console : &mut Console) {
+    pub fn tick(&mut self, console : &mut Console) {
         self.draw_map(console);
-        self.draw_player(console);
+        self.player.draw(console);
         for mob in self.mobs.iter() {
-            self.draw_mob(&mut console, &mob);
+            mob.draw(console);
         }
 
         match console.key {

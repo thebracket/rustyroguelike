@@ -324,6 +324,19 @@ impl Console {
         }
     }
 
+    pub fn set(&mut self, x:u32, y:u32, fg:Color, bg:Color, glyph:u8) {
+        let idx = self.at(x, y);
+        if idx > 0 && idx < self.tiles.len() {
+            self.tiles[idx].glyph = glyph;
+            self.tiles[idx].fg.r = fg.r;
+            self.tiles[idx].fg.g = fg.g;
+            self.tiles[idx].fg.b = fg.b;
+            self.tiles[idx].bg.r = bg.r;
+            self.tiles[idx].bg.g = bg.g;
+            self.tiles[idx].bg.b = bg.b;
+        }
+    }
+
     pub fn quit(&mut self) {
         self.ctx.window.set_should_close(true)
     }
