@@ -1,3 +1,7 @@
+use crate::rltk;
+use rltk::Color;
+use rltk::Console;
+
 use super::TileType;
 use super::Rect;
 
@@ -90,5 +94,21 @@ impl Map {
                 self.tiles[idx as usize] = TileType::Floor;
             }
         }
-    }    
+    }
+
+    pub fn draw(&mut self, console : &mut Console) {
+        console.cls();
+
+        let mut idx = 0;
+        for y in 0 .. 50 {
+            for x in 0 .. 80 {
+                match self.tiles[idx] {
+                    TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
+                    TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
+                }
+
+                idx += 1;
+            }
+        }
+    }
 }

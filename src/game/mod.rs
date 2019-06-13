@@ -45,24 +45,6 @@ impl State {
         return State{ map: map, player: Player::new(player_x, player_y, 64, Color::yellow()), mobs: mobs };
     }
 
-
-    // Puts the map onto the console
-    fn draw_map(&mut self, console : &mut Console) {
-        console.cls();
-
-        let mut idx = 0;
-        for y in 0 .. 50 {
-            for x in 0 .. 80 {
-                match self.map.tiles[idx] {
-                    TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
-                    TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
-                }
-
-                idx += 1;
-            }
-        }
-    }
-
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
         if self.valid_tile(x, y) {
@@ -104,7 +86,7 @@ impl State {
     }
 
     pub fn tick(&mut self, console : &mut Console) {
-        self.draw_map(console);
+        self.map.draw(console);
         self.player.draw(console);
         for mob in self.mobs.iter() {
             mob.draw(console);
