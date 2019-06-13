@@ -20,9 +20,23 @@ pub struct Player {
     pub y : i32
 }
 
+pub struct Mob {
+    pub x : i32,
+    pub y : i32,
+    pub glyph : u8,
+    pub color : Color 
+}
+
+impl Mob {
+    pub fn new(x:i32, y:i32, glyph:u8, color:Color) -> Mob {
+        return Mob{x, y, glyph, color};
+    }
+}
+
 pub struct State {
     pub map_tiles : Vec<TileType>,
-    pub player : Player
+    pub player : Player,
+    pub mobs : Vec<Mob>
 }
 
 struct Rect {
@@ -57,7 +71,14 @@ impl State {
         let rooms = State::random_rooms_tut3(&mut blank_map);
         let (player_x, player_y) = rooms[0].center();
 
-        return State{ map_tiles: blank_map, player: Player{ x: player_x, y:player_y } };
+        let mut mobs : Vec<Mob> = Vec::new();
+        for i in 1 .. rooms.len() {
+            let (room_x, room_y) = rooms[i].center();
+            let mob = Mob::new(room_x, room_y, 98, Color::red());
+            mobs.push(mob);
+        }
+
+        return State{ map_tiles: blank_map, player: Player{ x: player_x, y:player_y }, mobs: mobs };
     }
 
     fn random_rooms_tut3(mut blank_map : &mut Vec<TileType>) -> Vec<Rect> {
@@ -152,6 +173,11 @@ impl State {
         console.print_color(self.player.x as u32, self.player.y as u32, Color::yellow(), Color::black(), "@".to_string());
     }
 
+    fn draw_mob(&self, console: &mut Console, mob: &Mob) {
+        let fg = Color::new(mob.color.r, mob.color.g, mob.color.b);
+        console.print_color(mob.x as u32, mob.y as u32, fg, Color::black(), "b".to_string());
+    }
+
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
         if self.valid_tile(x, y) {
@@ -192,9 +218,12 @@ impl State {
         }
     }
 
-    pub fn tick(&mut self, console : &mut Console) {
+    pub fn tick(&mut self, mut console : &mut Console) {
         self.draw_map(console);
         self.draw_player(console);
+        for mob in self.mobs.iter() {
+            self.draw_mob(&mut console, &mob);
+        }
 
         match console.key {
             Some(key) => {
