@@ -88,8 +88,8 @@ impl State {
         for _i in 1..MAX_ROOMS {
             let w = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
             let h = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
-            let x = rng.gen_range(0, 80 - w - 1);
-            let y = rng.gen_range(0, 50 - h - 1);
+            let x = rng.gen_range(1, 80 - w - 1);
+            let y = rng.gen_range(1, 50 - h - 1);
 
             let room_candidate = Rect::new(x, y, x+w, y+h);
 
