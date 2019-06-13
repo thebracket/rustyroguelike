@@ -45,7 +45,8 @@ impl State {
 
         State::apply_room(Rect::new(30, 20, 50, 30), &mut blank_map);
         State::apply_room(Rect::new(52, 22, 60, 28), &mut blank_map);
-        State::apply_room(Rect::new(50, 25, 60, 26), &mut blank_map);
+        State::apply_horizontal_tunnel(50, 60, 26, &mut blank_map);
+        State::apply_vertical_tunnel(30, 35, 32, &mut blank_map);
 
         return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
     }
@@ -58,6 +59,24 @@ impl State {
                 if idx > 0 && idx < 80*50 {
                     blank_map[idx as usize] = TileType::Floor;
                 }
+            }
+        }
+    }
+
+    fn apply_horizontal_tunnel(x1:i32, x2:i32, y:i32, blank_map : &mut Vec<TileType>) {
+        for x in x1 .. x2 {
+            let idx = (y * 80) + x;
+            if idx > 0 && idx < 80*50 {
+                blank_map[idx as usize] = TileType::Floor;
+            }
+        }
+    }
+
+    fn apply_vertical_tunnel(y1:i32, y2:i32, x:i32, blank_map : &mut Vec<TileType>) {
+        for y in y1 .. y2 {
+            let idx = (y * 80) + x;
+            if idx > 0 && idx < 80*50 {
+                blank_map[idx as usize] = TileType::Floor;
             }
         }
     }
