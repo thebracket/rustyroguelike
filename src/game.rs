@@ -1,19 +1,51 @@
 use crate::rltk;
 
+pub enum TileType {
+    Wall, Floor
+}
+
 pub struct State {
-    pub test : i32
+    pub map_tiles : Vec<TileType>
 }
 
 impl State {
     pub fn new() -> State {
-        return State{ test: 0 };
+        let mut blank_map = Vec::new();
+        for _i in 0 .. (80*50) {
+            blank_map.push(TileType::Floor);
+        }
+
+        for x in 0..80 {
+            blank_map[x] = TileType::Wall;
+            blank_map[(49*80)+x] = TileType::Wall;
+            if x < 49 {
+                blank_map[(x*80)] = TileType::Wall;
+                blank_map[(x*80)+79] = TileType::Wall;
+            }
+        }
+
+        return State{ map_tiles: blank_map };
+    }
+
+    fn draw_map(&mut self, console : &mut rltk::Console) {
+        console.cls();
+
+        let mut idx = 0;
+        for y in 0 .. 50 {
+            for x in 0 .. 80 {
+                match self.map_tiles[idx] {
+                    TileType::Floor => { console.print_color(x, y, rltk::Color::dark_green(), rltk::Color::black(), ".".to_string()) }
+                    TileType::Wall => { console.print_color(x, y, rltk::Color::white(), rltk::Color::black(), "#".to_string()) }
+                }
+
+                idx += 1;
+            }
+        }
     }
 
     pub fn tick(&mut self, console : &mut rltk::Console) {
-        let timer = format!("{}            ", console.fps);
+        self.draw_map(console);
 
-        console.print_color(0, 5, rltk::Color::red(), rltk::Color::white(), "FPS:".to_string());
-        console.print(5, 5, timer);
         match console.key {
             Some(key) => {
                 match key {
@@ -23,8 +55,5 @@ impl State {
             }
             None => {}
         }
-
-        // Wrapper test
-        self.test += 1;
     }
 }

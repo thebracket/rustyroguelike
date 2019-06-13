@@ -21,4 +21,16 @@ impl Color {
     pub fn red() -> Color {
         return Color{r:1.0, g:0.0, b:0.0};
     }
+
+    pub fn green() -> Color {
+        return Color{r:0.0, g:1.0, b:0.0};
+    }
+
+    pub fn dark_green() -> Color {
+        return Color{r:0.0, g:0.5, b:0.0};
+    }
+
+    pub fn grey() -> Color {
+        return Color{r:0.5, g:0.5, b:0.5};
+    }
 }
