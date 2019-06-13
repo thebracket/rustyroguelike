@@ -12,7 +12,7 @@ impl State {
     pub fn tick(&mut self, console : &mut rltk::Console) {
         let timer = format!("{}            ", console.fps);
 
-        console.print_color(0, 5, rltk::Color{r: 1.0, g:0.0, b:0.0}, "FPS:".to_string());
+        console.print_color(0, 5, rltk::Color::red(), rltk::Color::white(), "FPS:".to_string());
         console.print(5, 5, timer);
         match console.key {
             Some(key) => {

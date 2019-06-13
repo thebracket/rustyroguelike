@@ -121,6 +121,10 @@ impl Color {
     pub fn black() -> Color {
         return Color{r:0.0, g: 0.0, b:0.0};
     }
+
+    pub fn red() -> Color {
+        return Color{r:1.0, g:0.0, b:0.0};
+    }
 }
 
 pub struct Tile {
@@ -151,12 +155,12 @@ impl Console {
             // set up vertex data (and buffer(s)) and configure vertex attributes
             // ------------------------------------------------------------------
             // HINT: type annotation is crucial since default for float literals is f64
-            let vertices: [f32; 32] = [
+            let vertices: [f32; 44] = [
                 // positions       // colors        // texture coords
-                0.5,  0.5, 0.0,   1.0, 0.0, 0.0,   1.0, 1.0, // top right
-                0.5, -0.5, 0.0,   0.0, 1.0, 0.0,   1.0, 0.0, // bottom right
-                -0.5, -0.5, 0.0,   0.0, 0.0, 1.0,   0.0, 0.0, // bottom left
-                -0.5,  0.5, 0.0,   1.0, 1.0, 0.0,   0.0, 1.0  // top left
+                0.5,  0.5, 0.0,   1.0, 0.0, 0.0,  0.0,0.0,0.0,   1.0, 1.0, // top right
+                0.5, -0.5, 0.0,   0.0, 1.0, 0.0,  0.0,0.0,0.0,  1.0, 0.0, // bottom right
+                -0.5, -0.5, 0.0,   0.0, 0.0, 1.0, 0.0,0.0,0.0,   0.0, 0.0, // bottom left
+                -0.5,  0.5, 0.0,   1.0, 1.0, 0.0, 0.0,0.0,0.0,   0.0, 1.0  // top left
             ];
             let indices = [
                 0, 1, 3,  // first Triangle
@@ -181,16 +185,19 @@ impl Console {
                         &indices[0] as *const i32 as *const c_void,
                         gl::STATIC_DRAW);
 
-            let stride = 8 * mem::size_of::<GLfloat>() as GLsizei;
+            let stride = 11 * mem::size_of::<GLfloat>() as GLsizei;
             // position attribute
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
             gl::EnableVertexAttribArray(0);
             // color attribute
             gl::VertexAttribPointer(1, 3, gl::FLOAT, gl::FALSE, stride, (3 * mem::size_of::<GLfloat>()) as *const c_void);
             gl::EnableVertexAttribArray(1);
-            // texture coord attribute
-            gl::VertexAttribPointer(2, 2, gl::FLOAT, gl::FALSE, stride, (6 * mem::size_of::<GLfloat>()) as *const c_void);
+             // bgcolor attribute
+            gl::VertexAttribPointer(2, 3, gl::FLOAT, gl::FALSE, stride, (6 * mem::size_of::<GLfloat>()) as *const c_void);
             gl::EnableVertexAttribArray(2);
+            // texture coord attribute
+            gl::VertexAttribPointer(3, 2, gl::FLOAT, gl::FALSE, stride, (9 * mem::size_of::<GLfloat>()) as *const c_void);
+            gl::EnableVertexAttribArray(3);
             
             gl::GenTextures(1, &mut texture);
             gl::BindTexture(gl::TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
@@ -234,13 +241,16 @@ impl Console {
         };
     }
 
-    fn push_point(vertex_buffer: &mut Vec<f32>, x:f32, y:f32, fg:&Color, ux:f32, uy:f32) {
+    fn push_point(vertex_buffer: &mut Vec<f32>, x:f32, y:f32, fg:&Color, bg:&Color, ux:f32, uy:f32) {
         vertex_buffer.push(x);
         vertex_buffer.push(y);
         vertex_buffer.push(0.0);
         vertex_buffer.push(fg.r);
         vertex_buffer.push(fg.g);
         vertex_buffer.push(fg.b);
+        vertex_buffer.push(bg.r);
+        vertex_buffer.push(bg.g);
+        vertex_buffer.push(bg.b);
         vertex_buffer.push(ux);
         vertex_buffer.push(uy);
     }
@@ -260,6 +270,7 @@ impl Console {
             let mut screen_x : f32 = -1.0;
             for x in 0 .. self.width {
                 let fg = &self.tiles[((y * self.width) + x) as usize].fg;
+                let bg = &self.tiles[((y * self.width) + x) as usize].bg;
                 let glyph = self.tiles[((y * self.width) + x) as usize].glyph;
                 let glyph_x = glyph % 16;
                 let glyph_y = 16 - (glyph / 16);
@@ -269,10 +280,10 @@ impl Console {
                 let glyph_top = glyph_y as f32 * glyph_size;
                 let glyph_bottom = (glyph_y-1) as f32 * glyph_size;
 
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, fg, glyph_right, glyph_top);
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, fg, glyph_right, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y, fg, glyph_left, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, fg, glyph_left, glyph_top);
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y, fg, bg, glyph_left, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, fg, bg, glyph_left, glyph_top);
 
                 index_buffer.push(0 + index_count);
                 index_buffer.push(1 + index_count);
@@ -398,7 +409,7 @@ impl Console {
         }
     }
 
-    pub fn print_color(&mut self, x:u32, y:u32, color:Color, text:String) {
+    pub fn print_color(&mut self, x:u32, y:u32, fg:Color, bg:Color, text:String) {
         self.dirty = true;
         let mut idx = self.at(x, y);
 
@@ -406,9 +417,12 @@ impl Console {
         for i in 0..bytes.len() {
             if idx < self.tiles.len() {
                 self.tiles[idx].glyph = bytes[i];
-                self.tiles[idx].fg.r = color.r;
-                self.tiles[idx].fg.g = color.g;
-                self.tiles[idx].fg.b = color.b;
+                self.tiles[idx].fg.r = fg.r;
+                self.tiles[idx].fg.g = fg.g;
+                self.tiles[idx].fg.b = fg.b;
+                self.tiles[idx].bg.r = bg.r;
+                self.tiles[idx].bg.g = bg.g;
+                self.tiles[idx].bg.b = bg.b;
                 idx += 1;
             }
         }
