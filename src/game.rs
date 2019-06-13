@@ -5,6 +5,7 @@ use rltk::Console;
 extern crate rand;
 
 use rand::Rng;
+use std::cmp::{max, min};
 
 const ROOM_MAX_SIZE : i32 = 10;
 const ROOM_MIN_SIZE : i32 = 6;
@@ -101,8 +102,8 @@ impl State {
 
     // Applies a rectangle room to the map
     fn apply_room(rect : &Rect, blank_map : &mut Vec<TileType>) {
-        for y in rect.y1 .. rect.y2 {
-            for x in rect.x1 .. rect.x2 {
+        for y in min(rect.y1, rect.y2) .. max(rect.y1, rect.y2) {
+            for x in min(rect.x1, rect.x2) .. max(rect.x1, rect.x2) {
                 let idx = (y * 80) + x;
                 if idx > 0 && idx < 80*50 {
                     blank_map[idx as usize] = TileType::Floor;
@@ -112,7 +113,7 @@ impl State {
     }
 
     fn apply_horizontal_tunnel(x1:i32, x2:i32, y:i32, blank_map : &mut Vec<TileType>) {
-        for x in x1 .. x2 {
+        for x in min(x1,x2) .. max(x1,x2)+1 {
             let idx = (y * 80) + x;
             if idx > 0 && idx < 80*50 {
                 blank_map[idx as usize] = TileType::Floor;
@@ -121,7 +122,7 @@ impl State {
     }
 
     fn apply_vertical_tunnel(y1:i32, y2:i32, x:i32, blank_map : &mut Vec<TileType>) {
-        for y in y1 .. y2 {
+        for y in min(y1,y2) .. max(y1,y2)+1 {
             let idx = (y * 80) + x;
             if idx > 0 && idx < 80*50 {
                 blank_map[idx as usize] = TileType::Floor;
