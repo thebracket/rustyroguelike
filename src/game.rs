@@ -20,39 +20,44 @@ pub struct State {
     pub player : Player
 }
 
+struct Rect {
+    x1 : i32,
+    x2 : i32,
+    y1 : i32,
+    y2 : i32
+}
+
+impl Rect {
+    pub fn new(x1:i32, y1: i32, x2:i32, y2:i32) -> Rect {
+        return Rect{x1: x1, y1: y1, x2: x2, y2: y2};
+    }
+}
+
 impl State {
     pub fn new() -> State {
         let mut blank_map = Vec::new();
         for _i in 0 .. (80*50) {
-            blank_map.push(TileType::Floor);
+            blank_map.push(TileType::Wall);
         }
 
-        State::fill_boundaries(&mut blank_map);
-        State::random_walls(&mut blank_map);        
+        //State::fill_boundaries(&mut blank_map);
+        //State::random_walls(&mut blank_map); 
+
+        State::apply_room(Rect::new(30, 20, 50, 30), &mut blank_map);
+        State::apply_room(Rect::new(52, 22, 60, 28), &mut blank_map);
+        State::apply_room(Rect::new(50, 25, 60, 26), &mut blank_map);
 
         return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
     }
 
-    // Places wall tiles along the outer edges to avoid escape/leakage
-    fn fill_boundaries(blank_map : &mut Vec<TileType>) {
-        for x in 0..80 {
-            blank_map[x] = TileType::Wall;
-            blank_map[(49*80)+x] = TileType::Wall;
-            if x < 49 {
-                blank_map[(x*80)] = TileType::Wall;
-                blank_map[(x*80)+79] = TileType::Wall;
-            }
-        }
-    }
-
-    // Randomly places some wall tiles - not to be kept
-    fn random_walls(blank_map : &mut Vec<TileType>) {
-        let mut rng = rand::thread_rng();
-        for _i in 0..120 {
-            let wall_x = rng.gen_range(2, 78);
-            let wall_y = rng.gen_range(2, 48);
-            if wall_x != 40 && wall_y != 25 {
-                blank_map[(wall_y * 80) + wall_x] = TileType::Wall;
+    // Applies a rectangle room to the map
+    fn apply_room(rect : Rect, blank_map : &mut Vec<TileType>) {
+        for y in rect.y1 .. rect.y2 {
+            for x in rect.x1 .. rect.x2 {
+                let idx = (y * 80) + x;
+                if idx > 0 && idx < 80*50 {
+                    blank_map[idx as usize] = TileType::Floor;
+                }
             }
         }
     }
