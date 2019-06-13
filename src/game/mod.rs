@@ -45,41 +45,10 @@ impl State {
         return State{ map: map, player: Player::new(player_x, player_y, 64, Color::yellow()), mobs: mobs };
     }
 
-    // Utility function: find the index of a tile at x/y
-    fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
-        if self.valid_tile(x, y) {
-            return Some(((y*80)+x) as usize);
-        } else {
-            return None;
-        }
-    }
-
-    // Utility function: bounds checking
-    fn valid_tile(&self, x:i32, y:i32) -> bool {
-        return x > 0 && x < 79 && y > 0 && y < 49;
-    }
-
-    // Utility function: is a tile walkable
-    fn is_walkable(&mut self, x:i32, y:i32) -> bool {
-        let idx = self.tile_idx(x, y);
-        match idx {
-            Some(idx) => {
-                match self.map.tiles[idx] {
-                    TileType::Floor => { return true }
-                    TileType::Wall => { return false }
-                }
-            }
-
-            None => {
-                return false;
-            }
-        }
-    }
-
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
         let new_x = self.player.x + delta_x;
         let new_y = self.player.y + delta_y;
-        if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.is_walkable(new_x, new_y) {
+        if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
             self.player.x = new_x;
             self.player.y = new_y;
         }

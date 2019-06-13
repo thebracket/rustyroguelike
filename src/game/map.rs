@@ -111,4 +111,35 @@ impl Map {
             }
         }
     }
+
+    // Utility function: find the index of a tile at x/y
+    fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
+        if self.valid_tile(x, y) {
+            return Some(((y*80)+x) as usize);
+        } else {
+            return None;
+        }
+    }
+
+    // Utility function: bounds checking
+    fn valid_tile(&self, x:i32, y:i32) -> bool {
+        return x > 0 && x < 79 && y > 0 && y < 49;
+    }
+
+    // Utility function: is a tile walkable
+    pub fn is_walkable(&mut self, x:i32, y:i32) -> bool {
+        let idx = self.tile_idx(x, y);
+        match idx {
+            Some(idx) => {
+                match self.tiles[idx] {
+                    TileType::Floor => { return true }
+                    TileType::Wall => { return false }
+                }
+            }
+
+            None => {
+                return false;
+            }
+        }
+    }
 }
