@@ -6,6 +6,10 @@ extern crate rand;
 
 use rand::Rng;
 
+const ROOM_MAX_SIZE : i32 = 10;
+const ROOM_MIN_SIZE : i32 = 6;
+const MAX_ROOMS : i32 = 30;
+
 pub enum TileType {
     Wall, Floor
 }
@@ -31,6 +35,15 @@ impl Rect {
     pub fn new(x1:i32, y1: i32, x2:i32, y2:i32) -> Rect {
         return Rect{x1: x1, y1: y1, x2: x2, y2: y2};
     }
+
+    // Returns true if this overlaps with other
+    pub fn intersect(&self, other:&Rect) -> bool {
+        return self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1;
+    }
+
+    pub fn center(&self) -> (i32, i32) {
+        return ((self.x1 + self.x2)/2, (self.y1 + self.y2)/2);
+    }
 }
 
 impl State {
@@ -40,19 +53,54 @@ impl State {
             blank_map.push(TileType::Wall);
         }
 
-        //State::fill_boundaries(&mut blank_map);
-        //State::random_walls(&mut blank_map); 
+        let rooms = State::random_rooms_tut3(&mut blank_map);
+        let (player_x, player_y) = rooms[0].center();
 
-        State::apply_room(Rect::new(30, 20, 50, 30), &mut blank_map);
-        State::apply_room(Rect::new(52, 22, 60, 28), &mut blank_map);
-        State::apply_horizontal_tunnel(50, 60, 26, &mut blank_map);
-        State::apply_vertical_tunnel(30, 35, 32, &mut blank_map);
+        return State{ map_tiles: blank_map, player: Player{ x: player_x, y:player_y } };
+    }
 
-        return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
+    fn random_rooms_tut3(mut blank_map : &mut Vec<TileType>) -> Vec<Rect> {
+        let mut rng = rand::thread_rng();
+
+        let mut rooms : Vec<Rect> = Vec::new();
+        for _i in 1..MAX_ROOMS {
+            let w = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
+            let h = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
+            let x = rng.gen_range(0, 80 - w - 1);
+            let y = rng.gen_range(0, 50 - h - 1);
+
+            let room_candidate = Rect::new(x, y, x+w, y+h);
+
+            let mut collides = false;
+            for room in rooms.iter() {
+                if room_candidate.intersect(room) {
+                    collides = true;
+                }
+            }
+
+            if !collides {
+                State::apply_room(&room_candidate, &mut blank_map);
+
+                if rooms.len() > 0 {
+                    let (new_x, new_y) = room_candidate.center();
+                    let (prev_x, prev_y) = rooms[rooms.len()-1].center();
+                    if rng.gen_range(0,1)==1 {
+                        State::apply_horizontal_tunnel(prev_x, new_x, prev_y, &mut blank_map);
+                        State::apply_vertical_tunnel(prev_y, new_y, new_x, &mut blank_map);
+                    } else {
+                        State::apply_vertical_tunnel(prev_y, new_y, prev_x, &mut blank_map);
+                        State::apply_horizontal_tunnel(prev_x, new_x, new_y, &mut blank_map);
+                    }
+                }
+
+                rooms.push(room_candidate);
+            }
+        }
+        return rooms;
     }
 
     // Applies a rectangle room to the map
-    fn apply_room(rect : Rect, blank_map : &mut Vec<TileType>) {
+    fn apply_room(rect : &Rect, blank_map : &mut Vec<TileType>) {
         for y in rect.y1 .. rect.y2 {
             for x in rect.x1 .. rect.x2 {
                 let idx = (y * 80) + x;
