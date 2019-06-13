@@ -4,7 +4,7 @@ The fine folks over at [/r/roguelikedev](https://www.reddit.com/r/roguelikedev/n
 
 * There's an `rltk` folder containing a module, in which I'm using OpenGL to simulate a basic console renderer.
 * The `main.rs` file is the boilerplate required to get this to run. Still working on improving that.
-* `game.rs` contains the actual game.
+* `game` contains the actual game, broken into various files.
 
 It's cheating to build both the library AND the game - but I don't know a better way to learn the language.
 
