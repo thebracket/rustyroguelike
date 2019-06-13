@@ -27,6 +27,14 @@ impl State {
             blank_map.push(TileType::Floor);
         }
 
+        State::fill_boundaries(&mut blank_map);
+        State::random_walls(&mut blank_map);        
+
+        return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
+    }
+
+    // Places wall tiles along the outer edges to avoid escape/leakage
+    fn fill_boundaries(blank_map : &mut Vec<TileType>) {
         for x in 0..80 {
             blank_map[x] = TileType::Wall;
             blank_map[(49*80)+x] = TileType::Wall;
@@ -35,7 +43,10 @@ impl State {
                 blank_map[(x*80)+79] = TileType::Wall;
             }
         }
+    }
 
+    // Randomly places some wall tiles - not to be kept
+    fn random_walls(blank_map : &mut Vec<TileType>) {
         let mut rng = rand::thread_rng();
         for _i in 0..60 {
             let wall_x = rng.gen_range(2, 78);
@@ -44,8 +55,6 @@ impl State {
                 blank_map[(wall_y * 80) + wall_x] = TileType::Wall;
             }
         }
-
-        return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
     }
 
     fn draw_map(&mut self, console : &mut Console) {
