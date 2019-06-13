@@ -48,7 +48,7 @@ impl State {
     // Randomly places some wall tiles - not to be kept
     fn random_walls(blank_map : &mut Vec<TileType>) {
         let mut rng = rand::thread_rng();
-        for _i in 0..60 {
+        for _i in 0..120 {
             let wall_x = rng.gen_range(2, 78);
             let wall_y = rng.gen_range(2, 48);
             if wall_x != 40 && wall_y != 25 {
@@ -57,6 +57,7 @@ impl State {
         }
     }
 
+    // Puts the map onto the console
     fn draw_map(&mut self, console : &mut Console) {
         console.cls();
 
@@ -73,21 +74,40 @@ impl State {
         }
     }
 
+    // Draw the @
     fn draw_player(&mut self, console : &mut Console) {
         console.print_color(self.player.x as u32, self.player.y as u32, Color::yellow(), Color::black(), "@".to_string());
     }
 
-    fn is_walkable(&mut self, x:i32, y:i32) -> bool {
-        if x > 0 && x < 79 && y > 0 && y < 49 {
-            let idx = (y*80)+x;
-            match self.map_tiles[idx as usize] {
-                TileType::Floor => { return true }
-                TileType::Wall => { return false }
-            }
+    // Utility function: find the index of a tile at x/y
+    fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
+        if self.valid_tile(x, y) {
+            return Some(((y*80)+x) as usize);
         } else {
-            return false;
+            return None;
         }
+    }
 
+    // Utility function: bounds checking
+    fn valid_tile(&self, x:i32, y:i32) -> bool {
+        return x > 0 && x < 79 && y > 0 && y < 49;
+    }
+
+    // Utility function: is a tile walkable
+    fn is_walkable(&mut self, x:i32, y:i32) -> bool {
+        let idx = self.tile_idx(x, y);
+        match idx {
+            Some(idx) => {
+                match self.map_tiles[idx] {
+                    TileType::Floor => { return true }
+                    TileType::Wall => { return false }
+                }
+            }
+
+            None => {
+                return false;
+            }
+        }
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
