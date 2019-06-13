@@ -102,8 +102,31 @@ pub struct Console {
     pub key : Option<i32>
 }
 
+pub struct Color {
+    pub r : f32,
+    pub g : f32,
+    pub b : f32
+}
+
+#[allow(dead_code)]
+impl Color {
+    pub fn new(r: f32, g:f32, b:f32) -> Color {
+        return Color{r, g, b};
+    }
+
+    pub fn white() -> Color {
+        return Color{r:1.0, g: 1.0, b:1.0};
+    }
+
+    pub fn black() -> Color {
+        return Color{r:0.0, g: 0.0, b:0.0};
+    }
+}
+
 pub struct Tile {
-    pub glyph: u8
+    pub glyph: u8,
+    pub fg: Color,
+    pub bg: Color
 }
 
 #[allow(dead_code)]
@@ -113,7 +136,7 @@ impl Console {
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
         for _i in 0..num_tiles {
-            tiles.push(Tile{glyph: 0});
+            tiles.push(Tile{glyph: 0, fg: Color::white(), bg: Color::black()});
         }
 
         // Shader init
@@ -211,13 +234,13 @@ impl Console {
         };
     }
 
-    fn push_point(vertex_buffer: &mut Vec<f32>, x:f32, y:f32, r:f32, g:f32, b:f32, ux:f32, uy:f32) {
+    fn push_point(vertex_buffer: &mut Vec<f32>, x:f32, y:f32, fg:&Color, ux:f32, uy:f32) {
         vertex_buffer.push(x);
         vertex_buffer.push(y);
         vertex_buffer.push(0.0);
-        vertex_buffer.push(r);
-        vertex_buffer.push(g);
-        vertex_buffer.push(b);
+        vertex_buffer.push(fg.r);
+        vertex_buffer.push(fg.g);
+        vertex_buffer.push(fg.b);
         vertex_buffer.push(ux);
         vertex_buffer.push(uy);
     }
@@ -236,6 +259,7 @@ impl Console {
         for y in 0 .. self.height {
             let mut screen_x : f32 = -1.0;
             for x in 0 .. self.width {
+                let fg = &self.tiles[((y * self.width) + x) as usize].fg;
                 let glyph = self.tiles[((y * self.width) + x) as usize].glyph;
                 let glyph_x = glyph % 16;
                 let glyph_y = 16 - (glyph / 16);
@@ -245,10 +269,10 @@ impl Console {
                 let glyph_top = glyph_y as f32 * glyph_size;
                 let glyph_bottom = (glyph_y-1) as f32 * glyph_size;
 
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, 1.0, 1.0, 1.0, glyph_right, glyph_top);
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, 1.0, 1.0, 1.0, glyph_right, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y, 1.0, 1.0, 1.0, glyph_left, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, 1.0, 1.0, 1.0, glyph_left, glyph_top);
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, fg, glyph_right, glyph_top);
+                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, fg, glyph_right, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y, fg, glyph_left, glyph_bottom);
+                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, fg, glyph_left, glyph_top);
 
                 index_buffer.push(0 + index_count);
                 index_buffer.push(1 + index_count);
@@ -369,6 +393,22 @@ impl Console {
         for i in 0..bytes.len() {
             if idx < self.tiles.len() {
                 self.tiles[idx].glyph = bytes[i];
+                idx += 1;
+            }
+        }
+    }
+
+    pub fn print_color(&mut self, x:u32, y:u32, color:Color, text:String) {
+        self.dirty = true;
+        let mut idx = self.at(x, y);
+
+        let bytes = text.as_bytes();
+        for i in 0..bytes.len() {
+            if idx < self.tiles.len() {
+                self.tiles[idx].glyph = bytes[i];
+                self.tiles[idx].fg.r = color.r;
+                self.tiles[idx].fg.g = color.g;
+                self.tiles[idx].fg.b = color.b;
                 idx += 1;
             }
         }
