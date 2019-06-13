@@ -106,6 +106,7 @@ pub struct Tile {
     pub glyph: u8
 }
 
+#[allow(dead_code)]
 impl Console {
     pub fn init(width:u32, height:u32, ctx:Rltk) -> Console {
         // Console backing init
@@ -281,7 +282,7 @@ impl Console {
         }
     }
 
-    pub fn main_loop(&mut self, callback: fn(cons : &mut Console)) {
+    pub fn main_loop(&mut self, callback: &mut FnMut(&mut Console)) {
         let now = Instant::now();
         let mut prev_seconds = now.elapsed().as_secs();
         let mut frames = 0;
