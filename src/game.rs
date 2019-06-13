@@ -2,6 +2,10 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Console;
 
+extern crate rand;
+
+use rand::Rng;
+
 pub enum TileType {
     Wall, Floor
 }
@@ -32,6 +36,15 @@ impl State {
             }
         }
 
+        let mut rng = rand::thread_rng();
+        for _i in 0..60 {
+            let wall_x = rng.gen_range(2, 78);
+            let wall_y = rng.gen_range(2, 48);
+            if wall_x != 40 && wall_y != 25 {
+                blank_map[(wall_y * 80) + wall_x] = TileType::Wall;
+            }
+        }
+
         return State{ map_tiles: blank_map, player: Player{ x: 40, y:25 } };
     }
 
@@ -55,10 +68,23 @@ impl State {
         console.print_color(self.player.x as u32, self.player.y as u32, Color::yellow(), Color::black(), "@".to_string());
     }
 
+    fn is_walkable(&mut self, x:i32, y:i32) -> bool {
+        if x > 0 && x < 79 && y > 0 && y < 49 {
+            let idx = (y*80)+x;
+            match self.map_tiles[idx as usize] {
+                TileType::Floor => { return true }
+                TileType::Wall => { return false }
+            }
+        } else {
+            return false;
+        }
+
+    }
+
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
         let new_x = self.player.x + delta_x;
         let new_y = self.player.y + delta_y;
-        if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 {
+        if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.is_walkable(new_x, new_y) {
             self.player.x = new_x;
             self.player.y = new_y;
         }
