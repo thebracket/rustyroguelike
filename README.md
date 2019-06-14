@@ -8,10 +8,16 @@ The fine folks over at [/r/roguelikedev](https://www.reddit.com/r/roguelikedev/n
 
 It's cheating to build both the library AND the game - but I don't know a better way to learn the language.
 
-**Progress**:
+**Progress**
+
+Moving @ around a random map:
 
 ![Animated GIF](/resources/RustyRoguelike.gif)
 
+Generating a nicer map:
+
 ![Animated GIF](/resources/RustyRoguelike2.gif)
+
+Field-of-view and visibility:
 
 ![Animated GIF](/resources/RustyRoguelike3.gif)
