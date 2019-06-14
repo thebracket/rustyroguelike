@@ -58,6 +58,15 @@ impl State {
         let new_x = self.player.position.x + delta_x;
         let new_y = self.player.position.y + delta_y;
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
+
+            // Lets see if we are bumping a mob
+            for mob in self.mobs.iter() {
+                if mob.position.x == new_x && mob.position.y == new_y {
+                    // We are
+                    return;
+                }
+            }
+
             self.player.position.x = new_x;
             self.player.position.y = new_y;
         }
