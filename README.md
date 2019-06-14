@@ -9,5 +9,8 @@ The fine folks over at [/r/roguelikedev](https://www.reddit.com/r/roguelikedev/n
 It's cheating to build both the library AND the game - but I don't know a better way to learn the language.
 
 **Progress**:
+![Animated GIF](/resources/RustyRoguelike.gif)
 
 ![Animated GIF](/resources/RustyRoguelike2.gif)
+
+![Animated GIF](/resources/RustyRoguelike3.gif)
