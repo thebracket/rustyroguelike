@@ -15,19 +15,22 @@ const MAX_ROOMS : i32 = 30;
 
 pub struct Map {
     pub tiles : Vec<TileType>,
-    pub visible : Vec<bool>
+    pub visible : Vec<bool>,
+    pub revealed : Vec<bool>
 }
 
 impl Map {
     pub fn new() -> Map {
         let mut visible = Vec::new();
         let mut blank_map = Vec::new();
+        let mut revealed = Vec::new();
         for _i in 0 .. (80*50) {
             blank_map.push(TileType::Wall);
             visible.push(false);
+            revealed.push(false);
         }
 
-        return Map{tiles : blank_map, visible: visible};
+        return Map{tiles : blank_map, visible: visible, revealed: revealed};
     }
 
     pub fn set_visibility(&mut self, vis : &Vec<Point>) {
@@ -38,7 +41,7 @@ impl Map {
         for pt in vis {
             let idx = self.tile_idx(pt.x, pt.y);
             match idx {
-                Some(x) => { self.visible[x] = true }
+                Some(x) => { self.visible[x] = true; self.revealed[x] = true; }
                 None => {}
             }
         }
@@ -122,16 +125,17 @@ impl Map {
             for x in 0 .. 80 {
 
                 // You wouldn't normally make this mess - clean up!
-
-                if self.visible[idx] {
-                    match self.tiles[idx] {
-                        TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
-                        TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
-                    }
-                } else {
-                    match self.tiles[idx] {
-                        TileType::Floor => { console.print_color(x, y, Color::grey(), Color::black(), ".".to_string()) }
-                        TileType::Wall => { console.print_color(x, y, Color::grey(), Color::black(), "#".to_string()) }
+                if self.revealed[idx] {
+                    if self.visible[idx] {
+                        match self.tiles[idx] {
+                            TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
+                        }
+                    } else {
+                        match self.tiles[idx] {
+                            TileType::Floor => { console.print_color(x, y, Color::grey(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(x, y, Color::grey(), Color::black(), "#".to_string()) }
+                        }
                     }
                 }
 
@@ -185,6 +189,14 @@ impl Map {
             None => {
                 return false;
             }
+        }
+    }
+
+    pub fn is_tile_visible(&self, pos : &Point) -> bool {
+        let idx = self.tile_idx(pos.x, pos.y);
+        match idx {
+            None => { return false; }
+            Some(x) => { return self.visible[x]; }
         }
     }
 }

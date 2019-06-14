@@ -65,9 +65,9 @@ impl State {
 
     pub fn tick(&mut self, console : &mut Console) {
         self.map.draw(console);
-        self.player.draw(console);
+        self.player.draw(console, &self.map);
         for mob in self.mobs.iter() {
-            mob.draw(console);
+            mob.draw(console, &self.map);
         }
 
         let mut turn_ended = false;
