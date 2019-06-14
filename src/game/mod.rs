@@ -72,12 +72,37 @@ impl State {
         }
     }
 
+    fn display_mouse_info(&mut self, console : &mut Console) {
+        if self.map.is_tile_visible(&console.mouse_pos) {
+            let tile_info = self.map.tile_description(&console.mouse_pos);
+            console.print_color(0, 0, Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
+
+            for mob in self.mobs.iter() {
+                if mob.position.x == console.mouse_pos.x && mob.position.y == console.mouse_pos.y {
+                    console.print_color(0, 1, Color::white(), Color::red(), "Enemy:".to_string());
+                    console.print_color(7, 1, Color::red(), Color::black(), format!("{}", mob.name));
+                }
+            }
+
+            if self.player.position.x == console.mouse_pos.x && self.player.position.y == console.mouse_pos.y {
+                console.print_color(0, 1, Color::green(), Color::black(), "It's you!".to_string());
+            }
+        }
+
+        if console.left_click {
+            console.print(0,3, "Clicking won't help you until I support it.".to_string());
+        }
+    }
+
     pub fn tick(&mut self, console : &mut Console) {
         self.map.draw(console);
         self.player.draw(console, &self.map);
         for mob in self.mobs.iter() {
             mob.draw(console, &self.map);
         }
+        console.set_bg(console.mouse_pos.x as u32, console.mouse_pos.y as u32, Color::magenta());
+
+        self.display_mouse_info(console);
 
         let mut turn_ended = false;
 

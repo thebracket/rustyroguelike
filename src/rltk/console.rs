@@ -2,6 +2,7 @@ use super::color::Color;
 use super::tile::Tile;
 use super::shader::Shader;
 use super::Rltk;
+use super::point::Point;
 
 use gl::types::*;
 use std::ptr;
@@ -29,7 +30,9 @@ pub struct Console {
     ctx: Rltk,
     dirty: bool,
     pub fps: f64,
-    pub key : Option<i32>
+    pub key : Option<i32>,
+    pub mouse_pos : Point,
+    pub left_click : bool
 }
 
 #[allow(dead_code)]
@@ -137,7 +140,9 @@ impl Console {
             ctx: ctx,
             dirty: true,
             fps: 0.0,
-            key: None
+            key: None,
+            mouse_pos: Point::new(0,0),
+            left_click: false
         };
     }
 
@@ -261,6 +266,7 @@ impl Console {
 
     pub fn process_events(&mut self) {
         self.key = None;
+        self.left_click = false;
         for (_, event) in glfw::flush_messages(&self.ctx.events) {
 
             match event {
@@ -272,6 +278,15 @@ impl Console {
 
                 glfw::WindowEvent::Key(_, KEY, Action::Press, _) => {
                     self.key = Some(KEY);
+                }
+
+                glfw::WindowEvent::CursorPos(x, y) => {
+                    self.mouse_pos.x = (x / 8.0) as i32;
+                    self.mouse_pos.y = (y / 8.0) as i32;
+                }
+
+                glfw::WindowEvent::MouseButton(glfw::MouseButton::Button1, Action::Press, _) => {
+                    self.left_click = true;
                 }
                 
                 _ => { }
@@ -289,6 +304,8 @@ impl Console {
         self.dirty = true;
         for tile in self.tiles.iter_mut() {
             tile.glyph = 0;
+            tile.fg = Color::white();
+            tile.bg = Color::black();
         }
     }
 
@@ -331,6 +348,15 @@ impl Console {
             self.tiles[idx].fg.r = fg.r;
             self.tiles[idx].fg.g = fg.g;
             self.tiles[idx].fg.b = fg.b;
+            self.tiles[idx].bg.r = bg.r;
+            self.tiles[idx].bg.g = bg.g;
+            self.tiles[idx].bg.b = bg.b;
+        }
+    }
+
+    pub fn set_bg(&mut self, x:u32, y:u32, bg:Color) {
+        let idx = self.at(x, y);
+        if idx > 0 && idx < self.tiles.len() {
             self.tiles[idx].bg.r = bg.r;
             self.tiles[idx].bg.g = bg.g;
             self.tiles[idx].bg.b = bg.b;

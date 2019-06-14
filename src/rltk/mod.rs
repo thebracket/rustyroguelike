@@ -49,6 +49,8 @@ impl Rltk {
 
         window.make_current();
         window.set_key_polling(true);
+        window.set_cursor_pos_polling(true);
+        window.set_mouse_button_polling(true);
         window.set_framebuffer_size_polling(true);
 
         // gl: load all OpenGL function pointers

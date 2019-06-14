@@ -199,4 +199,20 @@ impl Map {
             Some(x) => { return self.visible[x]; }
         }
     }
+
+    pub fn tile_description(&self, pos : &Point) -> String {
+        let idx = self.tile_idx(pos.x, pos.y);
+        match idx {
+            None => { return "".to_string(); }
+            Some(x) => { 
+                if self.visible[x] {
+                    match self.tiles[x] {
+                        TileType::Floor => { return "Floor".to_string() }
+                        TileType::Wall => { return "Wall".to_string() }
+                    }
+                }
+            }
+        }
+        return "".to_string();
+    }
 }
