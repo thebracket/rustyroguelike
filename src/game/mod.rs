@@ -91,6 +91,9 @@ impl State {
         if turn_ended {
             self.player.plot_visibility(&self.map);
             self.map.set_visibility(&self.player.visible_tiles);
+            for mob in self.mobs.iter_mut() {
+                mob.plot_visibility(&self.map);
+            }
         }
     }
 }
