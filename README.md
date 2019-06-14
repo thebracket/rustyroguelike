@@ -25,3 +25,7 @@ Generating a nicer map:
 Field-of-view and visibility:
 
 ![Animated GIF](/resources/RustyRoguelike3.gif)
+
+Mouse support and a variety of mobs:
+
+![Animated GIF](/resources/RustyRoguelike4.gif)
