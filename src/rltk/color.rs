@@ -10,6 +10,11 @@ impl Color {
         return Color{r, g, b};
     }
 
+    pub fn to_greyscale(&self) -> Color {
+        let linear = (self.r * 0.2126) + (self.g * 0.7152) + (self.b * 0.0722);
+        return Color::new(linear, linear, linear);
+    }
+
     pub fn white() -> Color {
         return Color{r:1.0, g: 1.0, b:1.0};
     }

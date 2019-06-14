@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Console;
+use rltk::Point;
 
 use super::TileType;
 use super::Rect;
@@ -13,17 +14,34 @@ const ROOM_MIN_SIZE : i32 = 6;
 const MAX_ROOMS : i32 = 30;
 
 pub struct Map {
-    pub tiles : Vec<TileType>
+    pub tiles : Vec<TileType>,
+    pub visible : Vec<bool>
 }
 
 impl Map {
     pub fn new() -> Map {
+        let mut visible = Vec::new();
         let mut blank_map = Vec::new();
         for _i in 0 .. (80*50) {
             blank_map.push(TileType::Wall);
+            visible.push(false);
         }
 
-        return Map{tiles : blank_map};
+        return Map{tiles : blank_map, visible: visible};
+    }
+
+    pub fn set_visibility(&mut self, vis : &Vec<Point>) {
+        for v in self.visible.iter_mut() {
+            *v = false;
+        }
+
+        for pt in vis {
+            let idx = self.tile_idx(pt.x, pt.y);
+            match idx {
+                Some(x) => { self.visible[x] = true }
+                None => {}
+            }
+        }
     }
 
     pub fn random_rooms_tut3(&mut self) -> Vec<Rect> {
@@ -102,9 +120,19 @@ impl Map {
         let mut idx = 0;
         for y in 0 .. 50 {
             for x in 0 .. 80 {
-                match self.tiles[idx] {
-                    TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
-                    TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
+
+                // You wouldn't normally make this mess - clean up!
+
+                if self.visible[idx] {
+                    match self.tiles[idx] {
+                        TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
+                        TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
+                    }
+                } else {
+                    match self.tiles[idx] {
+                        TileType::Floor => { console.print_color(x, y, Color::grey(), Color::black(), ".".to_string()) }
+                        TileType::Wall => { console.print_color(x, y, Color::grey(), Color::black(), "#".to_string()) }
+                    }
                 }
 
                 idx += 1;
@@ -127,13 +155,30 @@ impl Map {
     }
 
     // Utility function: is a tile walkable
-    pub fn is_walkable(&mut self, x:i32, y:i32) -> bool {
+    pub fn is_walkable(&self, x:i32, y:i32) -> bool {
         let idx = self.tile_idx(x, y);
         match idx {
             Some(idx) => {
                 match self.tiles[idx] {
                     TileType::Floor => { return true }
                     TileType::Wall => { return false }
+                }
+            }
+
+            None => {
+                return false;
+            }
+        }
+    }
+
+    // Utility function: is a tile walkable
+    pub fn is_transparent(&self, x:i32, y:i32) -> bool {
+        let idx = self.tile_idx(x, y);
+        match idx {
+            Some(idx) => {
+                match self.tiles[idx] {
+                    TileType::Floor => { return false }
+                    TileType::Wall => { return true }
                 }
             }
 

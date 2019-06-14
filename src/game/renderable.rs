@@ -12,13 +12,13 @@ pub trait Renderable {
 impl Renderable for Player {
     fn draw(&self, console : &mut Console) {
         let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
-        console.set(self.x as u32, self.y as u32, fg, Color::black(), self.glyph);
+        console.set(self.position.x as u32, self.position.y as u32, fg, Color::black(), self.glyph);
     }
 }
 
 impl Renderable for Mob {
     fn draw(&self, console : &mut Console) {
         let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
-        console.set(self.x as u32, self.y as u32, fg, Color::black(), self.glyph);
+        console.set(self.position.x as u32, self.position.y as u32, fg, Color::black(), self.glyph);
     }
 }

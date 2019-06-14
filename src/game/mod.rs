@@ -17,6 +17,9 @@ pub use rect::Rect;
 mod renderable;
 pub use renderable::Renderable;
 
+mod visibility;
+pub use visibility::Visibility;
+
 mod map;
 pub use map::Map;
 
@@ -42,15 +45,21 @@ impl State {
             mobs.push(mob);
         }
 
-        return State{ map: map, player: Player::new(player_x, player_y, 64, Color::yellow()), mobs: mobs };
+        let mut player = Player::new(player_x, player_y, 64, Color::yellow());
+
+        // Start with a viewshed
+        player.plot_visibility(&map);
+        map.set_visibility(&player.visible_tiles);
+
+        return State{ map: map, player: player, mobs: mobs };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
-        let new_x = self.player.x + delta_x;
-        let new_y = self.player.y + delta_y;
+        let new_x = self.player.position.x + delta_x;
+        let new_y = self.player.position.y + delta_y;
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
-            self.player.x = new_x;
-            self.player.y = new_y;
+            self.player.position.x = new_x;
+            self.player.position.y = new_y;
         }
     }
 
@@ -61,20 +70,27 @@ impl State {
             mob.draw(console);
         }
 
+        let mut turn_ended = false;
+
         match console.key {
             Some(key) => {
                 match key {
                 1 => { console.quit() }
 
-                328 => { self.move_player(0, -1) }
-                336 => { self.move_player(0, 1) }
-                331 => { self.move_player(-1, 0) }
-                333 => { self.move_player(1, 0) }
+                328 => { self.move_player(0, -1); turn_ended = true; }
+                336 => { self.move_player(0, 1); turn_ended = true; }
+                331 => { self.move_player(-1, 0); turn_ended = true; }
+                333 => { self.move_player(1, 0); turn_ended = true; }
 
                 _ =>  { console.print(0,6, format!("You pressed: {}", key)) }                
                 }
             }
             None => {}
+        }
+
+        if turn_ended {
+            self.player.plot_visibility(&self.map);
+            self.map.set_visibility(&self.player.visible_tiles);
         }
     }
 }

@@ -10,6 +10,16 @@ mod shader;
 pub use self::console::Console;
 mod console;
 
+pub use self::point::Point;
+mod point;
+
+pub use self::fieldofview::field_of_view;
+mod fieldofview;
+
+pub use self::geometry::distance2d_squared;
+pub use self::geometry::distance2d;
+mod geometry;
+
 extern crate glfw;
 use self::glfw::{Context};
 
