@@ -7,3 +7,9 @@ pub struct Player {
     pub glyph: u8,
     pub fg : Color,
 }
+
+impl Player {
+    pub fn new(x:i32, y:i32, glyph:u8, fg : Color) -> Player {
+        Player{ x, y, glyph, fg }
+    }
+}
