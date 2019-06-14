@@ -10,6 +10,10 @@ It's cheating to build both the library AND the game - but I don't know a better
 
 **Progress**
 
+Hello world with an OpenGL console pretending to be CP437:
+
+![Boring console image](/resources/RustHelloWorld2.JPG)
+
 Moving @ around a random map:
 
 ![Animated GIF](/resources/RustyRoguelike.gif)
