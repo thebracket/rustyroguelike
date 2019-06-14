@@ -12,6 +12,7 @@ use std::cmp::{max, min};
 const ROOM_MAX_SIZE : i32 = 10;
 const ROOM_MIN_SIZE : i32 = 6;
 const MAX_ROOMS : i32 = 30;
+pub const MAX_MOBS_PER_ROOM : i32 = 8;
 
 pub struct Map {
     pub tiles : Vec<TileType>,

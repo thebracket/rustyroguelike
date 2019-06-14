@@ -25,6 +25,9 @@ pub use map::Map;
 
 extern crate rand;
 
+use map::MAX_MOBS_PER_ROOM;
+use rand::Rng;
+
 pub struct State {
     pub map : Map,
     pub player : Player,
@@ -33,6 +36,7 @@ pub struct State {
 
 impl State {
     pub fn new() -> State {
+        let mut rng = rand::thread_rng();
         let mut map = Map::new();
         let rooms = map.random_rooms_tut3();
 
@@ -40,9 +44,25 @@ impl State {
 
         let mut mobs : Vec<Mob> = Vec::new();
         for i in 1 .. rooms.len() {
-            let (room_x, room_y) = rooms[i].center();
-            let mob = Mob::new(room_x, room_y, 98, Color::red());
-            mobs.push(mob);
+            let number_of_mobs = rng.gen_range(1, MAX_MOBS_PER_ROOM+1);
+            if number_of_mobs > 0 {
+                for _mobn in 1 .. number_of_mobs {
+                    let mob_x = rng.gen_range(rooms[i].x1+1, rooms[i].x2-1);
+                    let mob_y = rng.gen_range(rooms[i].y1+1, rooms[i].y2-1);
+
+                    let mut found = false;
+                    for existing_mob in mobs.iter() {
+                        if existing_mob.position.x == mob_x && existing_mob.position.y == mob_y {
+                            found = true;
+                        }
+                    }
+
+                    if !found {
+                        let mob = Mob::new_random(mob_x, mob_y, rng.gen_range(1,4));
+                        mobs.push(mob);
+                    }
+                }
+            }
         }
 
         let mut player = Player::new(player_x, player_y, 64, Color::yellow());
@@ -87,10 +107,6 @@ impl State {
             if self.player.position.x == console.mouse_pos.x && self.player.position.y == console.mouse_pos.y {
                 console.print_color(0, 1, Color::green(), Color::black(), "It's you!".to_string());
             }
-        }
-
-        if console.left_click {
-            console.print(0,3, "Clicking won't help you until I support it.".to_string());
         }
     }
 
