@@ -83,6 +83,7 @@ impl State {
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
         let new_x = self.player.position.x + delta_x;
         let new_y = self.player.position.y + delta_y;
+        let mut can_move : bool = true;
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
 
             // Lets see if we are bumping a mob
@@ -93,12 +94,15 @@ impl State {
                     for s in result.iter() {
                         println!("{}", s);
                     }
-                    return;
+                    can_move = false;
                 }
             }
+            self.mobs.retain(|mob| !mob.fighter.dead);
 
-            self.player.position.x = new_x;
-            self.player.position.y = new_y;
+            if can_move {
+                self.player.position.x = new_x;
+                self.player.position.y = new_y;
+            }
         }
     }
 
