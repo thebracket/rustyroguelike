@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Console;
+use rltk::Point;
 
 mod tiletype;
 pub use tiletype::TileType;
@@ -94,18 +95,21 @@ impl State {
 
     fn display_mouse_info(&mut self, console : &mut Console) {
         if self.map.is_tile_visible(&console.mouse_pos) {
+            let zero_zero = Point::new(0,0);
+            let zero_one = Point::new(0,1);
+            let seven_one = Point::new(7,1);
             let tile_info = self.map.tile_description(&console.mouse_pos);
-            console.print_color(0, 0, Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
+            console.print_color(&zero_zero, Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {
                 if mob.position == console.mouse_pos {
-                    console.print_color(0, 1, Color::white(), Color::red(), "Enemy:".to_string());
-                    console.print_color(7, 1, Color::red(), Color::black(), format!("{}", mob.name));
+                    console.print_color(&zero_one, Color::white(), Color::red(), "Enemy:".to_string());
+                    console.print_color(&seven_one, Color::red(), Color::black(), format!("{}", mob.name));
                 }
             }
 
             if self.player.position == console.mouse_pos {
-                console.print_color(0, 1, Color::green(), Color::black(), "It's you!".to_string());
+                console.print_color(&zero_one, Color::green(), Color::black(), "It's you!".to_string());
             }
         }
     }
@@ -116,7 +120,8 @@ impl State {
         for mob in self.mobs.iter() {
             mob.draw(console, &self.map);
         }
-        console.set_bg(console.mouse_pos.x as u32, console.mouse_pos.y as u32, Color::magenta());
+        let mouse_copy = Point::new(console.mouse_pos.x, console.mouse_pos.y);
+        console.set_bg(&mouse_copy, Color::magenta());
 
         self.display_mouse_info(console);
 
@@ -132,7 +137,7 @@ impl State {
                 331 => { self.move_player(-1, 0); turn_ended = true; }
                 333 => { self.move_player(1, 0); turn_ended = true; }
 
-                _ =>  { console.print(0,6, format!("You pressed: {}", key)) }                
+                _ =>  { println!("You pressed: {}", key) }                
                 }
             }
             None => {}

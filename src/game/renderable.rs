@@ -14,7 +14,7 @@ impl Renderable for Player {
     fn draw(&self, console : &mut Console, map : &Map) {
         if map.is_tile_visible(&self.position) {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
-            console.set(self.position.x as u32, self.position.y as u32, fg, Color::black(), self.glyph);
+            console.set(&self.position, fg, Color::black(), self.glyph);
         }
     }
 }
@@ -23,7 +23,7 @@ impl Renderable for Mob {
     fn draw(&self, console : &mut Console, map : &Map) {
         if map.is_tile_visible(&self.position) {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
-            console.set(self.position.x as u32, self.position.y as u32, fg, Color::black(), self.glyph);
+            console.set(&self.position, fg, Color::black(), self.glyph);
         }
     }
 }

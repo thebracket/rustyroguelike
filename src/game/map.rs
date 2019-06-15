@@ -126,16 +126,17 @@ impl Map {
             for x in 0 .. 80 {
 
                 // You wouldn't normally make this mess - clean up!
+                let coord = Point::new(x, y);
                 if self.revealed[idx] {
                     if self.visible[idx] {
                         match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(x, y, Color::dark_green(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(x, y, Color::white(), Color::black(), "#".to_string()) }
+                            TileType::Floor => { console.print_color(&coord, Color::dark_green(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(&coord, Color::white(), Color::black(), "#".to_string()) }
                         }
                     } else {
                         match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(x, y, Color::grey(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(x, y, Color::grey(), Color::black(), "#".to_string()) }
+                            TileType::Floor => { console.print_color(&coord, Color::grey(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(&coord, Color::grey(), Color::black(), "#".to_string()) }
                         }
                     }
                 }
