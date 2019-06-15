@@ -8,6 +8,7 @@ pub use tiletype::TileType;
 
 mod fighter;
 pub use fighter::Fighter;
+pub use fighter::Combat;
 
 mod player;
 pub use player::Player;
@@ -84,9 +85,13 @@ impl State {
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
 
             // Lets see if we are bumping a mob
-            for mob in self.mobs.iter() {
+            for mob in self.mobs.iter_mut() {
                 if mob.position.x == new_x && mob.position.y == new_y {
                     // We are
+                    let result = self.player.attack(mob);
+                    for s in result.iter() {
+                        println!("{}", s);
+                    }
                     return;
                 }
             }
