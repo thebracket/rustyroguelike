@@ -130,13 +130,13 @@ impl Map {
                 if self.revealed[idx] {
                     if self.visible[idx] {
                         match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(&coord, Color::dark_green(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(&coord, Color::white(), Color::black(), "#".to_string()) }
+                            TileType::Floor => { console.print_color(coord, Color::dark_green(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(coord, Color::white(), Color::black(), "#".to_string()) }
                         }
                     } else {
                         match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(&coord, Color::grey(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(&coord, Color::grey(), Color::black(), "#".to_string()) }
+                            TileType::Floor => { console.print_color(coord, Color::grey(), Color::black(), ".".to_string()) }
+                            TileType::Wall => { console.print_color(coord, Color::grey(), Color::black(), "#".to_string()) }
                         }
                     }
                 }

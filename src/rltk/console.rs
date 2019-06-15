@@ -309,7 +309,7 @@ impl Console {
 
 /////////////////////////////// User facing stuff
 
-    pub fn at(&self, pt:&Point) -> usize {
+    pub fn at(&self, pt:Point) -> usize {
         return (((self.height-1 - pt.y as u32) * self.width) + pt.x as u32) as usize;
     }
 
@@ -322,7 +322,7 @@ impl Console {
         }
     }
 
-    pub fn print(&mut self, pt:&Point, text:String) {
+    pub fn print(&mut self, pt:Point, text:String) {
         self.dirty = true;
         let mut idx = self.at(pt);
 
@@ -335,7 +335,7 @@ impl Console {
         }
     }
 
-    pub fn print_color(&mut self, pt:&Point, fg:Color, bg:Color, text:String) {
+    pub fn print_color(&mut self, pt:Point, fg:Color, bg:Color, text:String) {
         self.dirty = true;
         let mut idx = self.at(pt);
 
@@ -354,7 +354,7 @@ impl Console {
         }
     }
 
-    pub fn set(&mut self, pt:&Point, fg:Color, bg:Color, glyph:u8) {
+    pub fn set(&mut self, pt:Point, fg:Color, bg:Color, glyph:u8) {
         let idx = self.at(pt);
         if idx > 0 && idx < self.tiles.len() {
             self.tiles[idx].glyph = glyph;
@@ -367,7 +367,7 @@ impl Console {
         }
     }
 
-    pub fn set_bg(&mut self, pt:&Point, bg:Color) {
+    pub fn set_bg(&mut self, pt:Point, bg:Color) {
         let idx = self.at(pt);
         if idx > 0 && idx < self.tiles.len() {
             self.tiles[idx].bg.r = bg.r;

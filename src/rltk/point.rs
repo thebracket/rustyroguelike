@@ -1,4 +1,4 @@
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32
