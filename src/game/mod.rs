@@ -98,13 +98,13 @@ impl State {
             console.print_color(0, 0, Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {
-                if mob.position.x == console.mouse_pos.x && mob.position.y == console.mouse_pos.y {
+                if mob.position == console.mouse_pos {
                     console.print_color(0, 1, Color::white(), Color::red(), "Enemy:".to_string());
                     console.print_color(7, 1, Color::red(), Color::black(), format!("{}", mob.name));
                 }
             }
 
-            if self.player.position.x == console.mouse_pos.x && self.player.position.y == console.mouse_pos.y {
+            if self.player.position == console.mouse_pos {
                 console.print_color(0, 1, Color::green(), Color::black(), "It's you!".to_string());
             }
         }

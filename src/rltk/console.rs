@@ -21,6 +21,8 @@ use self::glfw::{Context, Action};
 pub struct Console {
     pub width :u32,
     pub height: u32,
+    pub font_width: u8,
+    pub font_height: u8,
     console_texture: u32,
     ourShader: Shader,
     VBO: u32,
@@ -32,7 +34,11 @@ pub struct Console {
     pub fps: f64,
     pub key : Option<i32>,
     pub mouse_pos : Point,
-    pub left_click : bool
+    pub left_click : bool,
+
+    // GL Stuff
+    vertex_buffer : Vec<f32>,
+    index_buffer : Vec<i32>
 }
 
 #[allow(dead_code)]
@@ -46,9 +52,33 @@ impl Console {
             tiles.push(Tile{glyph: 0, fg: Color::white(), bg: Color::black()});
         }
 
-        // Shader init
+        let (ourShader, VBO, VAO, EBO, texture) = Console::init_gl_for_console();
+        
+        return Console{
+            width: width, 
+            height: height, 
+            console_texture: texture,
+            ourShader: ourShader,
+            VBO: VBO,
+            VAO: VAO,
+            EBO: EBO,
+            tiles: tiles,
+            ctx: ctx,
+            dirty: true,
+            fps: 0.0,
+            key: None,
+            mouse_pos: Point::new(0,0),
+            left_click: false,
+            font_width : 8,
+            font_height : 8,
+            vertex_buffer : Vec::new(),
+            index_buffer : Vec::new()
+        };
+    }
+
+    fn init_gl_for_console() -> (Shader, u32, u32, u32, u32) {
         let mut texture = 0;
-        let (ourShader, VBO, VAO, EBO, texture) = unsafe {
+        unsafe {
             // build and compile our shader program
             // ------------------------------------
             let ourShader = Shader::new(
@@ -125,24 +155,7 @@ impl Console {
                         &data[0] as *const u8 as *const c_void);
             gl::GenerateMipmap(gl::TEXTURE_2D);
 
-            (ourShader, VBO, VAO, EBO, texture)
-        };
-
-        return Console{
-            width: width, 
-            height: height, 
-            console_texture: texture,
-            ourShader: ourShader,
-            VBO: VBO,
-            VAO: VAO,
-            EBO: EBO,
-            tiles: tiles,
-            ctx: ctx,
-            dirty: true,
-            fps: 0.0,
-            key: None,
-            mouse_pos: Point::new(0,0),
-            left_click: false
+            return (ourShader, VBO, VAO, EBO, texture)
         };
     }
 
@@ -161,8 +174,8 @@ impl Console {
     }
 
     fn rebuild_vertices(&mut self) {
-        let mut vertex_buffer : Vec<f32> = Vec::new();
-        let mut index_buffer : Vec<i32> = Vec::new();
+        self.vertex_buffer.clear();
+        self.index_buffer.clear();
 
         let glyph_size : f32 = 1.0 / 16.0;
 
@@ -185,17 +198,17 @@ impl Console {
                 let glyph_top = glyph_y as f32 * glyph_size;
                 let glyph_bottom = (glyph_y-1) as f32 * glyph_size;
 
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
-                Console::push_point(&mut vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y, fg, bg, glyph_left, glyph_bottom);
-                Console::push_point(&mut vertex_buffer, screen_x, screen_y + step_y, fg, bg, glyph_left, glyph_top);
+                Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
+                Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
+                Console::push_point(&mut self.vertex_buffer, screen_x, screen_y, fg, bg, glyph_left, glyph_bottom);
+                Console::push_point(&mut self.vertex_buffer, screen_x, screen_y + step_y, fg, bg, glyph_left, glyph_top);
 
-                index_buffer.push(0 + index_count);
-                index_buffer.push(1 + index_count);
-                index_buffer.push(3 + index_count);
-                index_buffer.push(1 + index_count);
-                index_buffer.push(2 + index_count);
-                index_buffer.push(3 + index_count);
+                self.index_buffer.push(0 + index_count);
+                self.index_buffer.push(1 + index_count);
+                self.index_buffer.push(3 + index_count);
+                self.index_buffer.push(1 + index_count);
+                self.index_buffer.push(2 + index_count);
+                self.index_buffer.push(3 + index_count);
 
                 index_count += 4;
                 screen_x += step_x;
@@ -206,14 +219,14 @@ impl Console {
         unsafe {
             gl::BindBuffer(gl::ARRAY_BUFFER, self.VBO);
             gl::BufferData(gl::ARRAY_BUFFER,
-                        (vertex_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                        &vertex_buffer[0] as *const f32 as *const c_void,
+                        (self.vertex_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+                        &self.vertex_buffer[0] as *const f32 as *const c_void,
                         gl::STATIC_DRAW);
 
             gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.EBO);
             gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
-                        (index_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                        &index_buffer[0] as *const i32 as *const c_void,
+                        (self.index_buffer.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+                        &self.index_buffer[0] as *const i32 as *const c_void,
                         gl::STATIC_DRAW);
         }
     }
