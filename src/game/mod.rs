@@ -9,6 +9,7 @@ pub use tiletype::TileType;
 mod fighter;
 pub use fighter::Fighter;
 pub use fighter::Combat;
+pub use fighter::attack;
 
 mod player;
 pub use player::Player;
@@ -88,7 +89,7 @@ impl State {
             for mob in self.mobs.iter_mut() {
                 if mob.position.x == new_x && mob.position.y == new_y {
                     // We are
-                    let result = self.player.attack(mob);
+                    let result = attack(&mut self.player, mob);
                     for s in result.iter() {
                         println!("{}", s);
                     }

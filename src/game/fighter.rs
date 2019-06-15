@@ -21,7 +21,6 @@ impl Fighter {
 }
 
 pub trait Combat {
-    fn attack(&mut self, target: &mut Combat) -> Vec<String>;
     fn get_power(&self)->i32;
     fn get_defense(&self)->i32;
     fn take_damage(&mut self, amount:i32);
@@ -30,25 +29,25 @@ pub trait Combat {
     fn get_hp(&self)->i32;
 }
 
-impl Combat for Player {
-    fn attack(&mut self, target: &mut Combat) -> Vec<String> {
-        let mut results = Vec::new();
+pub fn attack(instigator: &mut Combat, target: &mut Combat) -> Vec<String> {
+    let mut results = Vec::new();
 
-        let damage = self.get_power() - target.get_defense();
-        if damage > 0 {
-            target.take_damage(damage);
-            results.push(format!("{} attacks {}, for {} hit points of damage.", self.get_name(), target.get_name(), damage));
-            results.push(format!("{} has {} remaining hit points.", target.get_name(), target.get_hp()));
-            if (target.get_hp() < 1) {
-                results.push(format!("{} would be dead if we supported that.", target.get_name()));
-            }
-        } else {
-            results.push(format!("{} attacks {}, but lacks the power to do anything useful.", self.get_name(), target.get_name()));
+    let damage = instigator.get_power() - target.get_defense();
+    if damage > 0 {
+        target.take_damage(damage);
+        results.push(format!("{} attacks {}, for {} hit points of damage.", instigator.get_name(), target.get_name(), damage));
+        results.push(format!("{} has {} remaining hit points.", target.get_name(), target.get_hp()));
+        if target.get_hp() < 1 {
+            results.push(format!("{} would be dead if we supported that.", target.get_name()));
         }
-
-        return results;
+    } else {
+        results.push(format!("{} attacks {}, but lacks the power to do anything useful.", instigator.get_name(), target.get_name()));
     }
 
+    return results;
+}
+
+impl Combat for Player {
     fn take_damage(&mut self, amount:i32) {
         self.fighter.hp -= amount;
     }
@@ -68,23 +67,6 @@ impl Combat for Player {
 }
 
 impl Combat for Mob {
-    fn attack(&mut self, target: &mut Combat) -> Vec<String> {
-        let mut results = Vec::new();
-
-        let damage = self.get_power() - target.get_defense();
-        if damage > 0 {
-            target.take_damage(damage);
-            results.push(format!("{} attacks {}, for {} hit points of damage.", self.get_name(), target.get_name(), damage));
-            if (target.get_hp() < 1) {
-                results.push(format!("{} would be dead if we supported that.", target.get_name()));
-            }
-        } else {
-            results.push(format!("{} attacks {}, but lacks the power to do anything useful.", self.get_name(), target.get_name()));
-        }
-
-        return results;
-    }
-
     fn take_damage(&mut self, amount:i32) {
         self.fighter.hp -= amount;
     }
