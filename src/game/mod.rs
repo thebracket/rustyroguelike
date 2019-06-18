@@ -158,6 +158,18 @@ impl State {
                 match key {
                 1 => { console.quit() }
 
+                // Numpad
+                72 => { self.move_player(0, -1); turn_ended = true; }
+                75 => { self.move_player(-1, 0); turn_ended = true; }
+                77 => { self.move_player(1, 0); turn_ended = true; }
+                80 => { self.move_player(0, 1); turn_ended = true; }
+
+                71 => { self.move_player(-1, -1); turn_ended = true; }
+                73 => { self.move_player(1, -1); turn_ended = true; }
+                79 => { self.move_player(-1, 1); turn_ended = true; }
+                81 => { self.move_player(1, 1); turn_ended = true; }
+
+                // Cursors
                 328 => { self.move_player(0, -1); turn_ended = true; }
                 336 => { self.move_player(0, 1); turn_ended = true; }
                 331 => { self.move_player(-1, 0); turn_ended = true; }
