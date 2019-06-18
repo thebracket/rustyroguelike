@@ -4,6 +4,7 @@ use super::geometry::distance2d_squared;
 extern crate bresenham;
 use bresenham::Bresenham;
 
+#[allow(dead_code)]
 pub fn field_of_view(start : &Point, range : i32, fov_check : &Fn(&Point)->bool) -> Vec<Point> {
     let mut result : Vec<Point> = Vec::new();
 

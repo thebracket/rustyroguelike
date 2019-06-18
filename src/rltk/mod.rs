@@ -16,6 +16,9 @@ mod point;
 pub use self::fieldofview::field_of_view;
 mod fieldofview;
 
+pub use self::dijkstra::DijkstraMap;
+mod dijkstra;
+
 pub use self::geometry::distance2d_squared;
 pub use self::geometry::distance2d;
 mod geometry;

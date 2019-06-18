@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
+use rltk::DijkstraMap;
 use super::fighter::Fighter;
 use super::Player;
 use super::fighter::attack;
@@ -61,7 +62,7 @@ impl Mob {
 
         if can_see_player {
             let distance = rltk::distance2d(&mut player.position, &self.position);
-            if distance < 1.2 {
+            if distance < 1.5 {
                 self.attack_player(player);
             } else {
                 self.path_to_player(player, blocked);
@@ -78,23 +79,25 @@ impl Mob {
     }
 
     fn path_to_player(&mut self, player: &mut Player, blocked : &mut Vec<bool>) {
-        if self.position.x > player.position.x { self.move_mob(-1, 0, blocked); }
-        if self.position.x < player.position.x { self.move_mob(1, 0, blocked); }
-        if self.position.y > player.position.y { self.move_mob(0, -1, blocked); }
-        if self.position.y < player.position.y { self.move_mob(0, 1, blocked); }
-    }
+        let is_blocked = |idx:&Point| -> bool { return blocked[((idx.y * 80)+idx.x) as usize]; };
+        let mut starts : Vec<Point> = Vec::new();
+        starts.push(player.position.clone());
+        let dmap = rltk::DijkstraMap::new(80, 50, &starts, &is_blocked);
+        let dest = dmap.find_lowest_exit(self.position);
 
-    fn move_mob(&mut self, delta_x : i32, delta_y : i32, blocked : &mut Vec<bool>) {
-        let destination_x = self.position.x + delta_x;
-        let destination_y = self.position.y + delta_y;
-        let idx = ((destination_y * 80) + destination_x) as usize;
-    
-        if !blocked[idx] {
-            let old_idx = ((self.position.y * 80) + self.position.x) as usize;
-            blocked[old_idx] = false;
-            self.position.x = destination_x;
-            self.position.y = destination_y;
-            blocked[idx] = true;
+        match dest {
+            None => {}
+            Some(d) => {
+                let idx = ((d.y * 80) + d.x) as usize;
+                if !blocked[idx] {
+                    let old_idx = ((self.position.y * 80) + self.position.x) as usize;
+                    blocked[old_idx] = false;
+                    blocked[idx] = true;
+                    self.position.x = d.x;
+                    self.position.y = d.y;
+                }
+
+            }
         }
     }
 }
