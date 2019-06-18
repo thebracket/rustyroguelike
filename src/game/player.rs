@@ -13,6 +13,6 @@ pub struct Player {
 
 impl Player {
     pub fn new(x:i32, y:i32, glyph:u8, fg : Color) -> Player {
-        Player{ position: Point::new(x, y), glyph, fg, visible_tiles: Vec::new(), fighter: Fighter::new(8, 1, 1) }
+        Player{ position: Point::new(x, y), glyph, fg, visible_tiles: Vec::new(), fighter: Fighter::new(8, 0, 1) }
     }
 }
