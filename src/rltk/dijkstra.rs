@@ -15,7 +15,6 @@ impl DijkstraMap {
     pub fn new(size_x : i32, size_y: i32, starts: &Vec<Point>, is_blocked : &Fn(&Point)->bool, max_depth : i32) -> DijkstraMap {
         let mut result : Vec<i32> = Vec::new();
         for _i in 0 .. (size_x * size_y) { result.push(MAX) }
-        //for i in starts { result[((i.y * size_y) + i.x) as usize] = 0 }
         let mut d = DijkstraMap{ map : result, size_x : size_x, size_y : size_y, max_depth : max_depth};
         d.build(starts, is_blocked);
         return d;
