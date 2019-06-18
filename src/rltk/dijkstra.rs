@@ -26,7 +26,7 @@ impl DijkstraMap {
     }
 
     fn add_if_open_and_passable(&self, x : i32, y : i32, is_blocked : &Fn(&Point)->bool, open_list : &mut Vec<(usize, i32)>, closed_list : &mut HashSet<usize>, depth : i32) {
-        if (depth+1 > self.max_depth) { return; }
+        if depth+1 > self.max_depth { return; }
         if x < 0 || x >= self.size_x || y < 0 || y >= self.size_y { return; }
         let target = Point::new(x, y);
         let idx = self.idx(&target);
