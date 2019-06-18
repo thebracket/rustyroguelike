@@ -29,3 +29,7 @@ Field-of-view and visibility:
 Mouse support and a variety of mobs:
 
 ![Animated GIF](/resources/RustyRoguelike4.gif)
+
+Dijkstra-flow map based pathfinding (A* will follow) for basic mob AI:
+
+![Animated GIF](/resources/RustyRoguelike5.gif)
