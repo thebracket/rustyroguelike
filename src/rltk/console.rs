@@ -293,6 +293,10 @@ impl Console {
                     self.key = Some(KEY);
                 }
 
+                glfw::WindowEvent::Key(_, KEY, Action::Repeat, _) => {
+                    self.key = Some(KEY);
+                }
+
                 glfw::WindowEvent::CursorPos(x, y) => {
                     self.mouse_pos.x = (x / 8.0) as i32;
                     self.mouse_pos.y = (y / 8.0) as i32;

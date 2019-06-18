@@ -6,6 +6,9 @@ use rltk::Point;
 mod tiletype;
 pub use tiletype::TileType;
 
+mod ticktype;
+pub use ticktype::TickType;
+
 mod fighter;
 pub use fighter::Fighter;
 pub use fighter::Combat;
@@ -37,7 +40,8 @@ use rand::Rng;
 pub struct State {
     pub map : Map,
     pub player : Player,
-    pub mobs : Vec<Mob>
+    pub mobs : Vec<Mob>,
+    pub game_state : TickType
 }
 
 impl State {
@@ -77,7 +81,7 @@ impl State {
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
-        return State{ map: map, player: player, mobs: mobs };
+        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
@@ -134,6 +138,19 @@ impl State {
 
         self.display_mouse_info(console);
 
+        match self.game_state {
+            TickType::PlayersTurn => { 
+                self.player_tick(console);
+            }
+            TickType::EnemyTurn => {
+                self.mob_tick(console);
+                self.game_state = TickType::PlayersTurn; 
+            }
+        }
+        
+    }
+
+    fn player_tick(&mut self, console : &mut Console) {
         let mut turn_ended = false;
 
         match console.key {
@@ -153,11 +170,23 @@ impl State {
         }
 
         if turn_ended {
-            self.player.plot_visibility(&self.map);
+            self.update_visibility();
+            self.game_state = TickType::EnemyTurn; 
+        }
+    }
+
+    fn mob_tick(&mut self, console: &mut Console) {
+        for mob in self.mobs.iter_mut() {
+            println!("{} ponders its life choices.", mob.name);
+        }
+        self.update_visibility();
+    }
+
+    fn update_visibility(&mut self) {
+        self.player.plot_visibility(&self.map);
             self.map.set_visibility(&self.player.visible_tiles);
             for mob in self.mobs.iter_mut() {
                 mob.plot_visibility(&self.map);
             }
-        }
     }
 }
