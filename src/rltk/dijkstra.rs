@@ -6,16 +6,17 @@ use std::collections::HashSet;
 pub struct DijkstraMap {
     pub map : Vec<i32>,
     size_x : i32,
-    size_y : i32
+    size_y : i32,
+    max_depth : i32
 }
 
 #[allow(dead_code)]
 impl DijkstraMap {
-    pub fn new(size_x : i32, size_y: i32, starts: &Vec<Point>, is_blocked : &Fn(&Point)->bool) -> DijkstraMap {
+    pub fn new(size_x : i32, size_y: i32, starts: &Vec<Point>, is_blocked : &Fn(&Point)->bool, max_depth : i32) -> DijkstraMap {
         let mut result : Vec<i32> = Vec::new();
         for _i in 0 .. (size_x * size_y) { result.push(MAX) }
         //for i in starts { result[((i.y * size_y) + i.x) as usize] = 0 }
-        let mut d = DijkstraMap{ map : result, size_x : size_x, size_y : size_y};
+        let mut d = DijkstraMap{ map : result, size_x : size_x, size_y : size_y, max_depth : max_depth};
         d.build(starts, is_blocked);
         return d;
     }
@@ -25,6 +26,7 @@ impl DijkstraMap {
     }
 
     fn add_if_open_and_passable(&self, x : i32, y : i32, is_blocked : &Fn(&Point)->bool, open_list : &mut Vec<(usize, i32)>, closed_list : &mut HashSet<usize>, depth : i32) {
+        if (depth+1 > self.max_depth) { return; }
         if x < 0 || x >= self.size_x || y < 0 || y >= self.size_y { return; }
         let target = Point::new(x, y);
         let idx = self.idx(&target);

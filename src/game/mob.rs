@@ -82,7 +82,7 @@ impl Mob {
         let is_blocked = |idx:&Point| -> bool { return blocked[((idx.y * 80)+idx.x) as usize]; };
         let mut starts : Vec<Point> = Vec::new();
         starts.push(player.position.clone());
-        let dmap = rltk::DijkstraMap::new(80, 50, &starts, &is_blocked);
+        let dmap = rltk::DijkstraMap::new(80, 50, &starts, &is_blocked, 8);
         let dest = dmap.find_lowest_exit(self.position);
 
         match dest {
