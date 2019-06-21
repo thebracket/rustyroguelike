@@ -35,8 +35,9 @@ pub use map::Map;
 
 extern crate rand;
 
-use map::MAX_MOBS_PER_ROOM;
-use rand::Rng;
+mod map_builder;
+use map_builder::random_rooms_tut3;
+use map_builder::spawn_mobs;
 
 pub struct State {
     pub map : Map,
@@ -70,35 +71,10 @@ impl GameState for State {
 
 impl State {
     pub fn new() -> State {
-        let mut rng = rand::thread_rng();
         let mut map = Map::new();
-        let rooms = map.random_rooms_tut3();
-
+        let rooms = random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
-
-        let mut mobs : Vec<Mob> = Vec::new();
-        for i in 1 .. rooms.len() {
-            let number_of_mobs = rng.gen_range(1, MAX_MOBS_PER_ROOM+1);
-            if number_of_mobs > 0 {
-                for _mobn in 1 .. number_of_mobs {
-                    let mob_x = rng.gen_range(rooms[i].x1+1, rooms[i].x2-1);
-                    let mob_y = rng.gen_range(rooms[i].y1+1, rooms[i].y2-1);
-
-                    let mut found = false;
-                    for existing_mob in mobs.iter() {
-                        if existing_mob.position.x == mob_x && existing_mob.position.y == mob_y {
-                            found = true;
-                        }
-                    }
-
-                    if !found {
-                        let mob = Mob::new_random(mob_x, mob_y, rng.gen_range(1,4));
-                        mobs.push(mob);
-                    }
-                }
-            }
-        }
-
+        let mobs = spawn_mobs(&rooms);
         let mut player = Player::new(player_x, player_y, 64, Color::yellow());
 
         // Start with a viewshed
