@@ -2,6 +2,7 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Console;
 use rltk::Point;
+use rltk::GameState;
 
 mod tiletype;
 pub use tiletype::TileType;
@@ -42,6 +43,29 @@ pub struct State {
     pub player : Player,
     pub mobs : Vec<Mob>,
     pub game_state : TickType
+}
+
+impl GameState for State {
+    fn tick(&mut self, console : &mut Console) {
+        self.map.draw(console);
+        self.player.draw(console, &self.map);
+        for mob in self.mobs.iter() {
+            mob.draw(console, &self.map);
+        }
+        console.set_bg(console.mouse_pos, Color::magenta());
+
+        self.display_mouse_info(console);
+
+        match self.game_state {
+            TickType::PlayersTurn => { 
+                self.player_tick(console);
+            }
+            TickType::EnemyTurn => {
+                self.mob_tick(console);
+                self.game_state = TickType::PlayersTurn; 
+            }
+        }
+    }
 }
 
 impl State {
@@ -126,28 +150,6 @@ impl State {
                 console.print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
             }
         }
-    }
-
-    pub fn tick(&mut self, console : &mut Console) {
-        self.map.draw(console);
-        self.player.draw(console, &self.map);
-        for mob in self.mobs.iter() {
-            mob.draw(console, &self.map);
-        }
-        console.set_bg(console.mouse_pos, Color::magenta());
-
-        self.display_mouse_info(console);
-
-        match self.game_state {
-            TickType::PlayersTurn => { 
-                self.player_tick(console);
-            }
-            TickType::EnemyTurn => {
-                self.mob_tick(console);
-                self.game_state = TickType::PlayersTurn; 
-            }
-        }
-        
     }
 
     fn player_tick(&mut self, console : &mut Console) {

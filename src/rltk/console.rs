@@ -3,6 +3,7 @@ use super::tile::Tile;
 use super::shader::Shader;
 use super::Rltk;
 use super::point::Point;
+use super::GameState;
 
 use gl::types::*;
 use std::ptr;
@@ -231,7 +232,7 @@ impl Console {
         }
     }
 
-    pub fn main_loop(&mut self, callback: &mut FnMut(&mut Console)) {
+    pub fn main_loop(&mut self, gamestate: &mut GameState) {
         let now = Instant::now();
         let mut prev_seconds = now.elapsed().as_secs();
         let mut frames = 0;
@@ -249,7 +250,7 @@ impl Console {
             // events
             // -----
             self.process_events();
-            callback(self);
+            gamestate.tick(self);
 
             // Console structure - doesn't really have to be every frame...
             if self.dirty {

@@ -1,3 +1,6 @@
+pub use self::interface::GameState;
+mod interface;
+
 pub use self::color::Color;
 mod color;
 
