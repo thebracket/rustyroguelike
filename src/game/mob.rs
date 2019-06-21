@@ -1,10 +1,9 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
-use rltk::DijkstraMap;
 use super::fighter::Fighter;
 use super::Player;
-use super::fighter::attack;
+//use super::fighter::attack;
 
 pub struct Mob {
     pub position : Point,
@@ -70,7 +69,7 @@ impl Mob {
         }
     }
 
-    fn attack_player(&mut self, player: &mut Player) {
+    fn attack_player(&mut self, _player: &mut Player) {
         /*let result = attack(self, player);
         for s in result.iter() {
             println!("{}", s);
