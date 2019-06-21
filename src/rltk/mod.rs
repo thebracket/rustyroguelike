@@ -1,5 +1,4 @@
 pub use self::interface::GameState;
-pub use self::interface::TilePathing;
 pub use self::interface::Algorithm2D;
 mod interface;
 
@@ -23,6 +22,9 @@ mod fieldofview;
 
 pub use self::dijkstra::DijkstraMap;
 mod dijkstra;
+
+mod astar;
+pub use self::astar::a_star_search;
 
 pub use self::geometry::distance2d_squared;
 pub use self::geometry::distance2d;

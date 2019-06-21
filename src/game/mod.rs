@@ -167,7 +167,7 @@ impl State {
 
     fn mob_tick(&mut self, _console: &mut Console) {
         self.map.refresh_blocked();
-        self.map.set_tile_blocked((self.player.position.y * 80) + self.player.position.x);
+        //self.map.set_tile_blocked((self.player.position.y * 80) + self.player.position.x);
         for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
 
         for mob in self.mobs.iter_mut() {

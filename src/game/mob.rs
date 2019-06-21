@@ -2,6 +2,7 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Point;
 use rltk::Algorithm2D;
+use rltk::a_star_search;
 use super::fighter::Fighter;
 use super::Player;
 use super::Map;
@@ -80,7 +81,18 @@ impl Mob {
     }
 
     fn path_to_player(&mut self, player: &mut Player, map : &mut Map) {
-        let mut starts : Vec<i32> = Vec::new();
+        let path = a_star_search(map.point2d_to_index(self.position), map.point2d_to_index(player.position), map);
+        if path.success {
+            let idx = path.steps[1];
+            if !map.is_tile_blocked(idx) {
+                let old_idx = (self.position.y * map.width) + self.position.x;
+                map.clear_tile_blocked(old_idx);
+                map.set_tile_blocked(idx);
+                self.position = map.index_to_point2d(idx);
+            }
+        }
+
+        /*let mut starts : Vec<i32> = Vec::new();
         starts.push(map.point2d_to_index(player.position));
         let dmap = rltk::DijkstraMap::new(map.width, map.height, &starts, map, 8.0);
         let dest = dmap.find_lowest_exit(map.point2d_to_index(self.position), map);
@@ -96,6 +108,6 @@ impl Mob {
                 }
 
             }
-        }
+        }*/
     }
 }

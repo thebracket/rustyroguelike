@@ -1,6 +1,6 @@
 use std::f32::MAX;
 use std::collections::HashSet;
-use super::TilePathing;
+use super::Algorithm2D;
 
 #[allow(dead_code)]
 pub struct DijkstraMap {
@@ -12,7 +12,7 @@ pub struct DijkstraMap {
 
 #[allow(dead_code)]
 impl DijkstraMap {
-    pub fn new(size_x : i32, size_y: i32, starts: &Vec<i32>, map: &TilePathing, max_depth : f32) -> DijkstraMap {
+    pub fn new(size_x : i32, size_y: i32, starts: &Vec<i32>, map: &Algorithm2D, max_depth : f32) -> DijkstraMap {
         let mut result : Vec<f32> = Vec::new();
         for _i in 0 .. (size_x * size_y) { result.push(MAX) }
         let mut d = DijkstraMap{ map : result, size_x : size_x, size_y : size_y, max_depth : max_depth};
@@ -28,7 +28,7 @@ impl DijkstraMap {
         open_list.push((idx, new_depth));
     }
 
-    fn build(&mut self, starts: &Vec<i32>, map: &TilePathing) {
+    fn build(&mut self, starts: &Vec<i32>, map: &Algorithm2D) {
         let mut open_list : Vec<(i32, f32)> = Vec::new();
         let mut closed_list : HashSet<i32> = HashSet::new();
 
@@ -55,7 +55,7 @@ impl DijkstraMap {
         }
     }
 
-    pub fn find_lowest_exit(&self, position : i32, map: &TilePathing) -> Option<i32> {
+    pub fn find_lowest_exit(&self, position : i32, map: &Algorithm2D) -> Option<i32> {
         let mut exits = map.get_available_exits(position);
 
         for exit in exits.iter_mut() {
@@ -68,7 +68,7 @@ impl DijkstraMap {
         return Some(exits[0].0);
     }
 
-    pub fn find_highest_exit(&self, position : i32, map: &TilePathing) -> Option<i32> {
+    pub fn find_highest_exit(&self, position : i32, map: &Algorithm2D) -> Option<i32> {
         let mut exits = map.get_available_exits(position);
 
         for exit in exits.iter_mut() {
