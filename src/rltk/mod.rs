@@ -66,7 +66,7 @@ impl Rltk {
         return Rltk{glfw: glfw, window: window, events: events, width_pixels: width_pixels, height_pixels: height_pixels};
     }
 
-    pub fn init_simple_console(width_chars:u32, height_chars:u32, window_title: String) -> Console {
+    pub fn init_simple_console(width_chars:u32, height_chars:u32, window_title: &str) -> Console {
         let rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, &window_title);
         let con = Console::init(width_chars, height_chars, rltk);
         return con;
