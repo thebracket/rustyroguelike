@@ -1,5 +1,6 @@
 pub use self::interface::GameState;
-pub use self::interface::TileVisibility;
+pub use self::interface::TilePathing;
+pub use self::interface::Algorithm2D;
 mod interface;
 
 pub use self::color::Color;

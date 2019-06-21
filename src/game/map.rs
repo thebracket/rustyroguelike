@@ -2,7 +2,8 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Console;
 use rltk::Point;
-use rltk::TileVisibility;
+use rltk::TilePathing;
+use rltk::Algorithm2D;
 
 use super::TileType;
 
@@ -173,7 +174,7 @@ impl Map {
     }    
 }
 
-impl TileVisibility for Map {
+impl Algorithm2D for Map {
     fn point2d_to_index(&self, pt : Point) -> i32 {
         return (pt.y * self.width) + pt.x;
     }    
@@ -185,7 +186,9 @@ impl TileVisibility for Map {
     fn can_see_through_tile(&self, idx: i32) -> bool {
         return self.is_transparent(idx % self.width, idx / self.width);
     }
+}
 
+impl TilePathing for Map {        
     fn get_available_exits(&self, idx:i32) -> Vec<(i32, f32)> {
         let mut exits : Vec<(i32, f32)> = Vec::new();
         let x = idx % self.width;

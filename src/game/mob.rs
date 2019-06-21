@@ -1,7 +1,7 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
-use rltk::TileVisibility;
+use rltk::Algorithm2D;
 use super::fighter::Fighter;
 use super::Player;
 use super::Map;

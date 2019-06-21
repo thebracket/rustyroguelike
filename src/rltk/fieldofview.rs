@@ -1,12 +1,12 @@
 use super::Point;
 use super::geometry::distance2d_squared;
-use super::TileVisibility;
+use super::Algorithm2D;
 
 extern crate bresenham;
 use bresenham::Bresenham;
 
 #[allow(dead_code)]
-pub fn field_of_view(start : &Point, range : i32, fov_check : &TileVisibility) -> Vec<Point> {
+pub fn field_of_view(start : &Point, range : i32, fov_check : &Algorithm2D) -> Vec<Point> {
     let mut result : Vec<Point> = Vec::new();
 
     let left = start.x - range;
@@ -36,7 +36,7 @@ pub fn field_of_view(start : &Point, range : i32, fov_check : &TileVisibility) -
     return result;
 }
 
-fn scan_fov_line(start: &Point, end: Point, range_squared : f32, fov_check : &TileVisibility) -> Vec<Point> {
+fn scan_fov_line(start: &Point, end: Point, range_squared : f32, fov_check : &Algorithm2D) -> Vec<Point> {
     let mut result : Vec<Point> = Vec::new();
     let line = Bresenham::new((start.x as isize, start.y as isize), (end.x as isize, end.y as isize));
 
