@@ -1,8 +1,10 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
+use rltk::TileVisibility;
 use super::fighter::Fighter;
 use super::Player;
+use super::Map;
 //use super::fighter::attack;
 
 pub struct Mob {
@@ -56,7 +58,7 @@ impl Mob {
         }
     }
 
-    pub fn turn_tick(&mut self, player: &mut Player, blocked : &mut Vec<bool>) {
+    pub fn turn_tick(&mut self, player: &mut Player, map : &mut Map) {
         let can_see_player = self.visible_tiles.contains(&player.position);
 
         if can_see_player {
@@ -64,7 +66,7 @@ impl Mob {
             if distance < 1.5 {
                 self.attack_player(player);
             } else {
-                self.path_to_player(player, blocked);
+                self.path_to_player(player, map);
             }
         }
     }
@@ -77,23 +79,20 @@ impl Mob {
         println!("{} calls you terrible names.", self.name);
     }
 
-    fn path_to_player(&mut self, player: &mut Player, blocked : &mut Vec<bool>) {
-        let is_blocked = |idx:&Point| -> bool { return blocked[((idx.y * 80)+idx.x) as usize]; };
-        let mut starts : Vec<Point> = Vec::new();
-        starts.push(player.position.clone());
-        let dmap = rltk::DijkstraMap::new(80, 50, &starts, &is_blocked, 8);
-        let dest = dmap.find_lowest_exit(self.position);
+    fn path_to_player(&mut self, player: &mut Player, map : &mut Map) {
+        let mut starts : Vec<i32> = Vec::new();
+        starts.push(map.point2d_to_index(player.position));
+        let dmap = rltk::DijkstraMap::new(map.width, map.height, &starts, map, 8.0);
+        let dest = dmap.find_lowest_exit(map.point2d_to_index(self.position), map);
 
         match dest {
             None => {}
-            Some(d) => {
-                let idx = ((d.y * 80) + d.x) as usize;
-                if !blocked[idx] {
-                    let old_idx = ((self.position.y * 80) + self.position.x) as usize;
-                    blocked[old_idx] = false;
-                    blocked[idx] = true;
-                    self.position.x = d.x;
-                    self.position.y = d.y;
+            Some(idx) => {
+                if !map.is_tile_blocked(idx) {
+                    let old_idx = (self.position.y * map.width) + self.position.x;
+                    map.clear_tile_blocked(old_idx);
+                    map.set_tile_blocked(idx);
+                    self.position = map.index_to_point2d(idx);
                 }
 
             }

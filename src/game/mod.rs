@@ -166,20 +166,12 @@ impl State {
     }
 
     fn mob_tick(&mut self, _console: &mut Console) {
-        let mut blocked : Vec<bool> = Vec::new();
-        for y in 0..50 {
-            for x in 0..80 {
-                blocked.push(!self.map.is_walkable(x,y));
-            }
-        }
-        blocked[((self.player.position.y * 80) + self.player.position.x) as usize] = true;
-        for mob in self.mobs.iter() {
-            let idx = ((mob.position.y * 80) + mob.position.x) as usize;
-            blocked[idx] = true;
-        }
+        self.map.refresh_blocked();
+        self.map.set_tile_blocked((self.player.position.y * 80) + self.player.position.x);
+        for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
 
         for mob in self.mobs.iter_mut() {
-            mob.turn_tick(&mut self.player, &mut blocked);
+            mob.turn_tick(&mut self.player, &mut self.map);
         }
         self.update_visibility();
     }
