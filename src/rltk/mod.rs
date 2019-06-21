@@ -1,4 +1,5 @@
 pub use self::interface::GameState;
+pub use self::interface::TileVisibility;
 mod interface;
 
 pub use self::color::Color;

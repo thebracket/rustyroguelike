@@ -1,11 +1,12 @@
 use super::Point;
 use super::geometry::distance2d_squared;
+use super::TileVisibility;
 
 extern crate bresenham;
 use bresenham::Bresenham;
 
 #[allow(dead_code)]
-pub fn field_of_view(start : &Point, range : i32, fov_check : &Fn(&Point)->bool) -> Vec<Point> {
+pub fn field_of_view(start : &Point, range : i32, fov_check : &TileVisibility) -> Vec<Point> {
     let mut result : Vec<Point> = Vec::new();
 
     let left = start.x - range;
@@ -35,7 +36,7 @@ pub fn field_of_view(start : &Point, range : i32, fov_check : &Fn(&Point)->bool)
     return result;
 }
 
-fn scan_fov_line(start: &Point, end: Point, range_squared : f32, fov_check : &Fn(&Point)->bool) -> Vec<Point> {
+fn scan_fov_line(start: &Point, end: Point, range_squared : f32, fov_check : &TileVisibility) -> Vec<Point> {
     let mut result : Vec<Point> = Vec::new();
     let line = Bresenham::new((start.x as isize, start.y as isize), (end.x as isize, end.y as isize));
 
@@ -46,7 +47,7 @@ fn scan_fov_line(start: &Point, end: Point, range_squared : f32, fov_check : &Fn
             let target = Point::new(x as i32, y as i32);
             let dsq = distance2d_squared(start, &target);
             if dsq <= range_squared {
-                if fov_check(&target) {
+                if fov_check.can_see_through_tile(fov_check.point2d_to_index(target)) {
                     blocked = true;
                 }
                 result.push(target);

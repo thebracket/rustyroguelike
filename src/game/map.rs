@@ -2,6 +2,7 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Console;
 use rltk::Point;
+use rltk::TileVisibility;
 
 use super::TileType;
 
@@ -139,5 +140,15 @@ impl Map {
             }
         }
         return "".to_string();
+    }
+}
+
+impl TileVisibility for Map {
+    fn can_see_through_tile(&self, idx: i32) -> bool {
+        return self.is_transparent(idx % self.width, idx / self.width);
+    }
+
+    fn point2d_to_index(&self, pt : Point) -> i32 {
+        return (pt.y * self.width) + pt.x;
     }
 }
