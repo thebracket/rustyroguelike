@@ -55,7 +55,6 @@ impl DijkstraMap {
         }
     }
 
-
     pub fn find_lowest_exit(&self, position : i32, map: &TileVisibility) -> Option<i32> {
         let mut exits = map.get_available_exits(position);
 
@@ -65,6 +64,19 @@ impl DijkstraMap {
 
         if exits.is_empty() { return None; }
         exits.sort_by(|a,b| a.1.partial_cmp(&b.1).unwrap() );
+
+        return Some(exits[0].0);
+    }
+
+    pub fn find_highest_exit(&self, position : i32, map: &TileVisibility) -> Option<i32> {
+        let mut exits = map.get_available_exits(position);
+
+        for exit in exits.iter_mut() {
+            exit.1 = self.map[exit.0 as usize] as f32;
+        }
+
+        if exits.is_empty() { return None; }
+        exits.sort_by(|a,b| b.1.partial_cmp(&a.1).unwrap() );
 
         return Some(exits[0].0);
     }
