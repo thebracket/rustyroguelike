@@ -8,21 +8,23 @@ use super::TileType;
 pub struct Map {
     pub tiles : Vec<TileType>,
     pub visible : Vec<bool>,
-    pub revealed : Vec<bool>
+    pub revealed : Vec<bool>,
+    pub width: i32,
+    pub height: i32
 }
 
 impl Map {
-    pub fn new() -> Map {
+    pub fn new(w:i32, h:i32) -> Map {
         let mut visible = Vec::new();
         let mut blank_map = Vec::new();
         let mut revealed = Vec::new();
-        for _i in 0 .. (80*50) {
+        for _i in 0 .. (w*h) {
             blank_map.push(TileType::Wall);
             visible.push(false);
             revealed.push(false);
         }
 
-        return Map{tiles : blank_map, visible: visible, revealed: revealed};
+        return Map{tiles : blank_map, visible: visible, revealed: revealed, width: w, height: h};
     }
 
     pub fn set_visibility(&mut self, vis : &Vec<Point>) {
@@ -43,8 +45,8 @@ impl Map {
         console.cls();
 
         let mut idx = 0;
-        for y in 0 .. 50 {
-            for x in 0 .. 80 {
+        for y in 0 .. self.height {
+            for x in 0 .. self.width {
 
                 // You wouldn't normally make this mess - clean up!
                 let coord = Point::new(x, y);
@@ -70,7 +72,7 @@ impl Map {
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
         if self.valid_tile(x, y) {
-            return Some(((y*80)+x) as usize);
+            return Some(((y*self.width)+x) as usize);
         } else {
             return None;
         }
@@ -78,7 +80,7 @@ impl Map {
 
     // Utility function: bounds checking
     fn valid_tile(&self, x:i32, y:i32) -> bool {
-        return x > 0 && x < 79 && y > 0 && y < 49;
+        return x > 0 && x < self.width-1 && y > 0 && y < self.height-1;
     }
 
     // Utility function: is a tile walkable

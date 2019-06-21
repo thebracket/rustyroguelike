@@ -71,7 +71,7 @@ impl GameState for State {
 
 impl State {
     pub fn new() -> State {
-        let mut map = Map::new();
+        let mut map = Map::new(80, 50);
         let rooms = random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
         let mobs = spawn_mobs(&rooms);
