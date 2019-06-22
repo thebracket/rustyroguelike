@@ -17,8 +17,8 @@ pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
     for _i in 1..MAX_ROOMS {
         let w = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
         let h = rng.gen_range(ROOM_MIN_SIZE, ROOM_MAX_SIZE);
-        let x = rng.gen_range(1, 80 - w - 1);
-        let y = rng.gen_range(1, 50 - h - 1);
+        let x = rng.gen_range(1, map.width - w - 1);
+        let y = rng.gen_range(1, map.height - h - 1);
 
         let room_candidate = Rect::new(x, y, x+w, y+h);
 
@@ -54,8 +54,8 @@ pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
 fn apply_room(map : &mut Map, rect : &Rect) {
     for y in min(rect.y1, rect.y2) .. max(rect.y1, rect.y2) {
         for x in min(rect.x1, rect.x2) .. max(rect.x1, rect.x2) {
-            let idx = (y * 80) + x;
-            if idx > 0 && idx < 80*50 {
+            let idx = (y * map.width) + x;
+            if idx > 0 && idx < map.width*map.height {
                 map.tiles[idx as usize] = TileType::Floor;
             }
         }
@@ -64,8 +64,8 @@ fn apply_room(map : &mut Map, rect : &Rect) {
 
 fn apply_horizontal_tunnel(map: &mut Map, x1:i32, x2:i32, y:i32) {
     for x in min(x1,x2) .. max(x1,x2)+1 {
-        let idx = (y * 80) + x;
-        if idx > 0 && idx < 80*50 {
+        let idx = (y * map.width) + x;
+        if idx > 0 && idx < map.width*map.height {
             map.tiles[idx as usize] = TileType::Floor;
         }
     }
@@ -73,8 +73,8 @@ fn apply_horizontal_tunnel(map: &mut Map, x1:i32, x2:i32, y:i32) {
 
 fn apply_vertical_tunnel(map: &mut Map, y1:i32, y2:i32, x:i32) {
     for y in min(y1,y2) .. max(y1,y2)+1 {
-        let idx = (y * 80) + x;
-        if idx > 0 && idx < 80*50 {
+        let idx = (y * map.width) + x;
+        if idx > 0 && idx < map.width*map.height {
             map.tiles[idx as usize] = TileType::Floor;
         }
     }

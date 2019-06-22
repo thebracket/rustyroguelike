@@ -6,7 +6,7 @@ use rltk::a_star_search;
 use super::fighter::Fighter;
 use super::Player;
 use super::Map;
-//use super::fighter::attack;
+use super::fighter::attack;
 
 pub struct Mob {
     pub position : Point,
@@ -59,25 +59,23 @@ impl Mob {
         }
     }
 
-    pub fn turn_tick(&mut self, player: &mut Player, map : &mut Map) {
+    pub fn turn_tick(&mut self, player: &mut Player, map : &mut Map) -> Vec<String> {
         let can_see_player = self.visible_tiles.contains(&player.position);
 
         if can_see_player {
             let distance = rltk::distance2d(&mut player.position, &self.position);
             if distance < 1.5 {
-                self.attack_player(player);
+                return self.attack_player(player);
             } else {
                 self.path_to_player(player, map);
             }
         }
+        return Vec::new();
     }
 
-    fn attack_player(&mut self, _player: &mut Player) {
-        /*let result = attack(self, player);
-        for s in result.iter() {
-            println!("{}", s);
-        }*/
-        println!("{} calls you terrible names.", self.name);
+    fn attack_player(&mut self, player: &mut Player) -> Vec<String> {
+        let result = attack(self, player);
+        return result;
     }
 
     fn path_to_player(&mut self, player: &mut Player, map : &mut Map) {
@@ -91,23 +89,5 @@ impl Mob {
                 self.position = map.index_to_point2d(idx);
             }
         }
-
-        /*let mut starts : Vec<i32> = Vec::new();
-        starts.push(map.point2d_to_index(player.position));
-        let dmap = rltk::DijkstraMap::new(map.width, map.height, &starts, map, 8.0);
-        let dest = dmap.find_lowest_exit(map.point2d_to_index(self.position), map);
-
-        match dest {
-            None => {}
-            Some(idx) => {
-                if !map.is_tile_blocked(idx) {
-                    let old_idx = (self.position.y * map.width) + self.position.x;
-                    map.clear_tile_blocked(old_idx);
-                    map.set_tile_blocked(idx);
-                    self.position = map.index_to_point2d(idx);
-                }
-
-            }
-        }*/
     }
 }

@@ -381,6 +381,33 @@ impl Console {
         }
     }
 
+    pub fn draw_box(&mut self, pt:Point, width:i32, height:i32, fg: Color, bg: Color) {
+        self.set(pt, fg, bg, 218);
+        self.set(Point::new(pt.x + width, pt.y), fg, bg, 191);
+        self.set(Point::new(pt.x, pt.y + height), fg, bg, 192);
+        self.set(Point::new(pt.x + width, pt.y + height), fg, bg, 217);
+        for x in pt.x+1 .. pt.x + width {
+            self.set(Point::new(x, pt.y), fg, bg, 196);
+            self.set(Point::new(x, pt.y + height), fg, bg, 196);
+        }
+        for y in pt.y+1 .. pt.y + height {
+            self.set(Point::new(pt.x, y), fg, bg, 179);
+            self.set(Point::new(pt.x + width, y), fg, bg, 179);
+        }
+    }
+
+    pub fn draw_bar_horizontal(&mut self, pt:Point, width:i32, n:i32, max:i32, fg:Color, bg: Color) {
+        let percent = n as f32 / max as f32;
+        let fill_width = (percent * width as f32) as i32;
+        for x in 0..width {
+            if x <= fill_width {
+                self.set(Point::new(pt.x + x, pt.y), fg, bg, 178);
+            } else {
+                self.set(Point::new(pt.x + x, pt.y), fg, bg, 176);
+            }
+        }
+    }
+
     pub fn quit(&mut self) {
         self.ctx.window.set_should_close(true)
     }

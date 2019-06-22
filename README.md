@@ -33,3 +33,7 @@ Mouse support and a variety of mobs:
 Dijkstra-flow map based pathfinding (A* will follow) for basic mob AI:
 
 ![Animated GIF](/resources/RustyRoguelike5.gif)
+
+A-Star based pathfinding, and the beginnings of a user interface, log and end-game:
+
+![Animated GIF](/resources/RustyRoguelike6.gif)

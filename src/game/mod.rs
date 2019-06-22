@@ -43,7 +43,8 @@ pub struct State {
     pub map : Map,
     pub player : Player,
     pub mobs : Vec<Mob>,
-    pub game_state : TickType
+    pub game_state : TickType,
+    pub log : Vec<String>
 }
 
 impl GameState for State {
@@ -54,6 +55,7 @@ impl GameState for State {
             mob.draw(console, &self.map);
         }
         console.set_bg(console.mouse_pos, Color::magenta());
+        self.draw_ui(console);
 
         self.display_mouse_info(console);
 
@@ -63,7 +65,11 @@ impl GameState for State {
             }
             TickType::EnemyTurn => {
                 self.mob_tick(console);
-                self.game_state = TickType::PlayersTurn; 
+                self.game_state = TickType::PlayersTurn;
+                if self.player.fighter.dead { self.game_state = TickType::GameOver; }
+            }
+            TickType::GameOver => {
+                console.print(Point::new(10, 10),"You are dead.".to_string());
             }
         }
     }
@@ -71,7 +77,7 @@ impl GameState for State {
 
 impl State {
     pub fn new() -> State {
-        let mut map = Map::new(80, 50);
+        let mut map = Map::new(80, 43);
         let rooms = random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
         let mobs = spawn_mobs(&rooms);
@@ -81,7 +87,7 @@ impl State {
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
-        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn };
+        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new() };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
@@ -91,12 +97,14 @@ impl State {
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
 
             // Lets see if we are bumping a mob
+            let mut tmp : Vec<String> = Vec::new();
             for mob in self.mobs.iter_mut() {
                 if mob.position.x == new_x && mob.position.y == new_y {
                     // We are
                     let result = attack(&mut self.player, mob);
                     for s in result.iter() {
-                        println!("{}", s);
+                        let tmp_str : String = (*s.clone()).to_string();
+                        tmp.push(tmp_str);
                     }
                     can_move = false;
                 }
@@ -106,6 +114,10 @@ impl State {
             if can_move {
                 self.player.position.x = new_x;
                 self.player.position.y = new_y;
+            }
+
+            for s in tmp {
+                self.add_log_entry(s);
             }
         }
     }
@@ -170,10 +182,17 @@ impl State {
         //self.map.set_tile_blocked((self.player.position.y * 80) + self.player.position.x);
         for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
 
+        let mut tmp : Vec<String> = Vec::new();
         for mob in self.mobs.iter_mut() {
-            mob.turn_tick(&mut self.player, &mut self.map);
+            let result = mob.turn_tick(&mut self.player, &mut self.map);
+            for s in result {
+                tmp.push(s.clone().to_string());
+            }
         }
         self.update_visibility();
+        for s in tmp {
+            self.add_log_entry(s);
+        }
     }
 
     fn update_visibility(&mut self) {
@@ -182,5 +201,24 @@ impl State {
             for mob in self.mobs.iter_mut() {
                 mob.plot_visibility(&self.map);
             }
+    }
+
+    fn draw_ui(&self, console: &mut Console) {
+        console.draw_box(Point::new(1, 43), 78, 6, Color::white(), Color::black());
+        let health = format!(" HP: {} / {} ", self.player.fighter.hp, self.player.fighter.max_hp);
+        console.print_color(Point::new(3,43), Color::yellow(), Color::black(), health);
+
+        console.draw_bar_horizontal(Point::new(20, 43), 59, self.player.fighter.hp, self.player.fighter.max_hp, Color::red(), Color::black());
+
+        let mut y = 44;
+        for s in self.log.iter() {
+            console.print(Point::new(2, y), s.to_string());
+            y += 1;
+        }
+    }
+
+    fn add_log_entry(&mut self, line : String) {
+        self.log.insert(0, line.clone());
+        while self.log.len() > 5 { self.log.remove(4); }
     }
 }
