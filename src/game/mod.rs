@@ -70,7 +70,13 @@ impl GameState for State {
                 if self.player.fighter.dead { self.game_state = TickType::GameOver; }
             }
             TickType::GameOver => {
-                ctx.con().print(Point::new(10, 10),"You are dead.".to_string());
+                ctx.con().cls();
+                ctx.con().print_color(Point::new(33, 25), Color::red(), Color::black(), "You are dead.".to_string());
+                ctx.con().print_color(Point::new(28, 27), Color::white(), Color::black(), "Press any key to quit.".to_string());
+                match ctx.key {
+                    Some(_) => { ctx.quit(); }
+                    None => {}
+                }
             }
         }
     }

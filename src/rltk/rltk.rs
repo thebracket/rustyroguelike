@@ -141,6 +141,10 @@ impl Rltk {
         }
     }
 
+    pub fn quit(&mut self) {
+        self.window.set_should_close(true)
+    }
+
     pub fn set_active_console(&mut self, con : usize) {
         self.active_console = con;
     }
