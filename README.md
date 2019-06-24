@@ -37,3 +37,7 @@ Dijkstra-flow map based pathfinding (A* will follow) for basic mob AI:
 A-Star based pathfinding, and the beginnings of a user interface, log and end-game:
 
 ![Animated GIF](/screenshots/RustyRoguelike6.gif)
+
+Nicer tooltips:
+
+![Animated GIF](/screenshots/RustyRoguelike7.gif)
