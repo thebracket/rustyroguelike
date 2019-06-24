@@ -81,25 +81,11 @@ impl Console {
         let mut texture = 0;
         unsafe {
             // build and compile our shader program
-            // ------------------------------------
             let ourShader = Shader::new(
                 "resources/4.1.texture.vs",
                 "resources/4.1.texture.fs");
 
-            // set up vertex data (and buffer(s)) and configure vertex attributes
-            // ------------------------------------------------------------------
-            // HINT: type annotation is crucial since default for float literals is f64
-            let vertices: [f32; 44] = [
-                // positions       // colors        // texture coords
-                0.5,  0.5, 0.0,   1.0, 0.0, 0.0,  0.0,0.0,0.0,   1.0, 1.0, // top right
-                0.5, -0.5, 0.0,   0.0, 1.0, 0.0,  0.0,0.0,0.0,  1.0, 0.0, // bottom right
-                -0.5, -0.5, 0.0,   0.0, 0.0, 1.0, 0.0,0.0,0.0,   0.0, 0.0, // bottom left
-                -0.5,  0.5, 0.0,   1.0, 1.0, 0.0, 0.0,0.0,0.0,   0.0, 1.0  // top left
-            ];
-            let indices = [
-                0, 1, 3,  // first Triangle
-                1, 2, 3   // second Triangle
-            ];
+            // Generate buffers and arrays, as well as attributes.
             let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
             gl::GenVertexArrays(1, &mut VAO);
             gl::GenBuffers(1, &mut VBO);
@@ -108,16 +94,6 @@ impl Console {
             gl::BindVertexArray(VAO);
 
             gl::BindBuffer(gl::ARRAY_BUFFER, VBO);
-            gl::BufferData(gl::ARRAY_BUFFER,
-                        (vertices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                        &vertices[0] as *const f32 as *const c_void,
-                        gl::STATIC_DRAW);
-
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, EBO);
-            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
-                        (indices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                        &indices[0] as *const i32 as *const c_void,
-                        gl::STATIC_DRAW);
 
             let stride = 11 * mem::size_of::<GLfloat>() as GLsizei;
             // position attribute
@@ -141,6 +117,7 @@ impl Console {
             // set texture filtering parameters
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::LINEAR as i32);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
+            
             // load image, create texture and generate mipmaps
             let img_orig = image::open(&Path::new("resources/terminal8x8.jpg")).expect("Failed to load texture");
             let img = img_orig.flipv();
