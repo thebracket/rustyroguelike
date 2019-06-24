@@ -8,6 +8,7 @@ use super::GameState;
 use std::time::{Instant};
 use super::Point;
 use super::Font;
+pub use glfw::Key;
 
 #[allow(non_snake_case)]
 pub struct Rltk {
@@ -18,7 +19,7 @@ pub struct Rltk {
     pub height_pixels : u32,
     pub consoles : Vec<Console>,
     pub fps: f64,
-    pub key : Option<i32>,
+    pub key : Option<Key>,
     pub mouse_pos : Point,
     pub left_click : bool,
     pub active_console: usize
@@ -119,11 +120,11 @@ impl Rltk {
                     unsafe { gl::Viewport(0, 0, width, height) }
                 }
 
-                glfw::WindowEvent::Key(_, KEY, Action::Press, _) => {
+                glfw::WindowEvent::Key(KEY, _, Action::Press, _) => {
                     self.key = Some(KEY);
                 }
 
-                glfw::WindowEvent::Key(_, KEY, Action::Repeat, _) => {
+                glfw::WindowEvent::Key(KEY, _, Action::Repeat, _) => {
                     self.key = Some(KEY);
                 }
 

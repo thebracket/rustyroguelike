@@ -246,32 +246,32 @@ impl State {
         match ctx.key {
             Some(key) => {
                 match key {
-                //1 => { console.quit() }
+                glfw::Key::Escape => { ctx.quit() }
 
                 // Numpad
-                72 => { self.move_player(0, -1); turn_ended = true; }
-                75 => { self.move_player(-1, 0); turn_ended = true; }
-                77 => { self.move_player(1, 0); turn_ended = true; }
-                80 => { self.move_player(0, 1); turn_ended = true; }
+                glfw::Key::Num8 => { self.move_player(0, -1); turn_ended = true; }
+                glfw::Key::Num4 => { self.move_player(-1, 0); turn_ended = true; }
+                glfw::Key::Num6 => { self.move_player(1, 0); turn_ended = true; }
+                glfw::Key::Num2 => { self.move_player(0, 1); turn_ended = true; }
 
-                71 => { self.move_player(-1, -1); turn_ended = true; }
-                73 => { self.move_player(1, -1); turn_ended = true; }
-                79 => { self.move_player(-1, 1); turn_ended = true; }
-                81 => { self.move_player(1, 1); turn_ended = true; }
+                glfw::Key::Num7 => { self.move_player(-1, -1); turn_ended = true; }
+                glfw::Key::Num1 => { self.move_player(1, -1); turn_ended = true; }
+                glfw::Key::Num9 => { self.move_player(-1, 1); turn_ended = true; }
+                glfw::Key::Num3 => { self.move_player(1, 1); turn_ended = true; }
 
                 // Cursors
-                328 => { self.move_player(0, -1); turn_ended = true; }
-                336 => { self.move_player(0, 1); turn_ended = true; }
-                331 => { self.move_player(-1, 0); turn_ended = true; }
-                333 => { self.move_player(1, 0); turn_ended = true; }
+                glfw::Key::Up => { self.move_player(0, -1); turn_ended = true; }
+                glfw::Key::Down => { self.move_player(0, 1); turn_ended = true; }
+                glfw::Key::Left => { self.move_player(-1, 0); turn_ended = true; }
+                glfw::Key::Right => { self.move_player(1, 0); turn_ended = true; }
 
                 // Pick up
-                34 => { self.pickup(); turn_ended = true; }
+                glfw::Key::G => { self.pickup(); turn_ended = true; }
 
                 // Use
-                22 => { self.use_menu(); }
+                glfw::Key::U => { self.use_menu(); }
 
-                _ =>  { println!("You pressed: {}", key) }                
+                _ =>  { }
                 }
             }
             None => {}
