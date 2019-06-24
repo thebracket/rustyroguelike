@@ -24,22 +24,24 @@ pub struct Console {
     pub height: u32,
     pub font_width: u8,
     pub font_height: u8,
-    console_texture: u32,
-    ourShader: Shader,
-    VBO: u32,
-    VAO: u32,
-    EBO: u32,
-    tiles: Vec<Tile>,
-    ctx: Rltk,
-    dirty: bool,
     pub fps: f64,
     pub key : Option<i32>,
     pub mouse_pos : Point,
     pub left_click : bool,
 
+    // Private
+    tiles: Vec<Tile>,
+    ctx: Rltk,
+    is_dirty: bool,
+
     // GL Stuff
     vertex_buffer : Vec<f32>,
-    index_buffer : Vec<i32>
+    index_buffer : Vec<i32>,
+    console_texture: u32,
+    console_shader: Shader,
+    VBO: u32,
+    VAO: u32,
+    EBO: u32,
 }
 
 #[allow(dead_code)]
@@ -53,19 +55,19 @@ impl Console {
             tiles.push(Tile{glyph: 0, fg: Color::white(), bg: Color::black()});
         }
 
-        let (ourShader, VBO, VAO, EBO, texture) = Console::init_gl_for_console();
+        let (console_shader, VBO, VAO, EBO, texture) = Console::init_gl_for_console();
         
         return Console{
             width: width, 
             height: height, 
             console_texture: texture,
-            ourShader: ourShader,
+            console_shader: console_shader,
             VBO: VBO,
             VAO: VAO,
             EBO: EBO,
             tiles: tiles,
             ctx: ctx,
-            dirty: true,
+            is_dirty: true,
             fps: 0.0,
             key: None,
             mouse_pos: Point::new(0,0),
@@ -81,9 +83,7 @@ impl Console {
         let mut texture = 0;
         unsafe {
             // build and compile our shader program
-            let ourShader = Shader::new(
-                "resources/4.1.texture.vs",
-                "resources/4.1.texture.fs");
+            let console_shader = Shader::new("resources/4.1.texture.vs", "resources/4.1.texture.fs");
 
             // Generate buffers and arrays, as well as attributes.
             let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
@@ -133,7 +133,7 @@ impl Console {
                         &data[0] as *const u8 as *const c_void);
             gl::GenerateMipmap(gl::TEXTURE_2D);
 
-            return (ourShader, VBO, VAO, EBO, texture)
+            return (console_shader, VBO, VAO, EBO, texture)
         };
     }
 
@@ -230,9 +230,9 @@ impl Console {
             gamestate.tick(self);
 
             // Console structure - doesn't really have to be every frame...
-            if self.dirty {
+            if self.is_dirty {
                 self.rebuild_vertices();
-                self.dirty = false;
+                self.is_dirty = false;
             }
 
             unsafe {
@@ -243,7 +243,7 @@ impl Console {
                 gl::BindTexture(gl::TEXTURE_2D, self.console_texture);
 
                 // render container
-                self.ourShader.useProgram();
+                self.console_shader.useProgram();
                 gl::BindVertexArray(self.VAO);
                 gl::DrawElements(gl::TRIANGLES, (self.width * self.height * 6) as i32, gl::UNSIGNED_INT, ptr::null());
             }
@@ -296,7 +296,7 @@ impl Console {
     }
 
     pub fn cls(&mut self) {
-        self.dirty = true;
+        self.is_dirty = true;
         for tile in self.tiles.iter_mut() {
             tile.glyph = 0;
             tile.fg = Color::white();
@@ -305,7 +305,7 @@ impl Console {
     }
 
     pub fn print(&mut self, pt:Point, text:String) {
-        self.dirty = true;
+        self.is_dirty = true;
         let mut idx = self.at(pt);
 
         let bytes = text.as_bytes();
@@ -318,7 +318,7 @@ impl Console {
     }
 
     pub fn print_color(&mut self, pt:Point, fg:Color, bg:Color, text:String) {
-        self.dirty = true;
+        self.is_dirty = true;
         let mut idx = self.at(pt);
 
         let bytes = text.as_bytes();
