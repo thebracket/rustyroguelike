@@ -53,7 +53,7 @@ pub fn attack(instigator: &mut Combat, target: &mut Combat) -> Vec<String> {
 
 impl Combat for Player {
     fn take_damage(&mut self, amount:i32) {
-        self.fighter.hp -= amount;
+        //self.fighter.hp -= amount;
     }
 
     fn heal_damage(&mut self, amount:i32) {

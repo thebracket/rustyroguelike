@@ -299,6 +299,12 @@ impl Console {
     }
 
     pub fn draw_box(&mut self, pt:Point, width:i32, height:i32, fg: Color, bg: Color) {
+        for y in pt.y .. pt.y + height {
+            for x in pt.x .. pt.x + width {
+                self.set(Point::new(x,y), Color::white(), Color::black(), 32);
+            }
+        }
+
         self.set(pt, fg, bg, 218);
         self.set(Point::new(pt.x + width, pt.y), fg, bg, 191);
         self.set(Point::new(pt.x, pt.y + height), fg, bg, 192);

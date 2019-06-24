@@ -1,3 +1,3 @@
 pub enum TickType {
-    PlayersTurn, EnemyTurn, GameOver
+    PlayersTurn, EnemyTurn, GameOver, UseMenu
 }

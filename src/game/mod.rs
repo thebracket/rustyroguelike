@@ -89,6 +89,9 @@ impl GameState for State {
                     None => {}
                 }
             }
+            TickType::UseMenu => {
+                self.draw_use_menu(ctx.con());
+            }
         }
     }
 }
@@ -165,6 +168,14 @@ impl State {
                     self.add_log_entry(s.clone());
                 }
             }
+        }
+    }
+
+    fn use_menu(&mut self) {
+        if self.player.inventory.items.is_empty() {
+            self.add_log_entry("You don't have any usable items".to_string());
+        } else {
+            self.game_state = TickType::UseMenu;
         }
     }
 
@@ -257,6 +268,9 @@ impl State {
                 // Pick up
                 34 => { self.pickup(); turn_ended = true; }
 
+                // Use
+                22 => { self.use_menu(); }
+
                 _ =>  { println!("You pressed: {}", key) }                
                 }
             }
@@ -306,6 +320,24 @@ impl State {
         for s in self.log.iter() {
             console.print(Point::new(2, y), s.to_string());
             y += 1;
+        }
+    }
+
+    fn draw_use_menu(&self, console: &mut Console) {
+        let count = self.player.inventory.items.len();
+        let mut y = (25 - (count / 2)) as i32;
+        let mut j = 0;
+
+        console.draw_box(Point::new(16, y-2), 20, (count+3) as i32, Color::white(), Color::black());
+
+        for i in self.player.inventory.items.iter() {
+            console.set(Point::new(17, y), Color::white(), Color::black(), 40);
+            console.set(Point::new(17, y), Color::yellow(), Color::black(), 97+j);
+            console.set(Point::new(19, y), Color::white(), Color::black(), 41);
+
+            console.print(Point::new(21, y), i.name.to_string());
+            y += 1;
+            j += 1;
         }
     }
 
