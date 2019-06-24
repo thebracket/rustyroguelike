@@ -37,6 +37,9 @@ pub use map::Map;
 mod item;
 use item::Item;
 
+mod inventory;
+use inventory::Inventory;
+
 extern crate rand;
 
 mod map_builder;
@@ -48,7 +51,7 @@ pub struct State {
     pub map : Map,
     pub player : Player,
     pub mobs : Vec<Mob>,
-    pub ground_items : Vec<Item>,
+    pub items : Vec<Item>,
     pub game_state : TickType,
     pub log : Vec<String>
 }
@@ -60,7 +63,7 @@ impl GameState for State {
         for mob in self.mobs.iter() {
             mob.draw(ctx.con(), &self.map);
         }
-        for item in self.ground_items.iter() {
+        for item in self.items.iter() {
             item.draw(ctx.con(), &self.map);
         }
         ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
@@ -103,7 +106,7 @@ impl State {
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
-        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new(), ground_items: items };
+        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new(), items: items };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
@@ -138,6 +141,33 @@ impl State {
         }
     }
 
+    fn pickup(&mut self) {
+        let mut target : Option<&mut Item> = None;
+
+        let mut i = 0;
+        let mut item_index = 0;
+        for item in self.items.iter_mut() {
+            if item.position == self.player.position {
+                // We can do it!
+                target = Some(item);
+                item_index = i;
+            }
+            i += 1;
+        }
+
+        match target {
+            None => { self.add_log_entry("There is nothing here to pick up.".to_string() ); }
+            Some(i) => {
+                let my_item = i.clone();
+                let results = self.player.inventory.add_item(my_item); 
+                self.items.remove(item_index);
+                for s in results.iter() {
+                    self.add_log_entry(s.clone());
+                }
+            }
+        }
+    }
+
     fn display_mouse_info(&mut self, ctx : &mut Rltk) {
         if self.map.is_tile_visible(&ctx.mouse_pos) {
             let mut tooltip : Vec<String> = Vec::new();
@@ -151,7 +181,7 @@ impl State {
                 }
             }
 
-            for item in self.ground_items.iter() {
+            for item in self.items.iter() {
                 if item.position == ctx.mouse_pos {
                     tooltip.push(item.get_tooltip());
                 }
@@ -223,6 +253,9 @@ impl State {
                 336 => { self.move_player(0, 1); turn_ended = true; }
                 331 => { self.move_player(-1, 0); turn_ended = true; }
                 333 => { self.move_player(1, 0); turn_ended = true; }
+
+                // Pick up
+                34 => { self.pickup(); turn_ended = true; }
 
                 _ =>  { println!("You pressed: {}", key) }                
                 }

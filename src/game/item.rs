@@ -2,6 +2,7 @@ use crate::rltk;
 use rltk::Color;
 use rltk::Point;
 
+#[derive(PartialEq, Clone)]
 pub struct Item {
     pub position : Point,
     pub glyph: u8,
