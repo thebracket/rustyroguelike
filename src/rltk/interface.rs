@@ -1,8 +1,8 @@
-use super::Console;
+use super::Rltk;
 use super::Point;
 
 pub trait GameState {
-    fn tick(&mut self, console : &mut Console);
+    fn tick(&mut self, ctx : &mut Rltk);
 }
 
 pub trait Algorithm2D {

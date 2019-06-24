@@ -1,5 +1,6 @@
 use crate::rltk;
 use rltk::Color;
+use rltk::Rltk;
 use rltk::Console;
 use rltk::Point;
 use rltk::GameState;
@@ -48,28 +49,28 @@ pub struct State {
 }
 
 impl GameState for State {
-    fn tick(&mut self, console : &mut Console) {
-        self.map.draw(console);
-        self.player.draw(console, &self.map);
+    fn tick(&mut self, ctx : &mut Rltk) {
+        self.map.draw(&mut ctx.consoles[0]);
+        self.player.draw(&mut ctx.consoles[0], &self.map);
         for mob in self.mobs.iter() {
-            mob.draw(console, &self.map);
+            mob.draw(&mut ctx.consoles[0], &self.map);
         }
-        console.set_bg(console.mouse_pos, Color::magenta());
-        self.draw_ui(console);
+        ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
+        self.draw_ui(&mut ctx.consoles[0]);
 
-        self.display_mouse_info(console);
+        self.display_mouse_info(ctx, 0);
 
         match self.game_state {
             TickType::PlayersTurn => { 
-                self.player_tick(console);
+                self.player_tick(ctx);
             }
             TickType::EnemyTurn => {
-                self.mob_tick(console);
+                self.mob_tick(&mut ctx.consoles[0]);
                 self.game_state = TickType::PlayersTurn;
                 if self.player.fighter.dead { self.game_state = TickType::GameOver; }
             }
             TickType::GameOver => {
-                console.print(Point::new(10, 10),"You are dead.".to_string());
+                ctx.consoles[0].print(Point::new(10, 10),"You are dead.".to_string());
             }
         }
     }
@@ -122,31 +123,31 @@ impl State {
         }
     }
 
-    fn display_mouse_info(&mut self, console : &mut Console) {
-        if self.map.is_tile_visible(&console.mouse_pos) {
-            let tile_info = self.map.tile_description(&console.mouse_pos);
-            console.print_color(Point::new(0,0), Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
+    fn display_mouse_info(&mut self, ctx : &mut Rltk, console: usize) {
+        if self.map.is_tile_visible(&ctx.mouse_pos) {
+            let tile_info = self.map.tile_description(&ctx.mouse_pos);
+            ctx.consoles[console].print_color(Point::new(0,0), Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {
-                if mob.position == console.mouse_pos {
-                    console.print_color(Point::new(0,1), Color::white(), Color::red(), "Enemy:".to_string());
-                    console.print_color(Point::new(7,1), Color::red(), Color::black(), format!("{}", mob.name));
+                if mob.position == ctx.mouse_pos {
+                    ctx.consoles[console].print_color(Point::new(0,1), Color::white(), Color::red(), "Enemy:".to_string());
+                    ctx.consoles[console].print_color(Point::new(7,1), Color::red(), Color::black(), format!("{}", mob.name));
                 }
             }
 
-            if self.player.position == console.mouse_pos {
-                console.print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
+            if self.player.position == ctx.mouse_pos {
+                ctx.consoles[console].print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
             }
         }
     }
 
-    fn player_tick(&mut self, console : &mut Console) {
+    fn player_tick(&mut self, ctx : &mut Rltk) {
         let mut turn_ended = false;
 
-        match console.key {
+        match ctx.key {
             Some(key) => {
                 match key {
-                1 => { console.quit() }
+                //1 => { console.quit() }
 
                 // Numpad
                 72 => { self.move_player(0, -1); turn_ended = true; }

@@ -3,20 +3,17 @@ use super::tile::Tile;
 use super::shader::Shader;
 use super::Rltk;
 use super::point::Point;
-use super::GameState;
 
 use gl::types::*;
 use std::ptr;
 use std::mem;
 use std::os::raw::c_void;
 use std::path::Path;
-use std::time::{Instant};
 
 extern crate image;
 use image::GenericImage;
 
 extern crate glfw;
-use self::glfw::{Context, Action};
 
 #[allow(non_snake_case)]
 pub struct Console {
@@ -24,14 +21,9 @@ pub struct Console {
     pub height: u32,
     pub font_width: u8,
     pub font_height: u8,
-    pub fps: f64,
-    pub key : Option<i32>,
-    pub mouse_pos : Point,
-    pub left_click : bool,
 
     // Private
     tiles: Vec<Tile>,
-    ctx: Rltk,
     is_dirty: bool,
 
     // GL Stuff
@@ -47,7 +39,7 @@ pub struct Console {
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 impl Console {
-    pub fn init(width:u32, height:u32, ctx:Rltk) -> Console {
+    pub fn init(width:u32, height:u32, ctx:&mut Rltk) {
         // Console backing init
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
@@ -57,7 +49,7 @@ impl Console {
 
         let (console_shader, VBO, VAO, EBO, texture) = Console::init_gl_for_console();
         
-        return Console{
+        let new_console = Console{
             width: width, 
             height: height, 
             console_texture: texture,
@@ -66,17 +58,13 @@ impl Console {
             VAO: VAO,
             EBO: EBO,
             tiles: tiles,
-            ctx: ctx,
             is_dirty: true,
-            fps: 0.0,
-            key: None,
-            mouse_pos: Point::new(0,0),
-            left_click: false,
             font_width : 8,
             font_height : 8,
             vertex_buffer : Vec::new(),
             index_buffer : Vec::new()
         };
+        ctx.consoles.push(new_console);
     }
 
     fn init_gl_for_console() -> (Shader, u32, u32, u32, u32) {
@@ -209,83 +197,22 @@ impl Console {
         }
     }
 
-    pub fn main_loop(&mut self, gamestate: &mut GameState) {
-        let now = Instant::now();
-        let mut prev_seconds = now.elapsed().as_secs();
-        let mut frames = 0;
-
-        while !self.ctx.window.should_close() {
-            let now_seconds = now.elapsed().as_secs();
-            frames += 1;
-
-            if now_seconds > prev_seconds {
-                self.fps = frames as f64 / (now_seconds - prev_seconds) as f64;
-                prev_seconds = now_seconds;
-                frames = 0;
-            }
-
-            // events
-            // -----
-            self.process_events();
-            gamestate.tick(self);
-
-            // Console structure - doesn't really have to be every frame...
-            if self.is_dirty {
-                self.rebuild_vertices();
-                self.is_dirty = false;
-            }
-
-            unsafe {
-                gl::ClearColor(0.2, 0.3, 0.3, 1.0);
-                gl::Clear(gl::COLOR_BUFFER_BIT);
-
-                // bind Texture
-                gl::BindTexture(gl::TEXTURE_2D, self.console_texture);
-
-                // render container
-                self.console_shader.useProgram();
-                gl::BindVertexArray(self.VAO);
-                gl::DrawElements(gl::TRIANGLES, (self.width * self.height * 6) as i32, gl::UNSIGNED_INT, ptr::null());
-            }
-
-            // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-            // -------------------------------------------------------------------------------
-            self.ctx.window.swap_buffers();
-            self.ctx.glfw.poll_events();
+    pub fn rebuild_if_dirty(&mut self) {
+         if self.is_dirty {
+            self.rebuild_vertices();
+            self.is_dirty = false;
         }
     }
 
-    pub fn process_events(&mut self) {
-        self.key = None;
-        self.left_click = false;
-        for (_, event) in glfw::flush_messages(&self.ctx.events) {
+    pub fn gl_draw(&mut self) {
+        unsafe {
+            // bind Texture
+            gl::BindTexture(gl::TEXTURE_2D, self.console_texture);
 
-            match event {
-                glfw::WindowEvent::FramebufferSize(width, height) => {
-                    // make sure the viewport matches the new window dimensions; note that width and
-                    // height will be significantly larger than specified on retina displays.
-                    unsafe { gl::Viewport(0, 0, width, height) }
-                }
-
-                glfw::WindowEvent::Key(_, KEY, Action::Press, _) => {
-                    self.key = Some(KEY);
-                }
-
-                glfw::WindowEvent::Key(_, KEY, Action::Repeat, _) => {
-                    self.key = Some(KEY);
-                }
-
-                glfw::WindowEvent::CursorPos(x, y) => {
-                    self.mouse_pos.x = (x / 8.0) as i32;
-                    self.mouse_pos.y = (y / 8.0) as i32;
-                }
-
-                glfw::WindowEvent::MouseButton(glfw::MouseButton::Button1, Action::Press, _) => {
-                    self.left_click = true;
-                }
-                
-                _ => { }
-            }
+            // render container
+            self.console_shader.useProgram();
+            gl::BindVertexArray(self.VAO);
+            gl::DrawElements(gl::TRIANGLES, (self.width * self.height * 6) as i32, gl::UNSIGNED_INT, ptr::null());
         }
     }
 
@@ -385,7 +312,7 @@ impl Console {
         }
     }
 
-    pub fn quit(&mut self) {
-        self.ctx.window.set_should_close(true)
+    pub fn quit(&mut self, ctx: &mut Rltk) {
+        ctx.window.set_should_close(true)
     }
 }
