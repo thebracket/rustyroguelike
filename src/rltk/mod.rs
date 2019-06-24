@@ -34,3 +34,5 @@ mod rltk;
 pub use self::rltk::Rltk;
 pub use self::rltk::init_with_simple_console;
 
+mod font;
+pub use self::font::Font;

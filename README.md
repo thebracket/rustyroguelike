@@ -12,28 +12,28 @@ It's cheating to build both the library AND the game - but I don't know a better
 
 Hello world with an OpenGL console pretending to be CP437:
 
-![Boring console image](/resources/RustHelloWorld2.JPG)
+![Boring console image](/screenshots/RustHelloWorld2.JPG)
 
 Moving @ around a random map:
 
-![Animated GIF](/resources/RustyRoguelike.gif)
+![Animated GIF](/screenshots/RustyRoguelike.gif)
 
 Generating a nicer map:
 
-![Animated GIF](/resources/RustyRoguelike2.gif)
+![Animated GIF](/screenshots/RustyRoguelike2.gif)
 
 Field-of-view and visibility:
 
-![Animated GIF](/resources/RustyRoguelike3.gif)
+![Animated GIF](/screenshots/RustyRoguelike3.gif)
 
 Mouse support and a variety of mobs:
 
-![Animated GIF](/resources/RustyRoguelike4.gif)
+![Animated GIF](/screenshots/RustyRoguelike4.gif)
 
 Dijkstra-flow map based pathfinding (A* will follow) for basic mob AI:
 
-![Animated GIF](/resources/RustyRoguelike5.gif)
+![Animated GIF](/screenshots/RustyRoguelike5.gif)
 
 A-Star based pathfinding, and the beginnings of a user interface, log and end-game:
 
-![Animated GIF](/resources/RustyRoguelike6.gif)
+![Animated GIF](/screenshots/RustyRoguelike6.gif)

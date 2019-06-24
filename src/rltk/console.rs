@@ -3,6 +3,7 @@ use super::tile::Tile;
 use super::shader::Shader;
 use super::Rltk;
 use super::point::Point;
+use super::Font;
 
 use gl::types::*;
 use std::ptr;
@@ -16,15 +17,15 @@ use image::GenericImage;
 extern crate glfw;
 
 #[allow(non_snake_case)]
+#[allow(dead_code)]
 pub struct Console {
     pub width :u32,
     pub height: u32,
-    pub font_width: u8,
-    pub font_height: u8,
 
     // Private
     tiles: Vec<Tile>,
     is_dirty: bool,
+    font: Font,
 
     // GL Stuff
     vertex_buffer : Vec<f32>,
@@ -39,7 +40,7 @@ pub struct Console {
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 impl Console {
-    pub fn init(width:u32, height:u32, ctx:&mut Rltk) -> usize {
+    pub fn init(width:u32, height:u32, ctx:&mut Rltk, font : Font) -> usize {
         // Console backing init
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
@@ -47,7 +48,7 @@ impl Console {
             tiles.push(Tile{glyph: 0, fg: Color::white(), bg: Color::black()});
         }
 
-        let (console_shader, VBO, VAO, EBO, texture) = Console::init_gl_for_console();
+        let (console_shader, VBO, VAO, EBO, texture) = Console::init_gl_for_console(&font);
         
         let new_console = Console{
             width: width, 
@@ -59,16 +60,15 @@ impl Console {
             EBO: EBO,
             tiles: tiles,
             is_dirty: true,
-            font_width : 8,
-            font_height : 8,
             vertex_buffer : Vec::new(),
-            index_buffer : Vec::new()
+            index_buffer : Vec::new(),
+            font: font
         };
         ctx.consoles.push(new_console);
         return ctx.consoles.len()-1;
     }
 
-    fn init_gl_for_console() -> (Shader, u32, u32, u32, u32) {
+    fn init_gl_for_console(font : &Font) -> (Shader, u32, u32, u32, u32) {
         let mut texture = 0;
         unsafe {
             // build and compile our shader program
@@ -108,7 +108,7 @@ impl Console {
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::LINEAR as i32);
             
             // load image, create texture and generate mipmaps
-            let img_orig = image::open(&Path::new("resources/terminal8x8.jpg")).expect("Failed to load texture");
+            let img_orig = image::open(&Path::new(&font.bitmap_file)).expect("Failed to load texture");
             let img = img_orig.flipv();
             let data = img.raw_pixels();
             gl::TexImage2D(gl::TEXTURE_2D,
@@ -144,7 +144,8 @@ impl Console {
         self.vertex_buffer.clear();
         self.index_buffer.clear();
 
-        let glyph_size : f32 = 1.0 / 16.0;
+        let glyph_size_x : f32 = 1.0 / (self.font.width * 2) as f32;
+        let glyph_size_y : f32 = 1.0 / (self.font.height * 2) as f32;
 
         let step_x : f32 = 2.0 / self.width as f32;
         let step_y : f32 = 2.0 / self.height as f32;
@@ -160,10 +161,10 @@ impl Console {
                 let glyph_x = glyph % 16;
                 let glyph_y = 16 - (glyph / 16);
 
-                let glyph_left = glyph_x as f32 * glyph_size;
-                let glyph_right = (glyph_x+1) as f32 * glyph_size;
-                let glyph_top = glyph_y as f32 * glyph_size;
-                let glyph_bottom = (glyph_y-1) as f32 * glyph_size;
+                let glyph_left = glyph_x as f32 * glyph_size_x;
+                let glyph_right = (glyph_x+1) as f32 * glyph_size_x;
+                let glyph_top = glyph_y as f32 * glyph_size_y;
+                let glyph_bottom = (glyph_y-1) as f32 * glyph_size_y;
 
                 Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
                 Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
