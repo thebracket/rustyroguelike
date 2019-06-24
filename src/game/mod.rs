@@ -90,7 +90,7 @@ impl GameState for State {
                 }
             }
             TickType::UseMenu => {
-                self.draw_use_menu(ctx.con());
+                self.draw_use_menu(ctx);
             }
         }
     }
@@ -249,15 +249,15 @@ impl State {
                 glfw::Key::Escape => { ctx.quit() }
 
                 // Numpad
-                glfw::Key::Num8 => { self.move_player(0, -1); turn_ended = true; }
-                glfw::Key::Num4 => { self.move_player(-1, 0); turn_ended = true; }
-                glfw::Key::Num6 => { self.move_player(1, 0); turn_ended = true; }
-                glfw::Key::Num2 => { self.move_player(0, 1); turn_ended = true; }
+                glfw::Key::Kp8 => { self.move_player(0, -1); turn_ended = true; }
+                glfw::Key::Kp4 => { self.move_player(-1, 0); turn_ended = true; }
+                glfw::Key::Kp6 => { self.move_player(1, 0); turn_ended = true; }
+                glfw::Key::Kp2 => { self.move_player(0, 1); turn_ended = true; }
 
-                glfw::Key::Num7 => { self.move_player(-1, -1); turn_ended = true; }
-                glfw::Key::Num1 => { self.move_player(1, -1); turn_ended = true; }
-                glfw::Key::Num9 => { self.move_player(-1, 1); turn_ended = true; }
-                glfw::Key::Num3 => { self.move_player(1, 1); turn_ended = true; }
+                glfw::Key::Kp7 => { self.move_player(-1, -1); turn_ended = true; }
+                glfw::Key::Kp9 => { self.move_player(1, -1); turn_ended = true; }
+                glfw::Key::Kp1 => { self.move_player(-1, 1); turn_ended = true; }
+                glfw::Key::Kp3 => { self.move_player(1, 1); turn_ended = true; }
 
                 // Cursors
                 glfw::Key::Up => { self.move_player(0, -1); turn_ended = true; }
@@ -323,7 +323,8 @@ impl State {
         }
     }
 
-    fn draw_use_menu(&self, console: &mut Console) {
+    fn draw_use_menu(&mut self, ctx: &mut Rltk) {
+        let console = &mut ctx.con();
         let count = self.player.inventory.items.len();
         let mut y = (25 - (count / 2)) as i32;
         let mut j = 0;
@@ -338,6 +339,25 @@ impl State {
             console.print(Point::new(21, y), i.name.to_string());
             y += 1;
             j += 1;
+        }
+
+        match ctx.key {
+            None => {}
+            Some(K) => {
+                match K {
+                    glfw::Key::Escape => { self.game_state = TickType::PlayersTurn; }
+                    _ => {
+                        let selection = Rltk::letter_to_option(K);
+                        if selection > -1 && selection < self.player.inventory.items.len() as i32 {
+                            let result = self.player.use_item(selection);
+                            for s in result.iter() {
+                                self.add_log_entry(s.to_string());
+                            }
+                            self.game_state = TickType::PlayersTurn;
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
+use super::Combat;
 
 #[derive(PartialEq, Clone)]
 pub struct Item {
@@ -18,5 +19,14 @@ impl Item {
             fg: Color::magenta(), 
             name: "Health Potion".to_string()
         }
+    }
+
+    pub fn consume(&self) -> Vec<String> {
+        let mut result = Vec::new();
+
+        result.push(format!("You drink the {}. You are healed!", self.name));
+        //target.heal_damage(100);
+
+        return result;
     }
 }

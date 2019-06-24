@@ -153,6 +153,38 @@ impl Rltk {
     pub fn con(&mut self) -> &mut Console {
         return &mut self.consoles[self.active_console];
     }
+
+    pub fn letter_to_option(key : glfw::Key) -> i32 {
+        match key {
+            glfw::Key::A => { return 0; }
+            glfw::Key::B => { return 1; }
+            glfw::Key::C => { return 2; }
+            glfw::Key::D => { return 3; }
+            glfw::Key::E => { return 4; }
+            glfw::Key::F => { return 5; }
+            glfw::Key::G => { return 6; }
+            glfw::Key::H => { return 7; }
+            glfw::Key::I => { return 8; }
+            glfw::Key::J => { return 9; }
+            glfw::Key::K => { return 10; }
+            glfw::Key::L => { return 11; }
+            glfw::Key::M => { return 12; }
+            glfw::Key::N => { return 13; }
+            glfw::Key::O => { return 14; }
+            glfw::Key::P => { return 15; }
+            glfw::Key::Q => { return 16; }
+            glfw::Key::R => { return 17; }
+            glfw::Key::S => { return 18; }
+            glfw::Key::T => { return 19; }
+            glfw::Key::U => { return 20; }
+            glfw::Key::V => { return 21; }
+            glfw::Key::W => { return 22; }
+            glfw::Key::X => { return 23; }
+            glfw::Key::Y => { return 24; }
+            glfw::Key::Z => { return 25; }
+            _ => {return -1; }
+        }
+    }
 }
 
 #[allow(dead_code)]

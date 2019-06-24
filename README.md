@@ -41,3 +41,7 @@ A-Star based pathfinding, and the beginnings of a user interface, log and end-ga
 Nicer tooltips:
 
 ![Animated GIF](/screenshots/RustyRoguelike7.gif)
+
+Pick up and use healing potions:
+
+![Animated GIF](/screenshots/RustyRoguelike8.gif)

@@ -1,4 +1,5 @@
 use super::Item;
+use super::Player;
 
 pub struct Inventory {
     pub items : Vec<Item>,
