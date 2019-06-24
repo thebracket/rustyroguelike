@@ -1,7 +1,6 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
-use super::Combat;
 
 #[derive(PartialEq, Clone)]
 pub struct Item {

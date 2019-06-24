@@ -3,7 +3,6 @@ use rltk::Color;
 use rltk::Point;
 use super::fighter::Fighter;
 use super::Inventory;
-use super::Combat;
 
 pub struct Player {
     pub position : Point,

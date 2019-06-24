@@ -323,6 +323,7 @@ impl State {
         }
     }
 
+    #[allow(non_snake_case)]
     fn draw_use_menu(&mut self, ctx: &mut Rltk) {
         let console = &mut ctx.con();
         let count = self.player.inventory.items.len();
@@ -343,11 +344,11 @@ impl State {
 
         match ctx.key {
             None => {}
-            Some(K) => {
-                match K {
+            Some(KEY) => {
+                match KEY {
                     glfw::Key::Escape => { self.game_state = TickType::PlayersTurn; }
                     _ => {
-                        let selection = Rltk::letter_to_option(K);
+                        let selection = Rltk::letter_to_option(KEY);
                         if selection > -1 && selection < self.player.inventory.items.len() as i32 {
                             let result = self.player.use_item(selection);
                             for s in result.iter() {
