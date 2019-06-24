@@ -34,16 +34,21 @@ pub use visibility::Visibility;
 mod map;
 pub use map::Map;
 
+mod item;
+use item::Item;
+
 extern crate rand;
 
 mod map_builder;
 use map_builder::random_rooms_tut3;
 use map_builder::spawn_mobs;
+use map_builder::spawn_items;
 
 pub struct State {
     pub map : Map,
     pub player : Player,
     pub mobs : Vec<Mob>,
+    pub ground_items : Vec<Item>,
     pub game_state : TickType,
     pub log : Vec<String>
 }
@@ -54,6 +59,9 @@ impl GameState for State {
         self.player.draw(ctx.con(), &self.map);
         for mob in self.mobs.iter() {
             mob.draw(ctx.con(), &self.map);
+        }
+        for item in self.ground_items.iter() {
+            item.draw(ctx.con(), &self.map);
         }
         ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
         self.draw_ui(ctx.con());
@@ -88,13 +96,14 @@ impl State {
         let rooms = random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
         let mobs = spawn_mobs(&rooms);
+        let items = spawn_items(&rooms, &mobs);       
         let mut player = Player::new(player_x, player_y, 64, Color::yellow());
 
         // Start with a viewshed
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
-        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new() };
+        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new(), ground_items: items };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
@@ -139,6 +148,12 @@ impl State {
             for mob in self.mobs.iter() {
                 if mob.position == ctx.mouse_pos {
                     tooltip.push(mob.get_tooltip());
+                }
+            }
+
+            for item in self.ground_items.iter() {
+                if item.position == ctx.mouse_pos {
+                    tooltip.push(item.get_tooltip());
                 }
             }
 

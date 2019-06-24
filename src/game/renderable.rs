@@ -5,6 +5,7 @@ use rltk::Console;
 use super::Player;
 use super::Mob;
 use super::Map;
+use super::Item;
 
 pub trait Renderable {
     fn draw(&self, console : &mut Console, map : &Map);
@@ -34,5 +35,18 @@ impl Renderable for Mob {
 
     fn get_tooltip(&self) -> String {
         return format!("Enemy: {}", self.name);
+    }
+}
+
+impl Renderable for Item {
+    fn draw(&self, console : &mut Console, map : &Map) {
+        if map.is_tile_visible(&self.position) {
+            let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
+            console.set(self.position, fg, Color::black(), self.glyph);
+        }
+    }
+
+    fn get_tooltip(&self) -> String {
+        return format!("Item: {}", self.name);
     }
 }
