@@ -32,5 +32,5 @@ mod geometry;
 
 mod rltk;
 pub use self::rltk::Rltk;
-pub use self::rltk::init_simple_console;
+pub use self::rltk::init_with_simple_console;
 

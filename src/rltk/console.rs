@@ -39,7 +39,7 @@ pub struct Console {
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 impl Console {
-    pub fn init(width:u32, height:u32, ctx:&mut Rltk) {
+    pub fn init(width:u32, height:u32, ctx:&mut Rltk) -> usize {
         // Console backing init
         let num_tiles : usize = (width * height) as usize;
         let mut tiles : Vec<Tile> = Vec::with_capacity(num_tiles);
@@ -65,6 +65,7 @@ impl Console {
             index_buffer : Vec::new()
         };
         ctx.consoles.push(new_console);
+        return ctx.consoles.len()-1;
     }
 
     fn init_gl_for_console() -> (Shader, u32, u32, u32, u32) {

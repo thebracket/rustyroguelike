@@ -20,9 +20,11 @@ pub struct Rltk {
     pub key : Option<i32>,
     pub mouse_pos : Point,
     pub left_click : bool,
+    pub active_console: usize
 }
 
 #[allow(non_snake_case)]
+#[allow(dead_code)]
 impl Rltk {
     fn init_raw<S: ToString>(width_pixels:u32, height_pixels:u32, window_title: S) -> Rltk {        
         let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
@@ -55,11 +57,12 @@ impl Rltk {
             key: None,
             mouse_pos: Point::new(0,0),
             left_click: false,
+            active_console: 0
         };
     }
 
-    pub fn init_simple_console(&mut self, width_chars:u32, height_chars:u32) {
-        Console::init(width_chars, height_chars, self);
+    pub fn init_simple_console(&mut self, width_chars:u32, height_chars:u32) -> usize {
+        return Console::init(width_chars, height_chars, self);
     }
 
     pub fn main_loop(&mut self, gamestate: &mut GameState) {
@@ -136,10 +139,20 @@ impl Rltk {
             }
         }
     }
+
+    pub fn set_active_console(&mut self, con : usize) {
+        self.active_console = con;
+    }
+
+    pub fn con(&mut self) -> &mut Console {
+        return &mut self.consoles[self.active_console];
+    }
 }
 
-pub fn init_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Rltk {
+pub fn init_with_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Rltk {
     let mut rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, window_title);
-    rltk.init_simple_console(width_chars, height_chars);
+    let con_no = rltk.init_simple_console(width_chars, height_chars);
+    rltk.set_active_console(con_no);
+
     return rltk;
 }

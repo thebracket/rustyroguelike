@@ -50,27 +50,27 @@ pub struct State {
 
 impl GameState for State {
     fn tick(&mut self, ctx : &mut Rltk) {
-        self.map.draw(&mut ctx.consoles[0]);
-        self.player.draw(&mut ctx.consoles[0], &self.map);
+        self.map.draw(ctx.con());
+        self.player.draw(ctx.con(), &self.map);
         for mob in self.mobs.iter() {
-            mob.draw(&mut ctx.consoles[0], &self.map);
+            mob.draw(ctx.con(), &self.map);
         }
         ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
-        self.draw_ui(&mut ctx.consoles[0]);
+        self.draw_ui(ctx.con());
 
-        self.display_mouse_info(ctx, 0);
+        self.display_mouse_info(ctx);
 
         match self.game_state {
             TickType::PlayersTurn => { 
                 self.player_tick(ctx);
             }
             TickType::EnemyTurn => {
-                self.mob_tick(&mut ctx.consoles[0]);
+                self.mob_tick(ctx.con());
                 self.game_state = TickType::PlayersTurn;
                 if self.player.fighter.dead { self.game_state = TickType::GameOver; }
             }
             TickType::GameOver => {
-                ctx.consoles[0].print(Point::new(10, 10),"You are dead.".to_string());
+                ctx.con().print(Point::new(10, 10),"You are dead.".to_string());
             }
         }
     }
@@ -123,20 +123,20 @@ impl State {
         }
     }
 
-    fn display_mouse_info(&mut self, ctx : &mut Rltk, console: usize) {
+    fn display_mouse_info(&mut self, ctx : &mut Rltk) {
         if self.map.is_tile_visible(&ctx.mouse_pos) {
             let tile_info = self.map.tile_description(&ctx.mouse_pos);
-            ctx.consoles[console].print_color(Point::new(0,0), Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
+            ctx.con().print_color(Point::new(0,0), Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {
                 if mob.position == ctx.mouse_pos {
-                    ctx.consoles[console].print_color(Point::new(0,1), Color::white(), Color::red(), "Enemy:".to_string());
-                    ctx.consoles[console].print_color(Point::new(7,1), Color::red(), Color::black(), format!("{}", mob.name));
+                    ctx.con().print_color(Point::new(0,1), Color::white(), Color::red(), "Enemy:".to_string());
+                    ctx.con().print_color(Point::new(7,1), Color::red(), Color::black(), format!("{}", mob.name));
                 }
             }
 
             if self.player.position == ctx.mouse_pos {
-                ctx.consoles[console].print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
+                ctx.con().print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
             }
         }
     }
