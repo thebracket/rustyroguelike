@@ -125,18 +125,55 @@ impl State {
 
     fn display_mouse_info(&mut self, ctx : &mut Rltk) {
         if self.map.is_tile_visible(&ctx.mouse_pos) {
+            let mut tooltip : Vec<String> = Vec::new();
+
             let tile_info = self.map.tile_description(&ctx.mouse_pos);
-            ctx.con().print_color(Point::new(0,0), Color::cyan(), Color::black(), format!("Tile: {}", tile_info));
+            tooltip.push(format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {
                 if mob.position == ctx.mouse_pos {
-                    ctx.con().print_color(Point::new(0,1), Color::white(), Color::red(), "Enemy:".to_string());
-                    ctx.con().print_color(Point::new(7,1), Color::red(), Color::black(), format!("{}", mob.name));
+                    tooltip.push(format!("Enemy: {}", mob.name));
                 }
             }
 
             if self.player.position == ctx.mouse_pos {
-                ctx.con().print_color(Point::new(0,1), Color::green(), Color::black(), "It's you!".to_string());
+                tooltip.push("It's you!".to_string());
+            }
+
+            if !tooltip.is_empty() {
+                let mut width :i32 = 0;
+                for s in tooltip.iter() {
+                    if width < s.len() as i32 { width = s.len() as i32; }
+                }
+                width += 3;
+
+                if ctx.mouse_pos.x > 40 {
+                    let arrow_pos = Point::new(ctx.mouse_pos.x - 2, ctx.mouse_pos.y);
+                    let left_x = ctx.mouse_pos.x - width;
+                    let mut y = ctx.mouse_pos.y;
+                    for s in tooltip.iter() {
+                        ctx.con().print_color(Point::new(left_x, y), Color::white(), Color::grey(), format!("{}", s));
+                        let padding = (width - s.len() as i32)-1;
+                        for i in 0..padding {
+                            ctx.con().print_color(Point::new(arrow_pos.x - i, y), Color::white(), Color::grey(), " ".to_string());
+                        }
+                        y += 1;
+                    }
+                    ctx.con().print_color(arrow_pos, Color::white(), Color::grey(), "->".to_string());
+                } else {
+                    let arrow_pos = Point::new(ctx.mouse_pos.x + 1, ctx.mouse_pos.y);
+                    let left_x = ctx.mouse_pos.x +3;
+                    let mut y = ctx.mouse_pos.y;
+                    for s in tooltip.iter() {
+                        ctx.con().print_color(Point::new(left_x, y), Color::white(), Color::grey(), format!("{}", s));
+                        let padding = (width - s.len() as i32)-1;
+                        for i in 0..padding {
+                            ctx.con().print_color(Point::new(left_x + s.len() as i32 + i, y), Color::white(), Color::grey(), " ".to_string());
+                        }
+                        y += 1;
+                    }
+                    ctx.con().print_color(arrow_pos, Color::white(), Color::grey(), "<-".to_string());
+                }
             }
         }
     }
