@@ -44,3 +44,7 @@ impl Rltk {
         return con;
     }    
 }
+
+pub fn init_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Console {
+    return Rltk::init_simple_console(width_chars, height_chars, window_title);
+}
