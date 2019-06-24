@@ -33,6 +33,8 @@ mod geometry;
 mod rltk;
 pub use self::rltk::Rltk;
 pub use self::rltk::init_with_simple_console;
+pub use self::rltk::init_no_console;
+pub use self::rltk::add_console;
 
 mod font;
 pub use self::font::Font;

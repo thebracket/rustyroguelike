@@ -150,11 +150,25 @@ impl Rltk {
     }
 }
 
+#[allow(dead_code)]
+pub fn init_no_console<S: ToString>(width_px:u32, height_px:u32, window_title: S) -> Rltk {
+    let rltk = Rltk::init_raw(width_px, height_px, window_title);
+    return rltk;
+}
+
+#[allow(dead_code)]
 pub fn init_with_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Rltk {
-    let font = Font{ bitmap_file : "resources/terminal8x8.jpg".to_string(), width: 8, height: 8 };
+    let font = Font{ bitmap_file : "resources/terminal8x8.jpg".to_string(), width: 8, height: 8, render_background: true };
     let mut rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, window_title);
     let con_no = rltk.init_simple_console(width_chars, height_chars, font);
     rltk.set_active_console(con_no);
 
     return rltk;
+}
+
+#[allow(dead_code)]
+pub fn add_console(width_chars:u32, height_chars:u32, font : Font, rltk : &mut Rltk, make_active: bool) -> usize {
+    let con_no = rltk.init_simple_console(width_chars, height_chars, font);
+    if make_active { rltk.set_active_console(con_no); }
+    return con_no;
 }

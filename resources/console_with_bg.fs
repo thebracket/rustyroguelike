@@ -13,5 +13,4 @@ void main()
     vec4 original = texture(texture1, TexCoord);
     vec4 fg = original.r > 0.1f || original.g > 0.1f || original.b > 0.1f ? original * vec4(ourColor, 1.f) : vec4(ourBackground, 1.f);
 	FragColor = fg;
-    //FragColor = vec4(1.f, 1.f, 1.f, 1.f);
 }

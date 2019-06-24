@@ -68,11 +68,18 @@ impl Console {
         return ctx.consoles.len()-1;
     }
 
+    fn init_shader(render_background : bool) -> Shader {
+        match render_background {
+            true => { Shader::new("resources/console_with_bg.vs", "resources/console_with_bg.fs") }
+            false => { Shader::new("resources/console_no_bg.vs", "resources/console_no_bg.fs") }
+        }
+    }
+
     fn init_gl_for_console(font : &Font) -> (Shader, u32, u32, u32, u32) {
         let mut texture = 0;
         unsafe {
             // build and compile our shader program
-            let console_shader = Shader::new("resources/4.1.texture.vs", "resources/4.1.texture.fs");
+            let console_shader = Console::init_shader(font.render_background);
 
             // Generate buffers and arrays, as well as attributes.
             let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
@@ -144,8 +151,8 @@ impl Console {
         self.vertex_buffer.clear();
         self.index_buffer.clear();
 
-        let glyph_size_x : f32 = 1.0 / (self.font.width * 2) as f32;
-        let glyph_size_y : f32 = 1.0 / (self.font.height * 2) as f32;
+        let glyph_size_x : f32 = 1.0 / 16.0;
+        let glyph_size_y : f32 = 1.0 / 16.0;
 
         let step_x : f32 = 2.0 / self.width as f32;
         let step_y : f32 = 2.0 / self.height as f32;
@@ -158,27 +165,29 @@ impl Console {
                 let fg = &self.tiles[((y * self.width) + x) as usize].fg;
                 let bg = &self.tiles[((y * self.width) + x) as usize].bg;
                 let glyph = self.tiles[((y * self.width) + x) as usize].glyph;
-                let glyph_x = glyph % 16;
-                let glyph_y = 16 - (glyph / 16);
+                if !(self.font.render_background && glyph == 0) {
+                    let glyph_x = glyph % 16;
+                    let glyph_y = 16 - (glyph / 16);
 
-                let glyph_left = glyph_x as f32 * glyph_size_x;
-                let glyph_right = (glyph_x+1) as f32 * glyph_size_x;
-                let glyph_top = glyph_y as f32 * glyph_size_y;
-                let glyph_bottom = (glyph_y-1) as f32 * glyph_size_y;
+                    let glyph_left = glyph_x as f32 * glyph_size_x;
+                    let glyph_right = (glyph_x+1) as f32 * glyph_size_x;
+                    let glyph_top = glyph_y as f32 * glyph_size_y;
+                    let glyph_bottom = (glyph_y-1) as f32 * glyph_size_y;
 
-                Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
-                Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
-                Console::push_point(&mut self.vertex_buffer, screen_x, screen_y, fg, bg, glyph_left, glyph_bottom);
-                Console::push_point(&mut self.vertex_buffer, screen_x, screen_y + step_y, fg, bg, glyph_left, glyph_top);
+                    Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y + step_y, fg, bg, glyph_right, glyph_top);
+                    Console::push_point(&mut self.vertex_buffer, screen_x + step_x, screen_y, fg, bg, glyph_right, glyph_bottom);
+                    Console::push_point(&mut self.vertex_buffer, screen_x, screen_y, fg, bg, glyph_left, glyph_bottom);
+                    Console::push_point(&mut self.vertex_buffer, screen_x, screen_y + step_y, fg, bg, glyph_left, glyph_top);
 
-                self.index_buffer.push(0 + index_count);
-                self.index_buffer.push(1 + index_count);
-                self.index_buffer.push(3 + index_count);
-                self.index_buffer.push(1 + index_count);
-                self.index_buffer.push(2 + index_count);
-                self.index_buffer.push(3 + index_count);
+                    self.index_buffer.push(0 + index_count);
+                    self.index_buffer.push(1 + index_count);
+                    self.index_buffer.push(3 + index_count);
+                    self.index_buffer.push(1 + index_count);
+                    self.index_buffer.push(2 + index_count);
+                    self.index_buffer.push(3 + index_count);
 
-                index_count += 4;
+                    index_count += 4;
+                }
                 screen_x += step_x;
             }
             screen_y += step_y;
@@ -214,6 +223,8 @@ impl Console {
             // render container
             self.console_shader.useProgram();
             gl::BindVertexArray(self.VAO);
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.EBO);
+            gl::BindBuffer(gl::ARRAY_BUFFER, self.VBO);
             gl::DrawElements(gl::TRIANGLES, (self.width * self.height * 6) as i32, gl::UNSIGNED_INT, ptr::null());
         }
     }
@@ -227,7 +238,7 @@ impl Console {
     pub fn cls(&mut self) {
         self.is_dirty = true;
         for tile in self.tiles.iter_mut() {
-            tile.glyph = 0;
+            tile.glyph = 32;
             tile.fg = Color::white();
             tile.bg = Color::black();
         }
