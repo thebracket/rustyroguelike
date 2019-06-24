@@ -58,10 +58,8 @@ impl Rltk {
         };
     }
 
-    pub fn init_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Rltk {
-        let mut rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, window_title);
-        Console::init(width_chars, height_chars, &mut rltk);
-        return rltk;
+    pub fn init_simple_console(&mut self, width_chars:u32, height_chars:u32) {
+        Console::init(width_chars, height_chars, self);
     }
 
     pub fn main_loop(&mut self, gamestate: &mut GameState) {
@@ -141,5 +139,7 @@ impl Rltk {
 }
 
 pub fn init_simple_console<S: ToString>(width_chars:u32, height_chars:u32, window_title: S) -> Rltk {
-    return Rltk::init_simple_console(width_chars, height_chars, window_title);
+    let mut rltk = Rltk::init_raw(width_chars * 8, height_chars * 8, window_title);
+    rltk.init_simple_console(width_chars, height_chars);
+    return rltk;
 }
