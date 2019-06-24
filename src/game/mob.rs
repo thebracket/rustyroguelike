@@ -29,11 +29,11 @@ impl Mob {
     fn new_wight(x:i32, y:i32) -> Mob {
         Mob{ 
             position: Point::new(x, y), 
-            glyph: 98, 
+            glyph: 38, 
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Borrow Wight".to_string(),
-            fighter: Fighter::new(8, 0, 1)
+            fighter: Fighter::new(2, 0, 1)
         }
     }
 
@@ -44,7 +44,7 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Mut Hound".to_string(),
-            fighter: Fighter::new(8, 0, 1)
+            fighter: Fighter::new(1, 0, 1)
         }
     }
 
@@ -55,7 +55,7 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Itereater Beast".to_string(),
-            fighter: Fighter::new(8, 0, 1)
+            fighter: Fighter::new(1, 0, 1)
         }
     }
 

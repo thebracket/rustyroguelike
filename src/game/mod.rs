@@ -265,6 +265,9 @@ impl State {
                 glfw::Key::Left => { self.move_player(-1, 0); turn_ended = true; }
                 glfw::Key::Right => { self.move_player(1, 0); turn_ended = true; }
 
+                // Wait
+                glfw::Key::Kp5 => { turn_ended = true; }
+
                 // Pick up
                 glfw::Key::G => { self.pickup(); turn_ended = true; }
 
