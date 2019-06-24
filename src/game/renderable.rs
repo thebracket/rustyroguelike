@@ -8,6 +8,7 @@ use super::Map;
 
 pub trait Renderable {
     fn draw(&self, console : &mut Console, map : &Map);
+    fn get_tooltip(&self) -> String;
 }
 
 impl Renderable for Player {
@@ -17,6 +18,10 @@ impl Renderable for Player {
             console.set(self.position, fg, Color::black(), self.glyph);
         }
     }
+
+    fn get_tooltip(&self) -> String {
+        return "It's you!".to_string();
+    }
 }
 
 impl Renderable for Mob {
@@ -25,5 +30,9 @@ impl Renderable for Mob {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
             console.set(self.position, fg, Color::black(), self.glyph);
         }
+    }
+
+    fn get_tooltip(&self) -> String {
+        return format!("Enemy: {}", self.name);
     }
 }

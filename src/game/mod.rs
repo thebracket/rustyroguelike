@@ -138,12 +138,12 @@ impl State {
 
             for mob in self.mobs.iter() {
                 if mob.position == ctx.mouse_pos {
-                    tooltip.push(format!("Enemy: {}", mob.name));
+                    tooltip.push(mob.get_tooltip());
                 }
             }
 
             if self.player.position == ctx.mouse_pos {
-                tooltip.push("It's you!".to_string());
+                tooltip.push(self.player.get_tooltip());
             }
 
             if !tooltip.is_empty() {
