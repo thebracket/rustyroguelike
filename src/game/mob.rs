@@ -5,9 +5,7 @@ use rltk::Algorithm2D;
 use rltk::a_star_search;
 use rltk::field_of_view;
 use super::fighter::Fighter;
-use super::Player;
 use super::Map;
-use super::fighter::attack;
 use super::Combat;
 use super::BaseEntity;
 
