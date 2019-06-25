@@ -45,6 +45,8 @@ use map_builder::random_rooms_tut3;
 use map_builder::spawn_mobs;
 use map_builder::spawn_items;
 
+enum ItemMenuResult { Cancel, NoResponse, Selected }
+
 pub struct State {
     pub map : Map,
     pub game_state : TickType,
@@ -84,7 +86,18 @@ impl GameState for State {
                 }
             }
             TickType::UseMenu => {
-                self.draw_use_menu(ctx, "Use which item? (or ESC)");
+                let (result, selection) = self.handle_item_menu(ctx, "Use which item? (or ESC)");
+                match result {
+                    ItemMenuResult::NoResponse => {}
+                    ItemMenuResult::Selected => {
+                        let result = self.player_mut().use_item(selection);
+                        for s in result.iter() {
+                            self.add_log_entry(s.to_string());
+                        }
+                        self.game_state = TickType::PlayersTurn;
+                    }
+                    ItemMenuResult::Cancel => { self.game_state = TickType::PlayersTurn }
+                }
             }
             TickType::None => {}
         }
@@ -373,7 +386,7 @@ impl State {
     }
 
     #[allow(non_snake_case)]
-    fn draw_use_menu<S: ToString>(&mut self, ctx: &mut Rltk, title: S) {
+    fn handle_item_menu<S: ToString>(&mut self, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
         let console = &mut ctx.con();
         let count = self.player().inventory.items.len();
         let mut y = (25 - (count / 2)) as i32;
@@ -396,20 +409,19 @@ impl State {
             None => {}
             Some(KEY) => {
                 match KEY {
-                    glfw::Key::Escape => { self.game_state = TickType::PlayersTurn; }
-                    _ => {
+                    glfw::Key::Escape => { return (ItemMenuResult::Cancel, 0) }
+                    _ => { 
                         let selection = Rltk::letter_to_option(KEY);
                         if selection > -1 && selection < self.player().inventory.items.len() as i32 {
-                            let result = self.player_mut().use_item(selection);
-                            for s in result.iter() {
-                                self.add_log_entry(s.to_string());
-                            }
-                            self.game_state = TickType::PlayersTurn;
-                        }
+                            return (ItemMenuResult::Selected, selection);
+                        }  
+                        return (ItemMenuResult::NoResponse, 0);
                     }
-                }
+               }
             }
         }
+
+        return (ItemMenuResult::NoResponse, 0);
     }
 
     fn add_log_entry(&mut self, line : String) {
