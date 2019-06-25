@@ -1,5 +1,4 @@
-use super::Algorithm2D;
-use super::geometry::distance2d;
+use super::BaseMap;
 use std::collections::HashMap;
 
 #[allow(dead_code)]
@@ -9,7 +8,7 @@ const MAX_DIRECT_PATH_CHECK : f32 = 2048.0;
 const MAX_ASTAR_STEPS :i32 = 2048;
 
 #[allow(dead_code)]
-pub fn a_star_search(start:i32, end:i32, map: &mut Algorithm2D) -> NavigationPath {
+pub fn a_star_search(start:i32, end:i32, map: &mut BaseMap) -> NavigationPath {
     let mut searcher = AStar::new(start, end);
     return searcher.search(map);
 }
@@ -61,11 +60,11 @@ impl AStar {
         };
     }
 
-    fn distance_to_end(&self, idx :i32, map: &Algorithm2D) -> f32 {
-        return distance2d(&map.index_to_point2d(idx), &map.index_to_point2d(self.end));
+    fn distance_to_end(&self, idx :i32, map: &BaseMap) -> f32 {
+        return map.get_pathing_distance(idx, self.end);
     }
 
-    fn add_successor(&mut self, q:Node, idx:i32, cost:f32, map: &Algorithm2D) -> bool {
+    fn add_successor(&mut self, q:Node, idx:i32, cost:f32, map: &BaseMap) -> bool {
         // Did we reach our goal?
         if idx == self.end {
             self.parents.insert(idx, q.idx);
@@ -112,7 +111,7 @@ impl AStar {
         return result;
     }
 
-    fn search(&mut self, map: &Algorithm2D) -> NavigationPath {
+    fn search(&mut self, map: &BaseMap) -> NavigationPath {
         let result = NavigationPath::new();
         while self.open_list.len() != 0 && self.step_counter < MAX_ASTAR_STEPS {
             self.step_counter += 1;

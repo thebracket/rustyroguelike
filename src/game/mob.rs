@@ -63,7 +63,7 @@ impl Mob {
         let can_see_player = self.visible_tiles.contains(&player.position);
 
         if can_see_player {
-            let distance = rltk::distance2d(&mut player.position, &self.position);
+            let distance = rltk::distance2d(player.position, self.position);
             if distance < 1.5 {
                 return self.attack_player(player);
             } else {

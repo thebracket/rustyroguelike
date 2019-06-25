@@ -11,12 +11,12 @@ pub trait Visibility {
 
 impl Visibility for Player {
     fn plot_visibility(&mut self, map: &Map) {
-        self.visible_tiles = field_of_view(&self.position, 6, map); 
+        self.visible_tiles = field_of_view(self.position, 6, map); 
     }
 }
 
 impl Visibility for Mob {
     fn plot_visibility(&mut self, map: &Map) {
-        self.visible_tiles = field_of_view(&self.position, 6, map); 
+        self.visible_tiles = field_of_view(self.position, 6, map); 
     }
 }

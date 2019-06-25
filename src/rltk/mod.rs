@@ -1,4 +1,5 @@
 pub use self::interface::GameState;
+pub use self::interface::BaseMap;
 pub use self::interface::Algorithm2D;
 mod interface;
 

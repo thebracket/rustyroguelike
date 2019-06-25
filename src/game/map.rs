@@ -3,6 +3,7 @@ use rltk::Color;
 use rltk::Console;
 use rltk::Point;
 use rltk::Algorithm2D;
+use rltk::BaseMap;
 
 use super::TileType;
 
@@ -173,15 +174,7 @@ impl Map {
     }    
 }
 
-impl Algorithm2D for Map {
-    fn point2d_to_index(&self, pt : Point) -> i32 {
-        return (pt.y * self.width) + pt.x;
-    }    
-
-    fn index_to_point2d(&self, idx:i32) -> Point {
-        return Point{ x: idx % self.width, y: idx / self.width };
-    }
-
+impl BaseMap for Map {
     fn can_see_through_tile(&self, idx: i32) -> bool {
         return self.is_transparent(idx % self.width, idx / self.width);
     }
@@ -205,4 +198,20 @@ impl Algorithm2D for Map {
 
         return exits;
     }
+
+    fn get_pathing_distance(&self, idx1:i32, idx2:i32) -> f32 {
+        let p1 = Point::new(idx1 % self.width, idx1 / self.width);
+        let p2 = Point::new(idx2 % self.width, idx2 / self.width);
+        return rltk::distance2d(p1, p2);
+    }
+}
+
+impl Algorithm2D for Map {
+    fn point2d_to_index(&self, pt : Point) -> i32 {
+        return (pt.y * self.width) + pt.x;
+    }    
+
+    fn index_to_point2d(&self, idx:i32) -> Point {
+        return Point{ x: idx % self.width, y: idx / self.width };
+    }    
 }
