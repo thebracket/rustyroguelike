@@ -34,6 +34,7 @@ pub use map::Map;
 
 mod item;
 use item::Item;
+use item::ItemType;
 
 mod inventory;
 use inventory::Inventory;

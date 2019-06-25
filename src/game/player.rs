@@ -8,6 +8,7 @@ use super::Combat;
 use rltk::field_of_view;
 use super::Map;
 use super::Item;
+use super::ItemType;
 
 pub struct Player {
     pub position : Point,
@@ -32,15 +33,20 @@ impl Player {
     pub fn use_item(&mut self, item_index : i32) -> Vec<String> {
         let mut result = Vec::new();
 
-        if self.fighter.hp == self.fighter.max_hp {
-            result.push("You are already at maximum health.".to_string());
-            return result;
-        }
+        let item_type = self.inventory.items[item_index as usize].item_type;
+        match item_type {
+            ItemType::HealthPotion => {
+                if self.fighter.hp == self.fighter.max_hp {
+                    result.push("You are already at maximum health.".to_string());
+                    return result;
+                }
 
-        self.fighter.hp = self.fighter.max_hp; // Cheezed due to confusion over borrowing
-        let r = self.inventory.items[item_index as usize].consume();
-        for tmp in r { result.push(tmp); }
-        self.inventory.items.remove(item_index as usize);
+                self.fighter.hp = self.fighter.max_hp; // Cheezed due to confusion over borrowing
+                result.push("You are healed!".to_string());
+                self.inventory.items.remove(item_index as usize);
+            }
+            _ => {}
+        }
 
         return result;
     }
