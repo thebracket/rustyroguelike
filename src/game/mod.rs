@@ -379,7 +379,7 @@ impl State {
         let mut y = (25 - (count / 2)) as i32;
         let mut j = 0;
 
-        console.draw_box(Point::new(16, y-2), 30, (count+3) as i32, Color::white(), Color::black());
+        console.draw_box(Point::new(18, y-2), 30, (count+3) as i32, Color::white(), Color::black());
         console.print_color(Point::new(16, y-2), Color::yellow(), Color::black(), title.to_string());
 
         for i in self.player().inventory.items.iter() {
