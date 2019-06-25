@@ -4,6 +4,8 @@ use rltk::Rltk;
 use rltk::Point;
 
 use super::Map;
+use super::Player;
+use super::Combat;
 
 pub trait BaseEntity {
     fn get_position(&self) -> Point;
@@ -15,4 +17,9 @@ pub trait BaseEntity {
             ctx.con().set(self.get_position(), self.get_fg_color(), Color::black(), self.get_glyph());
         }
     }
+
+    fn as_player(&self) -> Option<&Player> { None }
+    fn as_player_mut(&mut self) -> Option<&mut Player> { None }
+    fn as_combat(&mut self) -> Option<&mut Combat> { None }
+    fn plot_visibility(&mut self, map : &Map);    
 }

@@ -3,6 +3,10 @@ use rltk::Color;
 use rltk::Point;
 use super::fighter::Fighter;
 use super::Inventory;
+use super::BaseEntity;
+use super::Combat;
+use rltk::field_of_view;
+use super::Map;
 
 pub struct Player {
     pub position : Point,
@@ -33,5 +37,17 @@ impl Player {
         self.inventory.items.remove(item_index as usize);
 
         return result;
+    }
+}
+
+impl BaseEntity for Player {
+    fn get_position(&self) -> Point { self.position }
+    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_glyph(&self) -> u8 { self.glyph }
+    fn as_player(&self) -> Option<&Player> { Some(self) }
+    fn as_player_mut(&mut self) -> Option<&mut Player> { Some(self) }
+    fn as_combat(&mut self) -> Option<&mut Combat> { Some(self) }
+    fn plot_visibility(&mut self, map : &Map) {
+        self.visible_tiles = field_of_view(self.get_position(), 6, map);
     }
 }

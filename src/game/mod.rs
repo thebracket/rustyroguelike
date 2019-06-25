@@ -31,9 +31,6 @@ pub use rect::Rect;
 mod renderable;
 pub use renderable::Renderable;
 
-mod visibility;
-pub use visibility::Visibility;
-
 mod map;
 pub use map::Map;
 
@@ -52,7 +49,6 @@ use map_builder::spawn_items;
 
 pub struct State {
     pub map : Map,
-    pub player : Player,
     pub mobs : Vec<Mob>,
     pub items : Vec<Item>,
     pub game_state : TickType,
@@ -68,7 +64,6 @@ impl GameState for State {
             e.draw_to_map(ctx, &self.map);
         }
 
-        self.player.draw(ctx.con(), &self.map);
         for mob in self.mobs.iter() {
             mob.draw(ctx.con(), &self.map);
         }
@@ -87,7 +82,7 @@ impl GameState for State {
             TickType::EnemyTurn => {
                 self.mob_tick(ctx.con());
                 self.game_state = TickType::PlayersTurn;
-                if self.player.fighter.dead { self.game_state = TickType::GameOver; }
+                if self.player().fighter.dead { self.game_state = TickType::GameOver; }
             }
             TickType::GameOver => {
                 ctx.con().cls();
@@ -108,6 +103,7 @@ impl GameState for State {
 
 impl State {
     pub fn new() -> State {
+        let mut entities : Vec<Box<BaseEntity>> = Vec::new();
         let mut map = Map::new(80, 43);
         let rooms = random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
@@ -119,20 +115,33 @@ impl State {
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
+        entities.push(Box::new(player));
+
         return State{ 
             map: map, 
-            player: player, 
             mobs: mobs, 
             game_state: TickType::PlayersTurn, 
             log: Vec::new(), 
             items: items,
-            entities : Vec::new()
+            entities : entities
         };
     }
 
+    pub fn player(&self) -> &Player {
+        return self.entities[0].as_player().unwrap();
+    }
+
+    pub fn player_mut(&mut self) -> &mut Player {
+        return self.entities[0].as_player_mut().unwrap();
+    }
+
+    pub fn player_as_combat(&mut self) -> &mut Combat {
+        return self.entities[0].as_combat().unwrap();
+    }
+
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
-        let new_x = self.player.position.x + delta_x;
-        let new_y = self.player.position.y + delta_y;
+        let new_x = self.player().position.x + delta_x;
+        let new_y = self.player().position.y + delta_y;
         let mut can_move : bool = true;
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
 
@@ -141,19 +150,19 @@ impl State {
             for mob in self.mobs.iter_mut() {
                 if mob.position.x == new_x && mob.position.y == new_y {
                     // We are
-                    let result = attack(&mut self.player, mob);
+                    /*let result = attack(self.player(), mob);
                     for s in result.iter() {
                         let tmp_str : String = (*s.clone()).to_string();
                         tmp.push(tmp_str);
                     }
-                    can_move = false;
+                    can_move = false;*/
                 }
             }
             self.mobs.retain(|mob| !mob.fighter.dead);
 
             if can_move {
-                self.player.position.x = new_x;
-                self.player.position.y = new_y;
+                self.player_mut().position.x = new_x;
+                self.player_mut().position.y = new_y;
             }
 
             for s in tmp {
@@ -167,8 +176,9 @@ impl State {
 
         let mut i = 0;
         let mut item_index = 0;
+        let ppos = self.player().position;
         for item in self.items.iter_mut() {
-            if item.position == self.player.position {
+            if item.position == ppos {
                 // We can do it!
                 target = Some(item);
                 item_index = i;
@@ -180,7 +190,7 @@ impl State {
             None => { self.add_log_entry("There is nothing here to pick up.".to_string() ); }
             Some(i) => {
                 let my_item = i.clone();
-                let results = self.player.inventory.add_item(my_item); 
+                let results = self.player_mut().inventory.add_item(my_item); 
                 self.items.remove(item_index);
                 for s in results.iter() {
                     self.add_log_entry(s.clone());
@@ -190,7 +200,7 @@ impl State {
     }
 
     fn use_menu(&mut self) {
-        if self.player.inventory.items.is_empty() {
+        if self.player().inventory.items.is_empty() {
             self.add_log_entry("You don't have any usable items".to_string());
         } else {
             self.game_state = TickType::UseMenu;
@@ -216,8 +226,8 @@ impl State {
                 }
             }
 
-            if self.player.position == ctx.mouse_pos {
-                tooltip.push(self.player.get_tooltip());
+            if self.player().position == ctx.mouse_pos {
+                tooltip.push(self.player().get_tooltip());
             }
 
             if !tooltip.is_empty() {
@@ -306,12 +316,12 @@ impl State {
 
     fn mob_tick(&mut self, _console: &mut Console) {
         self.map.refresh_blocked();
-        //self.map.set_tile_blocked((self.player.position.y * 80) + self.player.position.x);
+        //self.map.set_tile_blocked((self.player().position.y * 80) + self.player().position.x);
         for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
 
-        let mut tmp : Vec<String> = Vec::new();
+        /*let mut tmp : Vec<String> = Vec::new();
         for mob in self.mobs.iter_mut() {
-            let result = mob.turn_tick(&mut self.player, &mut self.map);
+            let result = mob.turn_tick(&mut self.player(), &mut self.map);
             for s in result {
                 tmp.push(s.clone().to_string());
             }
@@ -319,23 +329,28 @@ impl State {
         self.update_visibility();
         for s in tmp {
             self.add_log_entry(s);
-        }
+        }*/
     }
 
     fn update_visibility(&mut self) {
-        self.player.plot_visibility(&self.map);
-            self.map.set_visibility(&self.player.visible_tiles);
-            for mob in self.mobs.iter_mut() {
-                mob.plot_visibility(&self.map);
-            }
+        for e in self.entities.iter_mut() {
+            e.plot_visibility(&self.map);
+        }
+
+        //self.player_mut().plot_visibility(&self.map);
+        let vt = self.player().visible_tiles.clone();
+        self.map.set_visibility(&vt);
+        //for mob in self.mobs.iter_mut() {
+        //    mob.plot_visibility(&self.map);
+        //}
     }
 
     fn draw_ui(&self, console: &mut Console) {
         console.draw_box(Point::new(1, 43), 78, 6, Color::white(), Color::black());
-        let health = format!(" HP: {} / {} ", self.player.fighter.hp, self.player.fighter.max_hp);
+        let health = format!(" HP: {} / {} ", self.player().fighter.hp, self.player().fighter.max_hp);
         console.print_color(Point::new(3,43), Color::yellow(), Color::black(), health);
 
-        console.draw_bar_horizontal(Point::new(20, 43), 59, self.player.fighter.hp, self.player.fighter.max_hp, Color::red(), Color::black());
+        console.draw_bar_horizontal(Point::new(20, 43), 59, self.player().fighter.hp, self.player().fighter.max_hp, Color::red(), Color::black());
 
         let mut y = 44;
         for s in self.log.iter() {
@@ -347,13 +362,13 @@ impl State {
     #[allow(non_snake_case)]
     fn draw_use_menu(&mut self, ctx: &mut Rltk) {
         let console = &mut ctx.con();
-        let count = self.player.inventory.items.len();
+        let count = self.player().inventory.items.len();
         let mut y = (25 - (count / 2)) as i32;
         let mut j = 0;
 
         console.draw_box(Point::new(16, y-2), 20, (count+3) as i32, Color::white(), Color::black());
 
-        for i in self.player.inventory.items.iter() {
+        for i in self.player().inventory.items.iter() {
             console.set(Point::new(17, y), Color::white(), Color::black(), 40);
             console.set(Point::new(17, y), Color::yellow(), Color::black(), 97+j);
             console.set(Point::new(19, y), Color::white(), Color::black(), 41);
@@ -370,8 +385,8 @@ impl State {
                     glfw::Key::Escape => { self.game_state = TickType::PlayersTurn; }
                     _ => {
                         let selection = Rltk::letter_to_option(KEY);
-                        if selection > -1 && selection < self.player.inventory.items.len() as i32 {
-                            let result = self.player.use_item(selection);
+                        if selection > -1 && selection < self.player().inventory.items.len() as i32 {
+                            let result = self.player_mut().use_item(selection);
                             for s in result.iter() {
                                 self.add_log_entry(s.to_string());
                             }
