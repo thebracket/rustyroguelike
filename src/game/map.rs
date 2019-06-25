@@ -122,7 +122,7 @@ impl Map {
         }
     }
 
-    pub fn is_tile_visible(&self, pos : &Point) -> bool {
+    pub fn is_tile_visible(&self, pos : Point) -> bool {
         let idx = self.tile_idx(pos.x, pos.y);
         match idx {
             None => { return false; }
@@ -130,7 +130,7 @@ impl Map {
         }
     }
 
-    pub fn tile_description(&self, pos : &Point) -> String {
+    pub fn tile_description(&self, pos : Point) -> String {
         let idx = self.tile_idx(pos.x, pos.y);
         match idx {
             None => { return "".to_string(); }

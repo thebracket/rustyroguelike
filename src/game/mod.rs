@@ -5,6 +5,9 @@ use rltk::Console;
 use rltk::Point;
 use rltk::GameState;
 
+mod entity;
+pub use entity::BaseEntity;
+
 mod tiletype;
 pub use tiletype::TileType;
 
@@ -53,12 +56,18 @@ pub struct State {
     pub mobs : Vec<Mob>,
     pub items : Vec<Item>,
     pub game_state : TickType,
-    pub log : Vec<String>
+    pub log : Vec<String>,
+    pub entities : Vec<Box<BaseEntity>>
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx : &mut Rltk) {
         self.map.draw(ctx.con());
+
+        for e in self.entities.iter() {
+            e.draw_to_map(ctx, &self.map);
+        }
+
         self.player.draw(ctx.con(), &self.map);
         for mob in self.mobs.iter() {
             mob.draw(ctx.con(), &self.map);
@@ -92,6 +101,7 @@ impl GameState for State {
             TickType::UseMenu => {
                 self.draw_use_menu(ctx);
             }
+            TickType::None => {}
         }
     }
 }
@@ -109,7 +119,15 @@ impl State {
         player.plot_visibility(&map);
         map.set_visibility(&player.visible_tiles);
 
-        return State{ map: map, player: player, mobs: mobs, game_state: TickType::PlayersTurn, log: Vec::new(), items: items };
+        return State{ 
+            map: map, 
+            player: player, 
+            mobs: mobs, 
+            game_state: TickType::PlayersTurn, 
+            log: Vec::new(), 
+            items: items,
+            entities : Vec::new()
+        };
     }
 
     fn move_player(&mut self, delta_x : i32, delta_y: i32) {
@@ -180,10 +198,10 @@ impl State {
     }
 
     fn display_mouse_info(&mut self, ctx : &mut Rltk) {
-        if self.map.is_tile_visible(&ctx.mouse_pos) {
+        if self.map.is_tile_visible(ctx.mouse_pos) {
             let mut tooltip : Vec<String> = Vec::new();
 
-            let tile_info = self.map.tile_description(&ctx.mouse_pos);
+            let tile_info = self.map.tile_description(ctx.mouse_pos);
             tooltip.push(format!("Tile: {}", tile_info));
 
             for mob in self.mobs.iter() {

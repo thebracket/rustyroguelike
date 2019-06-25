@@ -14,7 +14,7 @@ pub trait Renderable {
 
 impl Renderable for Player {
     fn draw(&self, console : &mut Console, map : &Map) {
-        if map.is_tile_visible(&self.position) {
+        if map.is_tile_visible(self.position) {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
             console.set(self.position, fg, Color::black(), self.glyph);
         }
@@ -27,7 +27,7 @@ impl Renderable for Player {
 
 impl Renderable for Mob {
     fn draw(&self, console : &mut Console, map : &Map) {
-        if map.is_tile_visible(&self.position) {
+        if map.is_tile_visible(self.position) {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
             console.set(self.position, fg, Color::black(), self.glyph);
         }
@@ -40,7 +40,7 @@ impl Renderable for Mob {
 
 impl Renderable for Item {
     fn draw(&self, console : &mut Console, map : &Map) {
-        if map.is_tile_visible(&self.position) {
+        if map.is_tile_visible(self.position) {
             let fg = Color::new(self.fg.r, self.fg.g, self.fg.b);
             console.set(self.position, fg, Color::black(), self.glyph);
         }

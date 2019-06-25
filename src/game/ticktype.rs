@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub enum TickType {
-    PlayersTurn, EnemyTurn, GameOver, UseMenu
+    None, PlayersTurn, EnemyTurn, GameOver, UseMenu
 }
