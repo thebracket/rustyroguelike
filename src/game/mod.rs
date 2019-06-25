@@ -29,9 +29,6 @@ pub use mob::Mob;
 mod rect;
 pub use rect::Rect;
 
-mod renderable;
-pub use renderable::Renderable;
-
 mod map;
 pub use map::Map;
 
@@ -50,7 +47,6 @@ use map_builder::spawn_items;
 
 pub struct State {
     pub map : Map,
-    pub items : Vec<Item>,
     pub game_state : TickType,
     pub log : Vec<String>,
     pub entities : Vec<Box<BaseEntity>>
@@ -64,9 +60,6 @@ impl GameState for State {
             e.draw_to_map(ctx, &self.map);
         }
 
-        for item in self.items.iter() {
-            item.draw(ctx.con(), &self.map);
-        }
         ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
         self.draw_ui(ctx.con());
 
@@ -116,12 +109,14 @@ impl State {
         for m in mobs {
             entities.push(Box::new(m));
         }
+        for i in items {
+            entities.push(Box::new(i));
+        }
 
         return State{ 
             map: map, 
             game_state: TickType::PlayersTurn, 
             log: Vec::new(), 
-            items: items,
             entities : entities
         };
     }
@@ -170,29 +165,23 @@ impl State {
     }
 
     fn pickup(&mut self) {
-        let mut target : Option<&mut Item> = None;
-
         let mut i = 0;
         let mut item_index = 0;
         let ppos = self.player().position;
-        for item in self.items.iter_mut() {
-            if item.position == ppos {
+        for e in self.entities.iter_mut() {
+            if e.can_pickup() && e.get_position() == ppos {
                 // We can do it!
-                target = Some(item);
                 item_index = i;
             }
             i += 1;
         }
 
-        match target {
-            None => { self.add_log_entry("There is nothing here to pick up.".to_string() ); }
-            Some(i) => {
-                let my_item = i.clone();
-                let results = self.player_mut().inventory.add_item(my_item); 
-                self.items.remove(item_index);
-                for s in results.iter() {
-                    self.add_log_entry(s.clone());
-                }
+        if item_index > 0 {
+            let cloned_item = self.entities[item_index].as_item().unwrap().clone();
+            let results = self.player_mut().inventory.add_item(cloned_item); 
+            self.entities.remove(item_index);
+            for s in results.iter() {
+                self.add_log_entry(s.clone());
             }
         }
     }
@@ -215,12 +204,6 @@ impl State {
             for e in self.entities.iter() {
                 if e.get_position() == ctx.mouse_pos {
                     tooltip.push(e.get_tooltip_text());
-                }
-            }
-
-            for item in self.items.iter() {
-                if item.position == ctx.mouse_pos {
-                    tooltip.push(item.get_tooltip());
                 }
             }
 

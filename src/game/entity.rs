@@ -7,6 +7,7 @@ use super::Map;
 use super::Player;
 use super::Combat;
 use super::Mob;
+use super::Item;
 
 pub trait BaseEntity {
     fn get_position(&self) -> Point;
@@ -23,6 +24,7 @@ pub trait BaseEntity {
     fn as_player_mut(&mut self) -> Option<&mut Player> { None }
     fn as_combat(&mut self) -> Option<&mut Combat> { None }
     fn as_mob_mut(&mut self) ->Option<&mut Mob> { None }
+    fn as_item(&self) -> Option<&Item> { None }
     fn plot_visibility(&mut self, map : &Map);
     fn get_tooltip_text(&self) -> String;
     fn blocks_tile(&self) -> bool { false }
@@ -30,4 +32,5 @@ pub trait BaseEntity {
     fn is_dead(&self) -> bool { false }
     fn is_mob(&self) -> bool { false }
     fn get_name(&self) -> String;
+    fn can_pickup(&self) -> bool { false }
 }

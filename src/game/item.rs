@@ -1,6 +1,8 @@
 use crate::rltk;
 use rltk::Color;
 use rltk::Point;
+use super::BaseEntity;
+use super::Map;
 
 #[derive(PartialEq, Clone)]
 pub struct Item {
@@ -28,4 +30,15 @@ impl Item {
 
         return result;
     }
+}
+
+impl BaseEntity for Item {
+    fn get_position(&self) -> Point { self.position }
+    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_glyph(&self) -> u8 { self.glyph }
+    fn plot_visibility(&mut self, _map : &Map) {}
+    fn get_tooltip_text(&self) -> String { format!("Item: {}", self.name) }
+    fn get_name(&self) -> String { self.name.clone() }
+    fn can_pickup(&self) -> bool { true }
+    fn as_item(&self) -> Option<&Item> { Some(self) }
 }
