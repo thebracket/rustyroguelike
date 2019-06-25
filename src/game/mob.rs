@@ -62,28 +62,22 @@ impl Mob {
         }
     }
 
-    pub fn turn_tick(&mut self, player: &mut Player, map : &mut Map) -> Vec<String> {
-        let can_see_player = self.visible_tiles.contains(&player.position);
+    pub fn turn_tick(&mut self, player_pos : Point, map : &mut Map) -> bool {
+        let can_see_player = self.visible_tiles.contains(&player_pos);
 
         if can_see_player {
-            let distance = rltk::distance2d(player.position, self.position);
+            let distance = rltk::distance2d(player_pos, self.position);
             if distance < 1.5 {
-                return self.attack_player(player);
+                return true;
             } else {
-                self.path_to_player(player, map);
+                self.path_to_player(player_pos, map);
             }
         }
-        return Vec::new();
+        return false;
     }
 
-    fn attack_player(&mut self, player: &mut Player) -> Vec<String> {
-        //let result = attack(self, player);
-        //return result;
-        return Vec::new();
-    }
-
-    fn path_to_player(&mut self, player: &mut Player, map : &mut Map) {
-        let path = a_star_search(map.point2d_to_index(self.position), map.point2d_to_index(player.position), map);
+    fn path_to_player(&mut self, player_pos : Point, map : &mut Map) {
+        let path = a_star_search(map.point2d_to_index(self.position), map.point2d_to_index(player_pos), map);
         if path.success {
             let idx = path.steps[1];
             if !map.is_tile_blocked(idx) {
@@ -108,4 +102,7 @@ impl BaseEntity for Mob {
     fn blocks_tile(&self) -> bool { true }
     fn can_be_attacked(&self) -> bool { true }
     fn is_dead(&self) -> bool { self.fighter.dead }
+    fn is_mob(&self) -> bool { true }
+    fn as_mob_mut(&mut self) ->Option<&mut Mob> { Some(self) }
+    fn get_name(&self) -> String { self.name.to_string() }
 }

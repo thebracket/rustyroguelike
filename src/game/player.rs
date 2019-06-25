@@ -51,4 +51,5 @@ impl BaseEntity for Player {
         self.visible_tiles = field_of_view(self.get_position(), 6, map);
     }
     fn get_tooltip_text(&self) -> String { "It's you!".to_string() }
+    fn get_name(&self) -> String { "Player".to_string() }
 }
