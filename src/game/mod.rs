@@ -415,12 +415,12 @@ impl State {
         let mut y = (25 - (count / 2)) as i32;
         let mut j = 0;
 
-        console.draw_box(Point::new(16, y-2), 30, (count+3) as i32, Color::white(), Color::black());
+        console.draw_box(Point::new(15, y-2), 31, (count+3) as i32, Color::white(), Color::black());
         console.print_color(Point::new(18, y-2), Color::yellow(), Color::black(), title.to_string());
 
         for i in self.player().inventory.items.iter() {
             console.set(Point::new(17, y), Color::white(), Color::black(), 40);
-            console.set(Point::new(17, y), Color::yellow(), Color::black(), 97+j);
+            console.set(Point::new(18, y), Color::yellow(), Color::black(), 97+j);
             console.set(Point::new(19, y), Color::white(), Color::black(), 41);
 
             console.print(Point::new(21, y), i.name.to_string());
