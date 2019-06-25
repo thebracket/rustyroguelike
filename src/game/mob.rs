@@ -3,10 +3,13 @@ use rltk::Color;
 use rltk::Point;
 use rltk::Algorithm2D;
 use rltk::a_star_search;
+use rltk::field_of_view;
 use super::fighter::Fighter;
 use super::Player;
 use super::Map;
 use super::fighter::attack;
+use super::Combat;
+use super::BaseEntity;
 
 pub struct Mob {
     pub position : Point,
@@ -74,8 +77,9 @@ impl Mob {
     }
 
     fn attack_player(&mut self, player: &mut Player) -> Vec<String> {
-        let result = attack(self, player);
-        return result;
+        //let result = attack(self, player);
+        //return result;
+        return Vec::new();
     }
 
     fn path_to_player(&mut self, player: &mut Player, map : &mut Map) {
@@ -90,4 +94,18 @@ impl Mob {
             }
         }
     }
+}
+
+impl BaseEntity for Mob {
+    fn get_position(&self) -> Point { self.position }
+    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_glyph(&self) -> u8 { self.glyph }
+    fn as_combat(&mut self) -> Option<&mut Combat> { Some(self) }
+    fn plot_visibility(&mut self, map : &Map) {
+        self.visible_tiles = field_of_view(self.get_position(), 6, map);
+    }
+    fn get_tooltip_text(&self) -> String { format!("Enemy: {}", self.name) }
+    fn blocks_tile(&self) -> bool { true }
+    fn can_be_attacked(&self) -> bool { true }
+    fn is_dead(&self) -> bool { self.fighter.dead }
 }

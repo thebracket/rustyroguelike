@@ -32,20 +32,20 @@ pub trait Combat {
     fn kill(&mut self);
 }
 
-pub fn attack(instigator: &mut Combat, target: &mut Combat) -> Vec<String> {
+pub fn attack(instigator_name: String, instigator_power : i32, target: &mut Combat) -> Vec<String> {
     let mut results = Vec::new();
 
-    let damage = instigator.get_power() - target.get_defense();
+    let damage = instigator_power - target.get_defense();
     if damage > 0 {
         target.take_damage(damage);
-        results.push(format!("{} attacks {}, for {} hit points of damage.", instigator.get_name(), target.get_name(), damage));
+        results.push(format!("{} attacks {}, for {} hit points of damage.", instigator_name, target.get_name(), damage));
         results.push(format!("{} has {} remaining hit points.", target.get_name(), target.get_hp()));
         if target.get_hp() < 1 {
             results.push(format!("{} is dead.", target.get_name()));
             target.kill();
         }
     } else {
-        results.push(format!("{} attacks {}, but lacks the power to do anything useful.", instigator.get_name(), target.get_name()));
+        results.push(format!("{} attacks {}, but lacks the power to do anything useful.", instigator_name, target.get_name()));
     }
 
     return results;

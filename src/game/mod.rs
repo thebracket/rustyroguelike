@@ -49,7 +49,6 @@ use map_builder::spawn_items;
 
 pub struct State {
     pub map : Map,
-    pub mobs : Vec<Mob>,
     pub items : Vec<Item>,
     pub game_state : TickType,
     pub log : Vec<String>,
@@ -64,9 +63,6 @@ impl GameState for State {
             e.draw_to_map(ctx, &self.map);
         }
 
-        for mob in self.mobs.iter() {
-            mob.draw(ctx.con(), &self.map);
-        }
         for item in self.items.iter() {
             item.draw(ctx.con(), &self.map);
         }
@@ -116,10 +112,12 @@ impl State {
         map.set_visibility(&player.visible_tiles);
 
         entities.push(Box::new(player));
+        for m in mobs {
+            entities.push(Box::new(m));
+        }
 
         return State{ 
             map: map, 
-            mobs: mobs, 
             game_state: TickType::PlayersTurn, 
             log: Vec::new(), 
             items: items,
@@ -139,36 +137,35 @@ impl State {
         return self.entities[0].as_combat().unwrap();
     }
 
-    fn move_player(&mut self, delta_x : i32, delta_y: i32) {
+    // Returns the ID of the target if we're attacking
+    fn move_player(&mut self, delta_x : i32, delta_y: i32) -> Option<usize> {
+        let mut result : Option<usize> = None;
         let new_x = self.player().position.x + delta_x;
         let new_y = self.player().position.y + delta_y;
         let mut can_move : bool = true;
         if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
 
             // Lets see if we are bumping a mob
-            let mut tmp : Vec<String> = Vec::new();
-            for mob in self.mobs.iter_mut() {
-                if mob.position.x == new_x && mob.position.y == new_y {
-                    // We are
-                    /*let result = attack(self.player(), mob);
-                    for s in result.iter() {
-                        let tmp_str : String = (*s.clone()).to_string();
-                        tmp.push(tmp_str);
+            let new_pos = Point::new(new_x, new_y);
+            let mut i : usize = 0;
+            for e in self.entities.iter_mut() {
+                if e.get_position() == new_pos && e.blocks_tile() {
+                    // Tile is indeed blocked
+                    can_move = false;
+                    if e.can_be_attacked() {
+                        // Attack it!
+                        result = Some(i);
                     }
-                    can_move = false;*/
                 }
+                i += 1;
             }
-            self.mobs.retain(|mob| !mob.fighter.dead);
 
             if can_move {
                 self.player_mut().position.x = new_x;
                 self.player_mut().position.y = new_y;
             }
-
-            for s in tmp {
-                self.add_log_entry(s);
-            }
         }
+        return result;
     }
 
     fn pickup(&mut self) {
@@ -214,9 +211,9 @@ impl State {
             let tile_info = self.map.tile_description(ctx.mouse_pos);
             tooltip.push(format!("Tile: {}", tile_info));
 
-            for mob in self.mobs.iter() {
-                if mob.position == ctx.mouse_pos {
-                    tooltip.push(mob.get_tooltip());
+            for e in self.entities.iter() {
+                if e.get_position() == ctx.mouse_pos {
+                    tooltip.push(e.get_tooltip_text());
                 }
             }
 
@@ -224,10 +221,6 @@ impl State {
                 if item.position == ctx.mouse_pos {
                     tooltip.push(item.get_tooltip());
                 }
-            }
-
-            if self.player().position == ctx.mouse_pos {
-                tooltip.push(self.player().get_tooltip());
             }
 
             if !tooltip.is_empty() {
@@ -270,6 +263,7 @@ impl State {
 
     fn player_tick(&mut self, ctx : &mut Rltk) {
         let mut turn_ended = false;
+        let mut attack_target : Option<usize> = None;
 
         match ctx.key {
             Some(key) => {
@@ -277,21 +271,21 @@ impl State {
                 glfw::Key::Escape => { ctx.quit() }
 
                 // Numpad
-                glfw::Key::Kp8 => { self.move_player(0, -1); turn_ended = true; }
-                glfw::Key::Kp4 => { self.move_player(-1, 0); turn_ended = true; }
-                glfw::Key::Kp6 => { self.move_player(1, 0); turn_ended = true; }
-                glfw::Key::Kp2 => { self.move_player(0, 1); turn_ended = true; }
+                glfw::Key::Kp8 => { attack_target = self.move_player(0, -1); turn_ended = true; }
+                glfw::Key::Kp4 => { attack_target = self.move_player(-1, 0); turn_ended = true; }
+                glfw::Key::Kp6 => { attack_target = self.move_player(1, 0); turn_ended = true; }
+                glfw::Key::Kp2 => { attack_target = self.move_player(0, 1); turn_ended = true; }
 
-                glfw::Key::Kp7 => { self.move_player(-1, -1); turn_ended = true; }
-                glfw::Key::Kp9 => { self.move_player(1, -1); turn_ended = true; }
-                glfw::Key::Kp1 => { self.move_player(-1, 1); turn_ended = true; }
-                glfw::Key::Kp3 => { self.move_player(1, 1); turn_ended = true; }
+                glfw::Key::Kp7 => { attack_target = self.move_player(-1, -1); turn_ended = true; }
+                glfw::Key::Kp9 => { attack_target = self.move_player(1, -1); turn_ended = true; }
+                glfw::Key::Kp1 => { attack_target = self.move_player(-1, 1); turn_ended = true; }
+                glfw::Key::Kp3 => { attack_target = self.move_player(1, 1); turn_ended = true; }
 
                 // Cursors
-                glfw::Key::Up => { self.move_player(0, -1); turn_ended = true; }
-                glfw::Key::Down => { self.move_player(0, 1); turn_ended = true; }
-                glfw::Key::Left => { self.move_player(-1, 0); turn_ended = true; }
-                glfw::Key::Right => { self.move_player(1, 0); turn_ended = true; }
+                glfw::Key::Up => { attack_target = self.move_player(0, -1); turn_ended = true; }
+                glfw::Key::Down => { attack_target = self.move_player(0, 1); turn_ended = true; }
+                glfw::Key::Left => { attack_target = self.move_player(-1, 0); turn_ended = true; }
+                glfw::Key::Right => { attack_target = self.move_player(1, 0); turn_ended = true; }
 
                 // Wait
                 glfw::Key::Kp5 => { turn_ended = true; }
@@ -308,6 +302,18 @@ impl State {
             None => {}
         }
 
+        match attack_target {
+            Some(target) => { 
+                let player = self.player_as_combat();
+                let result = attack(player.get_name(), player.get_power(), self.entities[target].as_combat().unwrap());
+                for s in result {
+                    self.add_log_entry(s.to_string());
+                }
+                self.entities.retain(|e| !e.is_dead());
+             }
+            _ => {}
+        }
+
         if turn_ended {
             self.update_visibility();
             self.game_state = TickType::EnemyTurn; 
@@ -316,8 +322,7 @@ impl State {
 
     fn mob_tick(&mut self, _console: &mut Console) {
         self.map.refresh_blocked();
-        //self.map.set_tile_blocked((self.player().position.y * 80) + self.player().position.x);
-        for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
+        //for mob in self.mobs.iter() { self.map.set_tile_blocked((mob.position.y * 80) + mob.position.x); }
 
         /*let mut tmp : Vec<String> = Vec::new();
         for mob in self.mobs.iter_mut() {
