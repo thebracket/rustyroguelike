@@ -7,6 +7,7 @@ use super::BaseEntity;
 use super::Combat;
 use rltk::field_of_view;
 use super::Map;
+use super::Item;
 
 pub struct Player {
     pub position : Point,
@@ -37,6 +38,12 @@ impl Player {
         self.inventory.items.remove(item_index as usize);
 
         return result;
+    }
+
+    pub fn remove_item_from_inventory(&mut self, item_index: i32) -> Item {
+        let item_copy = self.inventory.items[item_index as usize].clone();
+        self.inventory.items.remove(item_index as usize);
+        return item_copy;
     }
 }
 

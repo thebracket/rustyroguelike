@@ -99,6 +99,20 @@ impl GameState for State {
                     ItemMenuResult::Cancel => { self.game_state = TickType::PlayersTurn }
                 }
             }
+            TickType::DropMenu => {
+                let (result, selection) = self.handle_item_menu(ctx, "Drop which item? (or ESC)");
+                match result {
+                    ItemMenuResult::NoResponse => {}
+                    ItemMenuResult::Selected => {
+                        let mut item_copy = self.player_mut().remove_item_from_inventory(selection);
+                        item_copy.position = self.player().get_position();
+                        self.add_log_entry(format!("You drop the {}", item_copy.name));
+                        self.entities.push(Box::new(item_copy));
+                        self.game_state = TickType::EnemyTurn;
+                    }
+                    ItemMenuResult::Cancel => { self.game_state = TickType::PlayersTurn }
+                }
+            }
             TickType::None => {}
         }
     }
@@ -207,6 +221,14 @@ impl State {
         }
     }
 
+    fn drop_menu(&mut self) {
+        if self.player().inventory.items.is_empty() {
+            self.add_log_entry("You don't have any items to drop!".to_string());
+        } else {
+            self.game_state = TickType::DropMenu;
+        }
+    }
+
     fn display_mouse_info(&mut self, ctx : &mut Rltk) {
         if self.map.is_tile_visible(ctx.mouse_pos) {
             let mut tooltip : Vec<String> = Vec::new();
@@ -290,8 +312,9 @@ impl State {
                 // Pick up
                 glfw::Key::G => { self.pickup(); turn_ended = true; }
 
-                // Use
+                // Use/drop items
                 glfw::Key::U => { self.use_menu(); }
+                glfw::Key::D => { self.drop_menu(); }
 
                 _ =>  { }
                 }
@@ -392,8 +415,8 @@ impl State {
         let mut y = (25 - (count / 2)) as i32;
         let mut j = 0;
 
-        console.draw_box(Point::new(18, y-2), 30, (count+3) as i32, Color::white(), Color::black());
-        console.print_color(Point::new(16, y-2), Color::yellow(), Color::black(), title.to_string());
+        console.draw_box(Point::new(16, y-2), 30, (count+3) as i32, Color::white(), Color::black());
+        console.print_color(Point::new(18, y-2), Color::yellow(), Color::black(), title.to_string());
 
         for i in self.player().inventory.items.iter() {
             console.set(Point::new(17, y), Color::white(), Color::black(), 40);
