@@ -1,20 +1,5 @@
-use super::gui;
-use super::TickType;
-use super::inventory;
-use super::Map;
-use super::Player;
-use super::attack;
-use super::map_builder;
-use super::Combat;
-use super::Console;
-use super::BaseEntity;
-use super::GameState;
-use crate::rltk;
-use super::player;
-use super::mob;
-use rltk::Rltk;
-use rltk::Color;
-use rltk::Algorithm2D;
+use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob}
+use rltk::{Rltk, Color};
 
 pub struct State {
     pub map : Map,
