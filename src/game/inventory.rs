@@ -29,6 +29,28 @@ impl Inventory {
     }
 }
 
+pub fn pickup(gs : &mut State) {
+    let mut i = 0;
+    let mut item_index = 0;
+    let ppos = gs.player().position;
+    for e in gs.entities.iter_mut() {
+        if e.can_pickup() && e.get_position() == ppos {
+            // We can do it!
+            item_index = i;
+        }
+        i += 1;
+    }
+
+    if item_index > 0 {
+        let cloned_item = gs.entities[item_index].as_item().unwrap().clone();
+        let results = gs.player_mut().inventory.add_item(cloned_item); 
+        gs.entities.remove(item_index);
+        for s in results.iter() {
+            gs.add_log_entry(s.clone());
+        }
+    }
+}
+
 pub fn use_item(gs : &mut State, ctx : &mut Rltk) {
     let (result, selection) = gui::handle_item_menu(gs, ctx, "Use which item? (or ESC)");
     match result {
