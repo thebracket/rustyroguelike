@@ -1,4 +1,4 @@
-use super::{Item, gui, gui::ItemMenuResult, State, TickType, BaseEntity};
+use super::{Item, gui, gui::ItemMenuResult, State, TickType, BaseEntity, player};
 use crate::rltk;
 use rltk::Rltk;
 
@@ -57,7 +57,7 @@ pub fn use_item(gs : &mut State, ctx : &mut Rltk) {
     match result {
         ItemMenuResult::NoResponse => {}
         ItemMenuResult::Selected => {
-            let result = gs.player_mut().use_item(selection);
+            let result = player::use_item(selection, gs);
             for s in result.iter() {
                 gs.add_log_entry(s.to_string());
             }
