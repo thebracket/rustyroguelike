@@ -1,6 +1,4 @@
 use crate::rltk;
-use rltk::Color;
-use rltk::Console;
 use rltk::Point;
 use rltk::Algorithm2D;
 use rltk::BaseMap;
@@ -45,34 +43,6 @@ impl Map {
             }
         }
     }    
-
-    pub fn draw(&mut self, console : &mut Console) {
-        console.cls();
-
-        let mut idx = 0;
-        for y in 0 .. self.height {
-            for x in 0 .. self.width {
-
-                // You wouldn't normally make this mess - clean up!
-                let coord = Point::new(x, y);
-                if self.revealed[idx] {
-                    if self.visible[idx] {
-                        match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(coord, Color::dark_green(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(coord, Color::white(), Color::black(), "#".to_string()) }
-                        }
-                    } else {
-                        match self.tiles[idx] {
-                            TileType::Floor => { console.print_color(coord, Color::grey(), Color::black(), ".".to_string()) }
-                            TileType::Wall => { console.print_color(coord, Color::grey(), Color::black(), "#".to_string()) }
-                        }
-                    }
-                }
-
-                idx += 1;
-            }
-        }
-    }
 
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {

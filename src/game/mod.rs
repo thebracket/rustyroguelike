@@ -46,6 +46,8 @@ use map_builder::random_rooms_tut3;
 use map_builder::spawn_mobs;
 use map_builder::spawn_items;
 
+mod gui;
+
 enum ItemMenuResult { Cancel, NoResponse, Selected }
 
 pub struct State {
@@ -57,16 +59,7 @@ pub struct State {
 
 impl GameState for State {
     fn tick(&mut self, ctx : &mut Rltk) {
-        self.map.draw(ctx.con());
-
-        for e in self.entities.iter() {
-            e.draw_to_map(ctx, &self.map);
-        }
-
-        ctx.consoles[0].set_bg(ctx.mouse_pos, Color::magenta());
-        self.draw_ui(ctx.con());
-
-        self.display_mouse_info(ctx);
+        gui::render(self, ctx, &self.map);
 
         match self.game_state {
             TickType::PlayersTurn => { 
@@ -230,57 +223,6 @@ impl State {
         }
     }
 
-    fn display_mouse_info(&mut self, ctx : &mut Rltk) {
-        if self.map.is_tile_visible(ctx.mouse_pos) {
-            let mut tooltip : Vec<String> = Vec::new();
-
-            let tile_info = self.map.tile_description(ctx.mouse_pos);
-            tooltip.push(format!("Tile: {}", tile_info));
-
-            for e in self.entities.iter() {
-                if e.get_position() == ctx.mouse_pos {
-                    tooltip.push(e.get_tooltip_text());
-                }
-            }
-
-            if !tooltip.is_empty() {
-                let mut width :i32 = 0;
-                for s in tooltip.iter() {
-                    if width < s.len() as i32 { width = s.len() as i32; }
-                }
-                width += 3;
-
-                if ctx.mouse_pos.x > 40 {
-                    let arrow_pos = Point::new(ctx.mouse_pos.x - 2, ctx.mouse_pos.y);
-                    let left_x = ctx.mouse_pos.x - width;
-                    let mut y = ctx.mouse_pos.y;
-                    for s in tooltip.iter() {
-                        ctx.con().print_color(Point::new(left_x, y), Color::white(), Color::grey(), format!("{}", s));
-                        let padding = (width - s.len() as i32)-1;
-                        for i in 0..padding {
-                            ctx.con().print_color(Point::new(arrow_pos.x - i, y), Color::white(), Color::grey(), " ".to_string());
-                        }
-                        y += 1;
-                    }
-                    ctx.con().print_color(arrow_pos, Color::white(), Color::grey(), "->".to_string());
-                } else {
-                    let arrow_pos = Point::new(ctx.mouse_pos.x + 1, ctx.mouse_pos.y);
-                    let left_x = ctx.mouse_pos.x +3;
-                    let mut y = ctx.mouse_pos.y;
-                    for s in tooltip.iter() {
-                        ctx.con().print_color(Point::new(left_x, y), Color::white(), Color::grey(), format!("{}", s));
-                        let padding = (width - s.len() as i32)-1;
-                        for i in 0..padding {
-                            ctx.con().print_color(Point::new(left_x + s.len() as i32 + i, y), Color::white(), Color::grey(), " ".to_string());
-                        }
-                        y += 1;
-                    }
-                    ctx.con().print_color(arrow_pos, Color::white(), Color::grey(), "<-".to_string());
-                }
-            }
-        }
-    }
-
     fn player_tick(&mut self, ctx : &mut Rltk) {
         let mut turn_ended = false;
         let mut attack_target : Option<usize> = None;
@@ -393,20 +335,6 @@ impl State {
         //for mob in self.mobs.iter_mut() {
         //    mob.plot_visibility(&self.map);
         //}
-    }
-
-    fn draw_ui(&self, console: &mut Console) {
-        console.draw_box(Point::new(1, 43), 78, 6, Color::white(), Color::black());
-        let health = format!(" HP: {} / {} ", self.player().fighter.hp, self.player().fighter.max_hp);
-        console.print_color(Point::new(3,43), Color::yellow(), Color::black(), health);
-
-        console.draw_bar_horizontal(Point::new(20, 43), 59, self.player().fighter.hp, self.player().fighter.max_hp, Color::red(), Color::black());
-
-        let mut y = 44;
-        for s in self.log.iter() {
-            console.print(Point::new(2, y), s.to_string());
-            y += 1;
-        }
     }
 
     #[allow(non_snake_case)]
