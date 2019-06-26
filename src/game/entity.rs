@@ -1,13 +1,6 @@
 use crate::rltk;
-use rltk::Color;
-use rltk::Rltk;
-use rltk::Point;
-
-use super::Map;
-use super::Player;
-use super::Combat;
-use super::Mob;
-use super::Item;
+use rltk::{Color, Rltk, Point};
+use super::{Map, Player, Combat, Mob, Item};
 
 pub trait BaseEntity {
     fn get_position(&self) -> Point;

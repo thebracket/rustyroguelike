@@ -1,6 +1,5 @@
 use crate::rltk;
-use rltk::Console;
-use rltk::GameState;
+use rltk::{ Console, GameState };
 
 mod entity;
 pub use entity::BaseEntity;

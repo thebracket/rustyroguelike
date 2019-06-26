@@ -1,6 +1,5 @@
 use std::cmp::{min};
-use super::Player;
-use super::Mob;
+use super::{Player, Mob};
 
 pub struct Fighter {
     pub max_hp : i32,

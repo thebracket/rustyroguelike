@@ -1,7 +1,5 @@
 use crate::rltk;
-use rltk::Point;
-use rltk::Algorithm2D;
-use rltk::BaseMap;
+use rltk::{ Point, Algorithm2D, BaseMap };
 
 use super::TileType;
 

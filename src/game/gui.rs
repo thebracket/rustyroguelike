@@ -1,10 +1,6 @@
 use crate::rltk;
-use rltk::Rltk;
-use rltk::Point;
-use rltk::Color;
-use super::Map;
-use super::TileType;
-use super::State;
+use rltk::{Rltk, Point, Color};
+use super::{Map, TileType, State};
 
 pub enum ItemMenuResult { Cancel, NoResponse, Selected }
 

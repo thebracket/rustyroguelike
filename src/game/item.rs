@@ -1,8 +1,6 @@
 use crate::rltk;
-use rltk::Color;
-use rltk::Point;
-use super::BaseEntity;
-use super::Map;
+use rltk::{Color, Point};
+use super::{BaseEntity, Map};
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum ItemType { HealthPotion, ZapScroll }

@@ -1,11 +1,6 @@
-use super::Item;
-use super::gui;
-use super::gui::ItemMenuResult;
+use super::{Item, gui, gui::ItemMenuResult, State, TickType, BaseEntity};
 use crate::rltk;
 use rltk::Rltk;
-use super::State;
-use super::TickType;
-use super::BaseEntity;
 
 pub struct Inventory {
     pub items : Vec<Item>,

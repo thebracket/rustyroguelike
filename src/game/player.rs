@@ -1,19 +1,6 @@
 use crate::rltk;
-use rltk::Color;
-use rltk::Point;
-use rltk::Rltk;
-use super::fighter::Fighter;
-use super::Inventory;
-use super::BaseEntity;
-use super::Combat;
-use rltk::field_of_view;
-use super::Map;
-use super::Item;
-use super::ItemType;
-use super::State;
-use super::attack;
-use super::TickType;
-use super::inventory;
+use rltk::{Color, Point, Rltk, field_of_view};
+use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, Item, ItemType, State, attack, TickType, inventory};
 
 pub struct Player {
     pub position : Point,

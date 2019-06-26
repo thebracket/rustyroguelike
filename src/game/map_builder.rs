@@ -1,8 +1,4 @@
-use super::Map;
-use super::Rect;
-use super::TileType;
-use super::Mob;
-use super::Item;
+use super::{ Map, Rect, TileType, Mob, Item };
 use rand::Rng;
 use std::cmp::{max, min};
 
