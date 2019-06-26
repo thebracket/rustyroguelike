@@ -160,8 +160,9 @@ pub fn use_item(item_index : i32, gs : &mut State) -> Vec<String> {
 
     let item_type = gs.player().inventory.items[item_index as usize].item_type;
     match item_type {
-        ItemType::HealthPotion => { item_effects::use_health_potion(item_index, gs, &mut result); }
+        ItemType::HealthPotion => { item_effects::use_health_potion(item_index, gs, &mut result) }
         ItemType::ZapScroll => { item_effects::use_zap_scroll(item_index, gs, &mut result) }
+        ItemType::ConfusionScroll => { item_effects::use_confusion_scroll(item_index, gs, &mut result) }
         _ => {}
     }
 

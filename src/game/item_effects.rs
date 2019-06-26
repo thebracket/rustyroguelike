@@ -85,3 +85,32 @@ pub fn use_fireball_scroll(gs : &mut State, result : &mut Vec<String>) {
         gs.add_log_entry(r.to_string());
     }
 }
+
+pub fn use_confusion_scroll(item_index : i32, gs : &mut State, result : &mut Vec<String>) {
+    let mut possible_targets : Vec<(usize, f32)> = Vec::new();
+    let visible_tiles = gs.player().visible_tiles.clone();
+    let my_pos = gs.player().get_position();
+    let mut i : usize = 0;
+    for potential_target in gs.entities.iter() {
+        if potential_target.is_mob() {
+            let target_pos = potential_target.get_position();
+            if visible_tiles.contains(&target_pos) {
+                possible_targets.push((i, rltk::distance2d(my_pos, target_pos)));
+            }
+        }
+        i += 1;
+    }
+
+    if possible_targets.is_empty() {
+        result.push("You can't see anyone to zap, so you put the scroll away.".to_string());
+    } else {
+        possible_targets.sort_by(|a,b| a.1.partial_cmp(&b.1).unwrap());
+
+        let mut target = &mut gs.entities[possible_targets[0].0].as_mob_mut().unwrap();
+        result.push(format!("{} is confused.", target.name));
+        target.confused = Some(5);
+
+        // Remove the scroll
+        gs.player_mut().inventory.remove_item_return_clone(item_index);
+    }
+}

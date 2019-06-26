@@ -3,7 +3,7 @@ use rltk::{Color, Point};
 use super::{BaseEntity, Map};
 
 #[derive(PartialEq, Clone, Copy)]
-pub enum ItemType { HealthPotion, ZapScroll, FireballScroll }
+pub enum ItemType { HealthPotion, ZapScroll, FireballScroll, ConfusionScroll }
 
 #[derive(PartialEq, Clone)]
 pub struct Item {
@@ -20,6 +20,7 @@ impl Item {
         match n {
             1 => { return Item::new_zap_scroll(x,y) }
             2 => { return Item::new_fireball_scroll(x,y) }
+            3 => { return Item::new_confusion_scroll(x,y) }
             _ => { return Item::new_health_potion(x,y) }
         }
     }
@@ -54,6 +55,17 @@ impl Item {
             name: "Fireball Scroll".to_string(),
             item_type: ItemType::FireballScroll,
             requires_targeting_mode : true
+        }
+    }
+
+    pub fn new_confusion_scroll(x:i32, y:i32) -> Item {
+        Item{ 
+            position: Point::new(x, y), 
+            glyph: 63, 
+            fg: Color::blue(), 
+            name: "Confusion Scroll".to_string(),
+            item_type: ItemType::ConfusionScroll,
+            requires_targeting_mode : false
         }
     }
 }

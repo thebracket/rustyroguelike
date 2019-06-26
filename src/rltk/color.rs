@@ -53,4 +53,5 @@ impl Color {
     }
 
     pub fn orange() -> Color { Color{r:1.0, g:0.64, b:0.0} }
+    pub fn blue() -> Color { Color{r:0.0, g:0.0, b:1.0} }
 }

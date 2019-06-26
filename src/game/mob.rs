@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
 use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack};
+use rand::Rng;
 
 pub struct Mob {
     pub position : Point,
@@ -8,7 +9,8 @@ pub struct Mob {
     pub fg : Color,
     pub visible_tiles : Vec<Point>,
     pub name : String,
-    pub fighter : Fighter
+    pub fighter : Fighter,
+    pub confused: Option<i32>
 }
 
 impl Mob {
@@ -27,7 +29,8 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Borrow Wight".to_string(),
-            fighter: Fighter::new(2, 0, 1)
+            fighter: Fighter::new(2, 0, 1),
+            confused: None
         }
     }
 
@@ -38,7 +41,8 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Mut Hound".to_string(),
-            fighter: Fighter::new(1, 0, 1)
+            fighter: Fighter::new(1, 0, 1),
+            confused: None
         }
     }
 
@@ -49,11 +53,34 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Itereater Beast".to_string(),
-            fighter: Fighter::new(1, 0, 1)
+            fighter: Fighter::new(1, 0, 1),
+            confused: None
         }
     }
 
     pub fn turn_tick(&mut self, player_pos : Point, map : &mut Map) -> bool {
+        match self.confused {
+            Some(turns) => {
+                let new_turns = turns-1;
+                if new_turns == 0 {
+                    self.confused = None;
+                } else {
+                    self.confused = Some(new_turns);
+                }
+
+                let mut rng = rand::thread_rng();
+                let delta_x = rng.gen_range(0, 3)-1;
+                let delta_y = rng.gen_range(0, 3)-1;
+                let new_loc = Point::new(self.position.x + delta_x, self.position.y + delta_y);
+                if map.is_walkable(new_loc.x, new_loc.y) && !map.is_tile_blocked(map.point2d_to_index(new_loc)) {
+                    self.position = new_loc;
+                }
+
+                return false;
+            }
+            None => {}
+        }
+
         let can_see_player = self.visible_tiles.contains(&player_pos);
 
         if can_see_player {
