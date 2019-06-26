@@ -1,8 +1,10 @@
 use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob};
 use rltk::{Rltk, Color, Point};
 use serde::{Serialize, Deserialize};
+use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 pub struct State {
@@ -39,6 +41,12 @@ impl GameState for State {
 
 impl State {
     pub fn new() -> State {
+        if Path::new("./savegame.json").exists() {
+            let data = fs::read_to_string("./savegame.json").expect("Unable to read file");
+            let loaded : State = serde_json::from_str(&data).unwrap();
+            return loaded;
+        }
+
         let mut entities : Vec<Box<BaseEntity>> = Vec::new();
         let mut map = Map::new(80, 43);
         let rooms = map_builder::random_rooms_tut3(&mut map);

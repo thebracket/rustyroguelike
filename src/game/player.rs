@@ -26,7 +26,7 @@ impl Player {
     }    
 }
 
-#[typetag::serde(name = "BEMob")]
+#[typetag::serde(name = "BEPlayer")]
 impl BaseEntity for Player {
     fn get_position(&self) -> Point { self.position }
     fn get_fg_color(&self) -> Color { self.fg }
@@ -51,7 +51,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
     match ctx.key {
         Some(key) => {
             match key {
-            glfw::Key::Escape => { ctx.quit() }
+            glfw::Key::Escape => { gs.save(); ctx.quit(); }
 
             // Numpad
             glfw::Key::Kp8 => { attack_target = move_player(gs, 0, -1); turn_ended = true; }
