@@ -11,6 +11,7 @@ use super::BaseEntity;
 use super::GameState;
 use crate::rltk;
 use super::player;
+use super::mob;
 use rltk::Rltk;
 use rltk::Color;
 use rltk::Algorithm2D;
@@ -31,7 +32,7 @@ impl GameState for State {
                 player::player_tick(self, ctx);
             }
             TickType::EnemyTurn => {
-                self.mob_tick(ctx.con());
+                mob::mob_tick(self, ctx.con());
                 self.game_state = TickType::PlayersTurn;
                 if self.player().fighter.dead { self.game_state = TickType::GameOver; }
             }
@@ -89,47 +90,6 @@ impl State {
 
     pub fn player_as_combat(&mut self) -> &mut Combat {
         return self.entities[0].as_combat().unwrap();
-    }
-
-    fn mob_tick(&mut self, _console: &mut Console) {
-        // Build the master map of unavailable tiles
-        self.map.refresh_blocked();
-        for e in self.entities.iter() {
-            if e.blocks_tile() {
-                let pos = e.get_position();
-                self.map.set_tile_blocked(self.map.point2d_to_index(pos));
-            }
-        }
-
-        let mut i : usize = 0;
-        let mut active_mobs : Vec<usize> = Vec::new();
-        for e in self.entities.iter_mut() {
-            if e.is_mob() { active_mobs.push(i); }
-            i += 1;
-        }
-
-        let ppos = self.player().position;
-        let mut attacking_mobs : Vec<usize> = Vec::new();
-
-        for id in active_mobs {
-            let mob = self.entities[id].as_mob_mut().unwrap();
-            if mob.turn_tick(ppos, &mut self.map) {
-                attacking_mobs.push(id);
-            }
-        }
-
-        let mut tmp : Vec<String> = Vec::new();
-        for id in attacking_mobs {
-            let attacker_name = self.entities[id].get_name();
-            let attacker_power = self.entities[id].as_combat().unwrap().get_power();
-            let result = attack(attacker_name, attacker_power, self.player_as_combat());
-            for r in result {
-                tmp.push(r);
-            }
-        }
-        for s in tmp {
-            self.add_log_entry(s);
-        }
     }
 
     pub fn update_visibility(&mut self) {

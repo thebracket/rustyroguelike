@@ -8,6 +8,9 @@ use super::fighter::Fighter;
 use super::Map;
 use super::Combat;
 use super::BaseEntity;
+use super::State;
+use super::Console;
+use super::attack;
 
 pub struct Mob {
     pub position : Point,
@@ -103,4 +106,45 @@ impl BaseEntity for Mob {
     fn is_mob(&self) -> bool { true }
     fn as_mob_mut(&mut self) ->Option<&mut Mob> { Some(self) }
     fn get_name(&self) -> String { self.name.to_string() }
+}
+
+pub fn mob_tick(gs : &mut State, _console: &mut Console) {
+    // Build the master map of unavailable tiles
+    gs.map.refresh_blocked();
+    for e in gs.entities.iter() {
+        if e.blocks_tile() {
+            let pos = e.get_position();
+            gs.map.set_tile_blocked(gs.map.point2d_to_index(pos));
+        }
+    }
+
+    let mut i : usize = 0;
+    let mut active_mobs : Vec<usize> = Vec::new();
+    for e in gs.entities.iter_mut() {
+        if e.is_mob() { active_mobs.push(i); }
+        i += 1;
+    }
+
+    let ppos = gs.player().position;
+    let mut attacking_mobs : Vec<usize> = Vec::new();
+
+    for id in active_mobs {
+        let mob = gs.entities[id].as_mob_mut().unwrap();
+        if mob.turn_tick(ppos, &mut gs.map) {
+            attacking_mobs.push(id);
+        }
+    }
+
+    let mut tmp : Vec<String> = Vec::new();
+    for id in attacking_mobs {
+        let attacker_name = gs.entities[id].get_name();
+        let attacker_power = gs.entities[id].as_combat().unwrap().get_power();
+        let result = attack(attacker_name, attacker_power, gs.player_as_combat());
+        for r in result {
+            tmp.push(r);
+        }
+    }
+    for s in tmp {
+        gs.add_log_entry(s);
+    }
 }
