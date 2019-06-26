@@ -1,4 +1,7 @@
-#[derive(PartialEq, Copy, Clone)]
+extern crate serde;
+use serde::{Serialize, Deserialize};
+
+#[derive(PartialEq, Copy, Clone, Serialize, Deserialize)]
 pub struct Color {
     pub r : f32,
     pub g : f32,

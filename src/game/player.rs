@@ -1,7 +1,10 @@
 use crate::rltk;
 use rltk::{Color, Point, Rltk, field_of_view};
 use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects};
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Player {
     pub position : Point,
     pub glyph: u8,
@@ -23,6 +26,7 @@ impl Player {
     }    
 }
 
+#[typetag::serde(name = "BEMob")]
 impl BaseEntity for Player {
     fn get_position(&self) -> Point { self.position }
     fn get_fg_color(&self) -> Color { self.fg }
@@ -75,6 +79,9 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
             // Use/drop items
             glfw::Key::U => { use_menu(gs); }
             glfw::Key::D => { drop_menu(gs); }
+
+            // Tmp
+            glfw::Key::S => { gs.save(); }
 
             _ =>  { }
             }

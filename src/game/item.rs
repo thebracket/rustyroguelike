@@ -1,11 +1,13 @@
 use crate::rltk;
 use rltk::{Color, Point};
 use super::{BaseEntity, Map};
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum ItemType { HealthPotion, ZapScroll, FireballScroll, ConfusionScroll }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Serialize, Deserialize)]
 pub struct Item {
     pub position : Point,
     pub glyph: u8,
@@ -70,6 +72,7 @@ impl Item {
     }
 }
 
+#[typetag::serde(name = "BEItem")]
 impl BaseEntity for Item {
     fn get_position(&self) -> Point { self.position }
     fn get_fg_color(&self) -> Color { self.fg }

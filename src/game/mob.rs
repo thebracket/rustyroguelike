@@ -2,7 +2,10 @@ use crate::rltk;
 use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
 use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack};
 use rand::Rng;
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Mob {
     pub position : Point,
     pub glyph: u8,
@@ -108,6 +111,7 @@ impl Mob {
     }
 }
 
+#[typetag::serde(name = "BEMob")]
 impl BaseEntity for Mob {
     fn get_position(&self) -> Point { self.position }
     fn get_fg_color(&self) -> Color { self.fg }

@@ -1,5 +1,8 @@
+
 use crate::rltk;
 use rltk::{ Console, GameState };
+
+extern crate serde;
 
 mod entity;
 pub use entity::BaseEntity;

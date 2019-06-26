@@ -1,6 +1,10 @@
 use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob};
 use rltk::{Rltk, Color, Point};
+use serde::{Serialize, Deserialize};
+use std::fs::File;
+use std::io::Write;
 
+#[derive(Serialize, Deserialize)]
 pub struct State {
     pub map : Map,
     pub game_state : TickType,
@@ -90,5 +94,11 @@ impl State {
     pub fn add_log_entry(&mut self, line : String) {
         self.log.insert(0, line.clone());
         while self.log.len() > 5 { self.log.remove(4); }
+    }
+
+    pub fn save(&self) {
+        let data = serde_json::to_string(&self).unwrap();
+        let mut f = File::create("./savegame.json").expect("Unable to create file");
+        f.write_all(data.as_bytes()).expect("Unable to write data");
     }
 }

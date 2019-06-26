@@ -1,6 +1,9 @@
 use std::cmp::{min};
 use super::{Player, Mob};
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Fighter {
     pub max_hp : i32,
     pub hp: i32,

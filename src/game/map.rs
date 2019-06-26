@@ -1,8 +1,10 @@
 use crate::rltk;
 use rltk::{ Point, Algorithm2D, BaseMap };
-
 use super::TileType;
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Map {
     pub tiles : Vec<TileType>,
     pub visible : Vec<bool>,

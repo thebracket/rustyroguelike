@@ -1,7 +1,10 @@
 use super::{Item, gui, gui::ItemMenuResult, State, TickType, BaseEntity, player};
 use crate::rltk;
 use rltk::Rltk;
+extern crate serde;
+use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Inventory {
     pub items : Vec<Item>,
     capacity: i32

@@ -1,4 +1,7 @@
-#[derive(Eq, PartialEq, Copy, Clone)]
+extern crate serde;
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Eq, PartialEq, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32

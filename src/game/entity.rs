@@ -1,7 +1,9 @@
 use crate::rltk;
 use rltk::{Color, Rltk, Point};
 use super::{Map, Player, Combat, Mob, Item};
+extern crate typetag;
 
+#[typetag::serde(tag = "BaseEntity")]
 pub trait BaseEntity {
     fn get_position(&self) -> Point;
     fn get_fg_color(&self) -> Color;
@@ -28,3 +30,4 @@ pub trait BaseEntity {
     fn can_pickup(&self) -> bool { false }
     fn is_player(&self) -> bool { false }
 }
+
