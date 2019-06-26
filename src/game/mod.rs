@@ -34,6 +34,8 @@ use item::ItemType;
 mod inventory;
 use inventory::Inventory;
 
+mod item_effects;
+
 extern crate rand;
 
 mod map_builder;
