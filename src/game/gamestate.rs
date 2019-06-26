@@ -10,8 +10,8 @@ use super::Console;
 use super::BaseEntity;
 use super::GameState;
 use crate::rltk;
+use super::player;
 use rltk::Rltk;
-use rltk::Point;
 use rltk::Color;
 use rltk::Algorithm2D;
 
@@ -28,7 +28,7 @@ impl GameState for State {
 
         match self.game_state {
             TickType::PlayersTurn => { 
-                self.player_tick(ctx);
+                player::player_tick(self, ctx);
             }
             TickType::EnemyTurn => {
                 self.mob_tick(ctx.con());
@@ -91,113 +91,6 @@ impl State {
         return self.entities[0].as_combat().unwrap();
     }
 
-    // Returns the ID of the target if we're attacking
-    fn move_player(&mut self, delta_x : i32, delta_y: i32) -> Option<usize> {
-        let mut result : Option<usize> = None;
-        let new_x = self.player().position.x + delta_x;
-        let new_y = self.player().position.y + delta_y;
-        let mut can_move : bool = true;
-        if new_x > 0 && new_x < 79 && new_y > 0 && new_y < 49 && self.map.is_walkable(new_x, new_y) {
-
-            // Lets see if we are bumping a mob
-            let new_pos = Point::new(new_x, new_y);
-            let mut i : usize = 0;
-            for e in self.entities.iter_mut() {
-                if e.get_position() == new_pos && e.blocks_tile() {
-                    // Tile is indeed blocked
-                    can_move = false;
-                    if e.can_be_attacked() {
-                        // Attack it!
-                        result = Some(i);
-                    }
-                }
-                i += 1;
-            }
-
-            if can_move {
-                self.player_mut().position.x = new_x;
-                self.player_mut().position.y = new_y;
-            }
-        }
-        return result;
-    }
-
-    fn use_menu(&mut self) {
-        if self.player().inventory.items.is_empty() {
-            self.add_log_entry("You don't have any usable items".to_string());
-        } else {
-            self.game_state = TickType::UseMenu;
-        }
-    }
-
-    fn drop_menu(&mut self) {
-        if self.player().inventory.items.is_empty() {
-            self.add_log_entry("You don't have any items to drop!".to_string());
-        } else {
-            self.game_state = TickType::DropMenu;
-        }
-    }
-
-    fn player_tick(&mut self, ctx : &mut Rltk) {
-        let mut turn_ended = false;
-        let mut attack_target : Option<usize> = None;
-
-        match ctx.key {
-            Some(key) => {
-                match key {
-                glfw::Key::Escape => { ctx.quit() }
-
-                // Numpad
-                glfw::Key::Kp8 => { attack_target = self.move_player(0, -1); turn_ended = true; }
-                glfw::Key::Kp4 => { attack_target = self.move_player(-1, 0); turn_ended = true; }
-                glfw::Key::Kp6 => { attack_target = self.move_player(1, 0); turn_ended = true; }
-                glfw::Key::Kp2 => { attack_target = self.move_player(0, 1); turn_ended = true; }
-
-                glfw::Key::Kp7 => { attack_target = self.move_player(-1, -1); turn_ended = true; }
-                glfw::Key::Kp9 => { attack_target = self.move_player(1, -1); turn_ended = true; }
-                glfw::Key::Kp1 => { attack_target = self.move_player(-1, 1); turn_ended = true; }
-                glfw::Key::Kp3 => { attack_target = self.move_player(1, 1); turn_ended = true; }
-
-                // Cursors
-                glfw::Key::Up => { attack_target = self.move_player(0, -1); turn_ended = true; }
-                glfw::Key::Down => { attack_target = self.move_player(0, 1); turn_ended = true; }
-                glfw::Key::Left => { attack_target = self.move_player(-1, 0); turn_ended = true; }
-                glfw::Key::Right => { attack_target = self.move_player(1, 0); turn_ended = true; }
-
-                // Wait
-                glfw::Key::Kp5 => { turn_ended = true; }
-
-                // Pick up
-                glfw::Key::G => { inventory::pickup(self); turn_ended = true; }
-
-                // Use/drop items
-                glfw::Key::U => { self.use_menu(); }
-                glfw::Key::D => { self.drop_menu(); }
-
-                _ =>  { }
-                }
-            }
-            None => {}
-        }
-
-        match attack_target {
-            Some(target) => { 
-                let player = self.player_as_combat();
-                let result = attack(player.get_name(), player.get_power(), self.entities[target].as_combat().unwrap());
-                for s in result {
-                    self.add_log_entry(s.to_string());
-                }
-                self.entities.retain(|e| !e.is_dead());
-             }
-            _ => {}
-        }
-
-        if turn_ended {
-            self.update_visibility();
-            self.game_state = TickType::EnemyTurn; 
-        }
-    }
-
     fn mob_tick(&mut self, _console: &mut Console) {
         // Build the master map of unavailable tiles
         self.map.refresh_blocked();
@@ -239,7 +132,7 @@ impl State {
         }
     }
 
-    fn update_visibility(&mut self) {
+    pub fn update_visibility(&mut self) {
         for e in self.entities.iter_mut() {
             e.plot_visibility(&self.map);
         }
