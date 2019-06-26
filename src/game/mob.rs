@@ -1,16 +1,6 @@
 use crate::rltk;
-use rltk::Color;
-use rltk::Point;
-use rltk::Algorithm2D;
-use rltk::a_star_search;
-use rltk::field_of_view;
-use super::fighter::Fighter;
-use super::Map;
-use super::Combat;
-use super::BaseEntity;
-use super::State;
-use super::Console;
-use super::attack;
+use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
+use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack};
 
 pub struct Mob {
     pub position : Point,
