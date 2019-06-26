@@ -47,7 +47,6 @@ use map_builder::spawn_mobs;
 use map_builder::spawn_items;
 
 mod gui;
-use gui::ItemMenuResult;
 
 pub struct State {
     pub map : Map,
@@ -73,32 +72,10 @@ impl GameState for State {
                 gui::display_game_over_and_handle_quit(ctx);
             }
             TickType::UseMenu => {
-                let (result, selection) = gui::handle_item_menu(self, ctx, "Use which item? (or ESC)");
-                match result {
-                    ItemMenuResult::NoResponse => {}
-                    ItemMenuResult::Selected => {
-                        let result = self.player_mut().use_item(selection);
-                        for s in result.iter() {
-                            self.add_log_entry(s.to_string());
-                        }
-                        self.game_state = TickType::PlayersTurn;
-                    }
-                    ItemMenuResult::Cancel => { self.game_state = TickType::PlayersTurn }
-                }
+                inventory::use_item(self, ctx);
             }
             TickType::DropMenu => {
-                let (result, selection) = gui::handle_item_menu(self, ctx, "Drop which item? (or ESC)");
-                match result {
-                    ItemMenuResult::NoResponse => {}
-                    ItemMenuResult::Selected => {
-                        let mut item_copy = self.player_mut().remove_item_from_inventory(selection);
-                        item_copy.position = self.player().get_position();
-                        self.add_log_entry(format!("You drop the {}", item_copy.name));
-                        self.entities.push(Box::new(item_copy));
-                        self.game_state = TickType::EnemyTurn;
-                    }
-                    ItemMenuResult::Cancel => { self.game_state = TickType::PlayersTurn }
-                }
+                inventory::drop_item(self, ctx);
             }
             TickType::None => {}
         }
