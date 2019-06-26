@@ -266,12 +266,8 @@ impl State {
             e.plot_visibility(&self.map);
         }
 
-        //self.player_mut().plot_visibility(&self.map);
         let vt = self.player().visible_tiles.clone();
         self.map.set_visibility(&vt);
-        //for mob in self.mobs.iter_mut() {
-        //    mob.plot_visibility(&self.map);
-        //}
     }
 
     pub fn add_log_entry(&mut self, line : String) {
