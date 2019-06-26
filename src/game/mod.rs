@@ -70,13 +70,7 @@ impl GameState for State {
                 if self.player().fighter.dead { self.game_state = TickType::GameOver; }
             }
             TickType::GameOver => {
-                ctx.con().cls();
-                ctx.con().print_color(Point::new(33, 25), Color::red(), Color::black(), "You are dead.".to_string());
-                ctx.con().print_color(Point::new(28, 27), Color::white(), Color::black(), "Press any key to quit.".to_string());
-                match ctx.key {
-                    Some(_) => { ctx.quit(); }
-                    None => {}
-                }
+                gui::display_game_over_and_handle_quit(ctx);
             }
             TickType::UseMenu => {
                 let (result, selection) = gui::handle_item_menu(self, ctx, "Use which item? (or ESC)");

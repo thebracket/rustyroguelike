@@ -157,3 +157,13 @@ pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) 
 
     return (ItemMenuResult::NoResponse, 0);
 }
+
+pub fn display_game_over_and_handle_quit(ctx : &mut Rltk) {
+    ctx.con().cls();
+    ctx.con().print_color(Point::new(33, 25), Color::red(), Color::black(), "You are dead.".to_string());
+    ctx.con().print_color(Point::new(28, 27), Color::white(), Color::black(), "Press any key to quit.".to_string());
+    match ctx.key {
+        Some(_) => { ctx.quit(); }
+        None => {}
+    }
+}
