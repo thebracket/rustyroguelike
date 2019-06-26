@@ -6,6 +6,8 @@ use super::Map;
 use super::TileType;
 use super::State;
 
+pub enum ItemMenuResult { Cancel, NoResponse, Selected }
+
 pub fn render(gs : &State, ctx : &mut Rltk, map : &Map) {
     draw_map(ctx, map);
     draw_entities(gs, ctx, map);
@@ -115,4 +117,43 @@ fn draw_mouse_info(gs : &State, ctx : &mut Rltk, map: &Map) {
             }
         }
     }
+}
+
+#[allow(non_snake_case)]
+pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
+    let console = &mut ctx.con();
+    let count = gs.player().inventory.items.len();
+    let mut y = (25 - (count / 2)) as i32;
+    let mut j = 0;
+
+    console.draw_box(Point::new(15, y-2), 31, (count+3) as i32, Color::white(), Color::black());
+    console.print_color(Point::new(18, y-2), Color::yellow(), Color::black(), title.to_string());
+
+    for i in gs.player().inventory.items.iter() {
+        console.set(Point::new(17, y), Color::white(), Color::black(), 40);
+        console.set(Point::new(18, y), Color::yellow(), Color::black(), 97+j);
+        console.set(Point::new(19, y), Color::white(), Color::black(), 41);
+
+        console.print(Point::new(21, y), i.name.to_string());
+        y += 1;
+        j += 1;
+    }
+
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::Escape => { return (ItemMenuResult::Cancel, 0) }
+                _ => { 
+                    let selection = Rltk::letter_to_option(KEY);
+                    if selection > -1 && selection < gs.player().inventory.items.len() as i32 {
+                        return (ItemMenuResult::Selected, selection);
+                    }  
+                    return (ItemMenuResult::NoResponse, 0);
+                }
+            }
+        }
+    }
+
+    return (ItemMenuResult::NoResponse, 0);
 }
