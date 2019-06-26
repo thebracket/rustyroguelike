@@ -22,6 +22,12 @@ impl Inventory {
         }
         return result;
     }
+
+    pub fn remove_item_return_clone(&mut self, item_index: i32) -> Item {
+        let item_copy = self.items[item_index as usize].clone();
+        self.items.remove(item_index as usize);
+        return item_copy;
+    }
 }
 
 pub fn pickup(gs : &mut State) {
@@ -66,7 +72,7 @@ pub fn drop_item(gs : &mut State, ctx : &mut Rltk) {
     match result {
         ItemMenuResult::NoResponse => {}
         ItemMenuResult::Selected => {
-            let mut item_copy = gs.player_mut().remove_item_from_inventory(selection);
+            let mut item_copy = gs.player_mut().inventory.remove_item_return_clone(selection);
             item_copy.position = gs.player().get_position();
             gs.add_log_entry(format!("You drop the {}", item_copy.name));
             gs.entities.push(Box::new(item_copy));

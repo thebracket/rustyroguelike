@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Color, Point, Rltk, field_of_view};
-use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, Item, ItemType, State, attack, TickType, inventory};
+use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory};
 
 pub struct Player {
     pub position : Point,
@@ -35,18 +35,12 @@ impl Player {
 
                 self.fighter.hp = self.fighter.max_hp; // Cheezed due to confusion over borrowing
                 result.push("You are healed!".to_string());
-                self.inventory.items.remove(item_index as usize);
+                self.inventory.remove_item_return_clone(item_index);
             }
             _ => {}
         }
 
         return result;
-    }
-
-    pub fn remove_item_from_inventory(&mut self, item_index: i32) -> Item {
-        let item_copy = self.inventory.items[item_index as usize].clone();
-        self.inventory.items.remove(item_index as usize);
-        return item_copy;
     }
 }
 
