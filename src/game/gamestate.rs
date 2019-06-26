@@ -1,4 +1,4 @@
-use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob}
+use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob};
 use rltk::{Rltk, Color};
 
 pub struct State {
