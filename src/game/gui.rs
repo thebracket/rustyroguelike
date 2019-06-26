@@ -1,6 +1,7 @@
 use crate::rltk;
 use rltk::{Rltk, Point, Color};
 use super::{Map, TileType, State};
+use std::cmp::{max, min};
 
 pub enum ItemMenuResult { Cancel, NoResponse, Selected }
 
@@ -162,4 +163,53 @@ pub fn display_game_over_and_handle_quit(ctx : &mut Rltk) {
         Some(_) => { ctx.quit(); }
         None => {}
     }
+}
+
+#[allow(non_snake_case)]
+pub fn handle_item_targeting<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> ItemMenuResult {
+    ctx.con().print_color(Point::new(0,0), Color::yellow(), Color::red(), title.to_string());
+    let mouse_pos = ctx.mouse_pos;
+    let previous_mouse = gs.prev_mouse_for_targeting;
+
+    if mouse_pos != previous_mouse && mouse_pos.x > 0 && mouse_pos.x < 79 && mouse_pos.y > 0 && mouse_pos.y < 40 { gs.target_cell = mouse_pos; }
+
+    if gs.target_cell.x < 1 { gs.target_cell.x = 1; }
+    if gs.target_cell.x > 79 { gs.target_cell.x = 79; }
+    if gs.target_cell.y < 1 { gs.target_cell.y = 1; }
+    if gs.target_cell.y > 39 { gs.target_cell.y = 39; }
+
+    let possible = gs.map.is_tile_visible(gs.target_cell);
+
+    if possible {
+        ctx.con().set_bg(gs.target_cell, Color::red());
+        if ctx.left_click {
+            return ItemMenuResult::Selected;
+        }
+    }
+
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::Escape => { return ItemMenuResult::Cancel }
+                glfw::Key::Enter => { if possible { return ItemMenuResult::Selected } }
+                glfw::Key::Space => { if possible { return ItemMenuResult::Selected } }
+                glfw::Key::Left => { gs.target_cell.x = max(gs.target_cell.x-1, 1) }
+                glfw::Key::Right => { gs.target_cell.x = min(gs.target_cell.x+1, 79) }
+                glfw::Key::Up => { gs.target_cell.y = max(gs.target_cell.y-1, 1) }
+                glfw::Key::Down => { gs.target_cell.y = min(gs.target_cell.y+1, 40) }
+                glfw::Key::Kp4 => { gs.target_cell.x = max(gs.target_cell.x-1, 1) }
+                glfw::Key::Kp6 => { gs.target_cell.x = min(gs.target_cell.x+1, 79) }
+                glfw::Key::Kp8 => { gs.target_cell.y = max(gs.target_cell.y-1, 1) }
+                glfw::Key::Kp2 => { gs.target_cell.y = min(gs.target_cell.y+1, 40) }
+                glfw::Key::Kp7 => { gs.target_cell = Point::new(  max(gs.target_cell.x-1, 1), max(gs.target_cell.y-1, 1) ) }
+                glfw::Key::Kp9 => { gs.target_cell = Point::new(  min(gs.target_cell.x+1, 79), max(gs.target_cell.y-1, 1) ) }
+                glfw::Key::Kp1 => { gs.target_cell = Point::new(  max(gs.target_cell.x-1, 1), min(gs.target_cell.y+1, 40) ) }
+                glfw::Key::Kp3 => { gs.target_cell = Point::new(  min(gs.target_cell.x+1, 79), min(gs.target_cell.y+1, 40) ) }
+                _ => { }
+            }
+        }
+    }
+
+    return ItemMenuResult::NoResponse;
 }

@@ -60,8 +60,7 @@ pub fn use_item(gs : &mut State, ctx : &mut Rltk) {
             let result = player::use_item(selection, gs);
             for s in result.iter() {
                 gs.add_log_entry(s.to_string());
-            }
-            gs.game_state = TickType::PlayersTurn;
+            }            
         }
         ItemMenuResult::Cancel => { gs.game_state = TickType::PlayersTurn }
     }
@@ -79,5 +78,14 @@ pub fn drop_item(gs : &mut State, ctx : &mut Rltk) {
             gs.game_state = TickType::EnemyTurn;
         }
         ItemMenuResult::Cancel => { gs.game_state = TickType::PlayersTurn }
+    }
+}
+
+pub fn item_targeting(gs : &mut State, ctx : &mut Rltk) {
+    let result = gui::handle_item_targeting(gs, ctx, "Select your target with cursor keys or mouse, Escape to cancel.");
+    match result {
+        ItemMenuResult::NoResponse => {}
+        ItemMenuResult::Cancel => { gs.game_state = TickType::PlayersTurn }
+        ItemMenuResult::Selected => { player::use_area_item(gs); }
     }
 }

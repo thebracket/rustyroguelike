@@ -1,11 +1,14 @@
 use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob};
-use rltk::{Rltk, Color};
+use rltk::{Rltk, Color, Point};
 
 pub struct State {
     pub map : Map,
     pub game_state : TickType,
     pub log : Vec<String>,
-    pub entities : Vec<Box<BaseEntity>>
+    pub entities : Vec<Box<BaseEntity>>,
+    pub target_cell : Point,
+    pub targeting_item : i32,
+    pub prev_mouse_for_targeting : Point,
 }
 
 impl GameState for State {
@@ -21,15 +24,10 @@ impl GameState for State {
                 self.game_state = TickType::PlayersTurn;
                 if self.player().fighter.dead { self.game_state = TickType::GameOver; }
             }
-            TickType::GameOver => {
-                gui::display_game_over_and_handle_quit(ctx);
-            }
-            TickType::UseMenu => {
-                inventory::use_item(self, ctx);
-            }
-            TickType::DropMenu => {
-                inventory::drop_item(self, ctx);
-            }
+            TickType::GameOver => { gui::display_game_over_and_handle_quit(ctx); }
+            TickType::UseMenu => { inventory::use_item(self, ctx); }
+            TickType::DropMenu => { inventory::drop_item(self, ctx); }
+            TickType::TargetingItem => { inventory::item_targeting(self, ctx); }
             TickType::None => {}
         }
     }
@@ -61,7 +59,10 @@ impl State {
             map: map, 
             game_state: TickType::PlayersTurn, 
             log: Vec::new(), 
-            entities : entities
+            entities : entities,
+            target_cell : Point::new(-1,-1),
+            targeting_item : -1,
+            prev_mouse_for_targeting : Point::new(-1,-1)
         };
     }
 

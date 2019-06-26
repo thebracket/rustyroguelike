@@ -1,4 +1,4 @@
-use super::{State, BaseEntity};
+use super::{State, BaseEntity, TickType};
 use crate::rltk;
 
 pub fn use_health_potion(item_index : i32, gs : &mut State, result : &mut Vec<String>) {
@@ -43,5 +43,45 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
 
         // Remove the scroll
         gs.player_mut().inventory.remove_item_return_clone(item_index);
+    }
+}
+
+pub fn use_fireball_scroll(gs : &mut State, result : &mut Vec<String>) {
+    result.push("You launch a fireball!".to_string());
+
+    let target = gs.target_cell;
+    let item_index = gs.targeting_item;
+
+    let area_of_effect = rltk::field_of_view(target, 3, &gs.map);
+    let mut targets : Vec<usize> = Vec::new();
+    let mut i : usize = 0;
+    for e in gs.entities.iter() {
+        if area_of_effect.contains(&e.get_position()) && e.can_be_attacked() { targets.push(i); }
+        i += 1;
+    }
+
+    for target_id in targets {
+        let target = gs.entities[target_id].as_combat();
+        match target {
+            None => {}
+            Some(target) => {
+                result.push(format!("{} is burned for 8 points of damage.", target.get_name()));
+                target.take_damage(8);
+                if target.get_hp() < 1 { 
+                    result.push(format!("{} is dead.", target.get_name()));
+                    target.kill(); 
+                }
+            }
+        }
+    }
+
+    gs.entities.retain(|e| !(e.is_dead() && !e.is_player()));
+
+    // Remove the scroll
+    gs.player_mut().inventory.remove_item_return_clone(item_index);
+    gs.game_state = TickType::EnemyTurn;
+
+    for r in result {
+        gs.add_log_entry(r.to_string());
     }
 }

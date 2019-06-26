@@ -35,6 +35,7 @@ impl BaseEntity for Player {
     }
     fn get_tooltip_text(&self) -> String { "It's you!".to_string() }
     fn get_name(&self) -> String { "Player".to_string() }
+    fn is_player(&self) -> bool { true }
 }
 
 // Handlers for gameplay
@@ -149,11 +150,31 @@ fn drop_menu(gs : &mut State) {
 pub fn use_item(item_index : i32, gs : &mut State) -> Vec<String> {
     let mut result = Vec::new();
 
+    if gs.player().inventory.items[item_index as usize].requires_targeting_mode {
+        gs.game_state = TickType::TargetingItem;
+        gs.target_cell = gs.player().position;
+        gs.targeting_item = item_index;
+        result.push("Select a target tile".to_string());
+        return result;
+    }
+
     let item_type = gs.player().inventory.items[item_index as usize].item_type;
     match item_type {
         ItemType::HealthPotion => { item_effects::use_health_potion(item_index, gs, &mut result); }
         ItemType::ZapScroll => { item_effects::use_zap_scroll(item_index, gs, &mut result) }
+        _ => {}
     }
 
+    gs.game_state = TickType::PlayersTurn;
+
     return result;
+}
+
+pub fn use_area_item(gs : &mut State) {
+    let mut result = Vec::new(); 
+    let item_type = gs.player().inventory.items[gs.targeting_item as usize].item_type;
+    match item_type {
+        ItemType::FireballScroll => { item_effects::use_fireball_scroll(gs, &mut result) }
+        _ => {} // There's lots of items that aren't area, so we do the blanket ignore
+    }
 }

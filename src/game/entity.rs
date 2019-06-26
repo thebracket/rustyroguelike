@@ -26,4 +26,5 @@ pub trait BaseEntity {
     fn is_mob(&self) -> bool { false }
     fn get_name(&self) -> String;
     fn can_pickup(&self) -> bool { false }
+    fn is_player(&self) -> bool { false }
 }

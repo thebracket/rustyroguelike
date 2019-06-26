@@ -6,7 +6,7 @@ const ROOM_MAX_SIZE : i32 = 10;
 const ROOM_MIN_SIZE : i32 = 6;
 const MAX_ROOMS : i32 = 30;
 pub const MAX_MOBS_PER_ROOM : i32 = 8;
-pub const MAX_ITEMS_PER_ROOM : i32 = 2;
+pub const MAX_ITEMS_PER_ROOM : i32 = 20;
 
 pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
     let mut rng = rand::thread_rng();
