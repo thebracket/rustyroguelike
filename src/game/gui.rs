@@ -28,13 +28,15 @@ fn draw_map(ctx : &mut Rltk, map : &Map) {
             if map.revealed[idx] {
                 if map.visible[idx] {
                     match map.tiles[idx] {
-                        TileType::Floor => { console.print_color(coord, Color::dark_green(), Color::black(), ".".to_string()) }
-                        TileType::Wall => { console.print_color(coord, Color::white(), Color::black(), "#".to_string()) }
+                        TileType::Floor => { console.print_color(coord, Color::dark_green(), Color::black(), ".") }
+                        TileType::Wall => { console.print_color(coord, Color::white(), Color::black(), "#") }
+                        TileType::Stairs => { console.print_color(coord, Color::white(), Color::black(), ">") }
                     }
                 } else {
                     match map.tiles[idx] {
-                        TileType::Floor => { console.print_color(coord, Color::grey(), Color::black(), ".".to_string()) }
-                        TileType::Wall => { console.print_color(coord, Color::grey(), Color::black(), "#".to_string()) }
+                        TileType::Floor => { console.print_color(coord, Color::grey(), Color::black(), ".") }
+                        TileType::Wall => { console.print_color(coord, Color::grey(), Color::black(), "#") }
+                        TileType::Stairs => { console.print_color(coord, Color::grey(), Color::black(), ">") }
                     }
                 }
             }

@@ -11,7 +11,8 @@ pub struct Player {
     pub fg : Color,
     pub visible_tiles : Vec<Point>,
     pub fighter : Fighter,
-    pub inventory : Inventory
+    pub inventory : Inventory,
+    pub dungeon_level : i32
 }
 
 impl Player {
@@ -21,7 +22,8 @@ impl Player {
             glyph, fg, 
             visible_tiles: Vec::new(), 
             fighter: Fighter::new(8, 0, 1),
-            inventory: Inventory::new(4)
+            inventory: Inventory::new(4),
+            dungeon_level : 0
         }
     }    
 }

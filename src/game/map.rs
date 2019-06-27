@@ -66,6 +66,7 @@ impl Map {
                 match self.tiles[idx] {
                     TileType::Floor => { return true }
                     TileType::Wall => { return false }
+                    TileType::Stairs => { return true }
                 }
             }
 
@@ -83,6 +84,7 @@ impl Map {
                 match self.tiles[idx] {
                     TileType::Floor => { return false }
                     TileType::Wall => { return true }
+                    TileType::Stairs => { return false }
                 }
             }
 
@@ -109,6 +111,7 @@ impl Map {
                     match self.tiles[x] {
                         TileType::Floor => { return "Floor".to_string() }
                         TileType::Wall => { return "Wall".to_string() }
+                        TileType::Stairs => { return "Stairs".to_string() }
                     }
                 }
             }
