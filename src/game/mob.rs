@@ -32,7 +32,7 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Borrow Wight".to_string(),
-            fighter: Fighter::new(2, 0, 1),
+            fighter: Fighter::new(2, 0, 1, 60),
             confused: None
         }
     }
@@ -44,7 +44,7 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Mut Hound".to_string(),
-            fighter: Fighter::new(1, 0, 1),
+            fighter: Fighter::new(1, 0, 1, 30),
             confused: None
         }
     }
@@ -56,7 +56,7 @@ impl Mob {
             fg: Color::red(), 
             visible_tiles: Vec::new(), 
             name: "Itereater Beast".to_string(),
-            fighter: Fighter::new(1, 0, 1),
+            fighter: Fighter::new(1, 0, 1, 30),
             confused: None
         }
     }
@@ -160,7 +160,7 @@ pub fn mob_tick(gs : &mut State, _console: &mut Console) {
     for id in attacking_mobs {
         let attacker_name = gs.entities[id].get_name();
         let attacker_power = gs.entities[id].as_combat().unwrap().get_power();
-        let result = attack(attacker_name, attacker_power, gs.player_as_combat());
+        let (_xp, result) = attack(attacker_name, attacker_power, gs.player_as_combat());
         for r in result {
             tmp.push(r);
         }

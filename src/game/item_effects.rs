@@ -1,4 +1,4 @@
-use super::{State, BaseEntity, TickType};
+use super::{State, BaseEntity, TickType, Combat};
 use crate::rltk;
 
 pub fn use_health_potion(item_index : i32, gs : &mut State, result : &mut Vec<String>) {
@@ -32,12 +32,13 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
     } else {
         possible_targets.sort_by(|a,b| a.1.partial_cmp(&b.1).unwrap());
 
-        let mut target = &mut gs.entities[possible_targets[0].0].as_mob_mut().unwrap();
+        let target = &mut gs.entities[possible_targets[0].0].as_mob_mut().unwrap();
         result.push(format!("Lightning from the scroll zaps {} for 8 points of damage.", target.name));
-        target.fighter.hp -= 8;
+        target.take_damage(8);
         if target.fighter.hp < 1 { 
-            target.fighter.dead = true; 
+            target.kill();
             result.push(format!("{} is burned to a crisp.", target.name));
+            gs.player_mut().xp += target.fighter.xp_value;
         }
         gs.entities.retain(|e| !e.is_dead());
 
@@ -69,7 +70,8 @@ pub fn use_fireball_scroll(gs : &mut State, result : &mut Vec<String>) {
                 target.take_damage(8);
                 if target.get_hp() < 1 { 
                     result.push(format!("{} is dead.", target.get_name()));
-                    target.kill(); 
+                    target.kill();
+                    gs.player_mut().xp += target.xp_value();
                 }
             }
         }

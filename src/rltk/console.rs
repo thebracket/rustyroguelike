@@ -343,6 +343,18 @@ impl Console {
         }
     }
 
+    pub fn draw_bar_vertical(&mut self, pt:Point, height:i32, n:i32, max:i32, fg:Color, bg: Color) {
+        let percent = n as f32 / max as f32;
+        let fill_height = height - ((percent * height as f32) as i32);
+        for y in 0..height {
+            if y >= fill_height {
+                self.set(Point::new(pt.x, pt.y + y), fg, bg, 178);
+            } else {
+                self.set(Point::new(pt.x, pt.y + y), fg, bg, 176);
+            }
+        }
+    }
+
     pub fn quit(&mut self, ctx: &mut Rltk) {
         ctx.window.set_should_close(true)
     }

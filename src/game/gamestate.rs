@@ -71,10 +71,11 @@ impl GameState for State {
                     if Path::new("./savegame.json").exists() { std::fs::remove_file("./savegame.json").expect("Unable to delete file"); } 
                 }
             }
-            TickType::GameOver => { gui::display_game_over_and_handle_quit(ctx); }
+            TickType::GameOver => { gui::display_game_over_and_handle_quit(ctx, self); }
             TickType::UseMenu => { inventory::use_item(self, ctx); }
             TickType::DropMenu => { inventory::drop_item(self, ctx); }
             TickType::TargetingItem => { inventory::item_targeting(self, ctx); }
+            TickType::LevelUpMenu => { gui::handle_level_up(ctx, self); }
             TickType::None => {}
         }
     }

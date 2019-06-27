@@ -12,7 +12,9 @@ pub struct Player {
     pub visible_tiles : Vec<Point>,
     pub fighter : Fighter,
     pub inventory : Inventory,
-    pub dungeon_level : i32
+    pub dungeon_level : i32,
+    pub xp : i32,
+    pub level : i32
 }
 
 impl Player {
@@ -21,9 +23,11 @@ impl Player {
             position: Point::new(x, y), 
             glyph, fg, 
             visible_tiles: Vec::new(), 
-            fighter: Fighter::new(10, 0, 1),
+            fighter: Fighter::new(10, 0, 1, 0),
             inventory: Inventory::new(4),
-            dungeon_level : 0
+            dungeon_level : 0,
+            xp : 0,
+            level : 1
         }
     }
 
@@ -35,6 +39,10 @@ impl Player {
         self.dungeon_level = other.dungeon_level;
         self.fighter.hp = self.fighter.max_hp;
         // Not copying visible tiles or position, since this is intended for map transition
+    }
+
+    pub fn xp_to_level(&self) -> i32 {
+        return 200 + (self.level * 150);
     }
 }
 
@@ -60,6 +68,17 @@ impl BaseEntity for Player {
 pub enum PlayerTickResult { None, NextMap }
 
 pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
+    let player_ro = gs.player();
+    if player_ro.xp > player_ro.xp_to_level() {
+        let player_rw = gs.player_mut();
+        player_rw.level += 1;
+        let new_level = player_rw.level;
+        player_rw.fighter.hp = player_rw.fighter.max_hp;
+        gs.add_log_entry(format!("You are now level {}! Your wounds heal.", new_level));
+        gs.game_state = TickType::LevelUpMenu;
+        return PlayerTickResult::None;
+    }
+
     let mut turn_ended = false;
     let mut attack_target : Option<usize> = None;
 
@@ -113,12 +132,14 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
     match attack_target {
         Some(target) => { 
             let player = gs.player_as_combat();
-            let result = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
+            let (xp, result) = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
             for s in result {
                 gs.add_log_entry(s.to_string());
             }
             gs.entities.retain(|e| !e.is_dead());
-            }
+            let p = gs.player_mut();
+            p.xp += xp;
+        }
         _ => {}
     }
 

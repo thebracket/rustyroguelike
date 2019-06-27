@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Rltk, Point, Color};
-use super::{Map, TileType, State};
+use super::{Map, TileType, State, TickType};
 use std::cmp::{max, min};
 use serde::{Serialize, Deserialize};
 use rand::Rng;
@@ -164,12 +164,12 @@ pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) 
     return (ItemMenuResult::NoResponse, 0);
 }
 
-pub fn display_game_over_and_handle_quit(ctx : &mut Rltk) {
+pub fn display_game_over_and_handle_quit(ctx : &mut Rltk, gs : &mut State) {
     ctx.con().cls();
     ctx.con().print_color(Point::new(33, 25), Color::red(), Color::black(), "You are dead.".to_string());
-    ctx.con().print_color(Point::new(28, 27), Color::white(), Color::black(), "Press any key to quit.".to_string());
+    ctx.con().print_color(Point::new(28, 27), Color::white(), Color::black(), "Press any key for the menu.".to_string());
     match ctx.key {
-        Some(_) => { ctx.quit(); }
+        Some(_) => { gs.game_state = TickType::MainMenu }
         None => {}
     }
 }
@@ -357,4 +357,35 @@ pub fn display_main_menu(ctx : &mut Rltk, ms : &mut MenuState) -> MainMenuResult
     }
 
     return MainMenuResult::None;
+}
+
+#[allow(non_snake_case)]
+pub fn handle_level_up(ctx : &mut Rltk, gs : &mut State) {
+    let console = &mut ctx.con();
+
+    console.draw_box(Point::new(10, 8), 60, 18, Color::white(), Color::black());
+    console.print_color_centered(10, Color::white(), Color::red(), format!("Congratulations, you are now level {}!", gs.player().level));
+    console.print_color_centered(12, Color::white(), Color::black(), "Your experience has improved your battle prowess.");
+    console.print_color_centered(13, Color::white(), Color::black(), "Select one of the following to improve:");
+    console.print_color_centered(15, Color::yellow(), Color::black(), "(A) Give me more hit points.");
+    console.print_color_centered(16, Color::yellow(), Color::black(), "(B) I'd like to do more damage.");
+
+    // Keyboard input
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::A => { 
+                    gs.player_mut().fighter.max_hp += 10;
+                    gs.player_mut().fighter.hp = gs.player().fighter.max_hp;
+                    gs.game_state = TickType::PlayersTurn;
+                }
+                glfw::Key::B => { 
+                    gs.player_mut().fighter.power += 1;
+                    gs.game_state = TickType::PlayersTurn;
+                }
+                _ => {}
+            }
+        }
+    }
 }

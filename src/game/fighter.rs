@@ -9,17 +9,19 @@ pub struct Fighter {
     pub hp: i32,
     pub defense: i32,
     pub power: i32,
-    pub dead: bool
+    pub dead: bool,
+    pub xp_value : i32
 }
 
 impl Fighter {
-    pub fn new(max_hp: i32, defense: i32, power: i32) -> Fighter {
+    pub fn new(max_hp: i32, defense: i32, power: i32, xp:i32) -> Fighter {
         return Fighter{
             max_hp: max_hp,
             hp: max_hp,
             defense: defense,
             power: power,
-            dead: false
+            dead: false,
+            xp_value : xp
         };
     }    
 }
@@ -32,10 +34,12 @@ pub trait Combat {
     fn get_name(&self)->String;
     fn get_hp(&self)->i32;
     fn kill(&mut self);
+    fn xp_value(&self)->i32 { 0 }
 }
 
-pub fn attack(instigator_name: String, instigator_power : i32, target: &mut Combat) -> Vec<String> {
+pub fn attack(instigator_name: String, instigator_power : i32, target: &mut Combat) -> (i32, Vec<String>) {
     let mut results = Vec::new();
+    let mut xp = 0;
 
     let damage = instigator_power - target.get_defense();
     if damage > 0 {
@@ -45,12 +49,13 @@ pub fn attack(instigator_name: String, instigator_power : i32, target: &mut Comb
         if target.get_hp() < 1 {
             results.push(format!("{} is dead.", target.get_name()));
             target.kill();
+            xp += target.xp_value();
         }
     } else {
         results.push(format!("{} attacks {}, but lacks the power to do anything useful.", instigator_name, target.get_name()));
     }
 
-    return results;
+    return (xp, results);
 }
 
 impl Combat for Player {
@@ -89,4 +94,5 @@ impl Combat for Mob {
     fn get_power(&self) -> i32 { return self.fighter.power; }
     fn get_hp(&self) -> i32 { return self.fighter.hp; }
     fn kill(&mut self) { self.fighter.dead = true; }
+    fn xp_value(&self)->i32 { self.fighter.xp_value }
 }
