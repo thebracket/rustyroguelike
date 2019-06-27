@@ -57,16 +57,20 @@ fn draw_user_interface(gs: &State, ctx : &mut Rltk) {
     let console = &mut ctx.con();
     console.set_bg(mouse_pos, Color::magenta());
     console.draw_box(Point::new(1, 43), 78, 6, Color::white(), Color::black());
-        let health = format!(" HP: {} / {} ", gs.player().fighter.hp, gs.player().fighter.max_hp);
-        console.print_color(Point::new(3,43), Color::yellow(), Color::black(), health);
 
-        console.draw_bar_horizontal(Point::new(20, 43), 59, gs.player().fighter.hp, gs.player().fighter.max_hp, Color::red(), Color::black());
+    let maplvl = format!("Depth: {} ", gs.player().dungeon_level);
+    console.print_color(Point::new(3,43), Color::yellow(), Color::black(), maplvl);
 
-        let mut y = 44;
-        for s in gs.log.iter() {
-            console.print(Point::new(2, y), s.to_string());
-            y += 1;
-        }
+    let health = format!(" HP: {} / {} ", gs.player().fighter.hp, gs.player().fighter.max_hp);
+    console.print_color(Point::new(12,43), Color::yellow(), Color::black(), health);
+
+    console.draw_bar_horizontal(Point::new(28, 43), 51, gs.player().fighter.hp, gs.player().fighter.max_hp, Color::red(), Color::black());
+
+    let mut y = 44;
+    for s in gs.log.iter() {
+        console.print(Point::new(2, y), s.to_string());
+        y += 1;
+    }
 }
 
 fn draw_mouse_info(gs : &State, ctx : &mut Rltk, map: &Map) {

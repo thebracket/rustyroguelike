@@ -51,7 +51,17 @@ impl GameState for State {
                 }
             }
             TickType::PlayersTurn => { 
-                player::player_tick(self, ctx);
+                let result = player::player_tick(self, ctx);
+                if result == player::PlayerTickResult::NextMap {
+                    // Move to next level
+                    self.player_mut().dungeon_level += 1;
+                    let mut saved = State::new();
+                    saved.player_mut().copy_from_other_player(self.player());
+
+                    self.map = saved.map;
+                    self.entities = saved.entities;
+                    self.add_log_entry("You descend to the next level, and take a moment to rest.".to_string());
+                }
             }
             TickType::EnemyTurn => {
                 mob::mob_tick(self, ctx.con());

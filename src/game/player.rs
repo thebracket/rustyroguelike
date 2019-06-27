@@ -1,10 +1,10 @@
 use crate::rltk;
-use rltk::{Color, Point, Rltk, field_of_view};
-use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects};
+use rltk::{Color, Point, Rltk, field_of_view, Algorithm2D};
+use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects, TileType};
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Player {
     pub position : Point,
     pub glyph: u8,
@@ -21,11 +21,21 @@ impl Player {
             position: Point::new(x, y), 
             glyph, fg, 
             visible_tiles: Vec::new(), 
-            fighter: Fighter::new(8, 0, 1),
+            fighter: Fighter::new(10, 0, 1),
             inventory: Inventory::new(4),
             dungeon_level : 0
         }
-    }    
+    }
+
+    pub fn copy_from_other_player(&mut self, other : &Player) {
+        self.glyph = other.glyph;
+        self.fg = other.fg;
+        self.fighter = other.fighter.clone();
+        self.inventory = other.inventory.clone();
+        self.dungeon_level = other.dungeon_level;
+        self.fighter.hp = self.fighter.max_hp;
+        // Not copying visible tiles or position, since this is intended for map transition
+    }
 }
 
 #[typetag::serde(name = "BEPlayer")]
@@ -46,7 +56,10 @@ impl BaseEntity for Player {
 
 // Handlers for gameplay
 
-pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
+#[derive(PartialEq)]
+pub enum PlayerTickResult { None, NextMap }
+
+pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
     let mut turn_ended = false;
     let mut attack_target : Option<usize> = None;
 
@@ -82,8 +95,14 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
             glfw::Key::U => { use_menu(gs); }
             glfw::Key::D => { drop_menu(gs); }
 
-            // Tmp
-            glfw::Key::S => { gs.save(); }
+            // Level Change
+            glfw::Key::Period => {  
+                if gs.map.tiles[gs.map.point2d_to_index(gs.player().position) as usize] == TileType::Stairs {
+                    return PlayerTickResult::NextMap;
+                } else {
+                    gs.add_log_entry("You aren't on stairs".to_string());
+                }
+            }
 
             _ =>  { }
             }
@@ -107,6 +126,8 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
         gs.update_visibility();
         gs.game_state = TickType::EnemyTurn; 
     }
+
+    return PlayerTickResult::None;    
 }
 
 // Returns the ID of the target if we're attacking

@@ -4,7 +4,7 @@ use rltk::Rltk;
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Inventory {
     pub items : Vec<Item>,
     capacity: i32

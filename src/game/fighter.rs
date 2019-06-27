@@ -3,7 +3,7 @@ use super::{Player, Mob};
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Fighter {
     pub max_hp : i32,
     pub hp: i32,
