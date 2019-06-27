@@ -5,8 +5,6 @@ use std::cmp::{max, min};
 const ROOM_MAX_SIZE : i32 = 10;
 const ROOM_MIN_SIZE : i32 = 6;
 const MAX_ROOMS : i32 = 30;
-pub const MAX_MOBS_PER_ROOM : i32 = 8;
-pub const MAX_ITEMS_PER_ROOM : i32 = 2;
 
 pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
     let mut rng = rand::thread_rng();
@@ -78,11 +76,11 @@ fn apply_vertical_tunnel(map: &mut Map, y1:i32, y2:i32, x:i32) {
     }
 }
 
-pub fn spawn_mobs(rooms: &Vec<Rect>) -> Vec<Mob> {
+pub fn spawn_mobs(rooms: &Vec<Rect>, dungeon_level : i32) -> Vec<Mob> {
     let mut rng = rand::thread_rng();
     let mut mobs : Vec<Mob> = Vec::new();
     for i in 1 .. rooms.len() {
-        let number_of_mobs = rng.gen_range(1, MAX_MOBS_PER_ROOM+1);
+        let number_of_mobs = rng.gen_range(1, dungeon_level+3);
         if number_of_mobs > 0 {
             for _mobn in 1 .. number_of_mobs {
                 let mob_x = rng.gen_range(rooms[i].x1+1, rooms[i].x2-1);
@@ -105,12 +103,12 @@ pub fn spawn_mobs(rooms: &Vec<Rect>) -> Vec<Mob> {
     return mobs;
 }
 
-pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>) -> Vec<Item> {
+pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>, dungeon_level : i32) -> Vec<Item> {
     let mut rng = rand::thread_rng();
     let mut items : Vec<Item> = Vec::new();
 
     for i in 1 .. rooms.len() {
-        let number_of_items = rng.gen_range(1, MAX_ITEMS_PER_ROOM+1);
+        let number_of_items = rng.gen_range(1, dungeon_level+3);
         if number_of_items > 0 {
             for _itemn in 1 .. number_of_items {
                 let item_x = rng.gen_range(rooms[i].x1+1, rooms[i].x2-1);

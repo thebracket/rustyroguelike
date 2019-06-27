@@ -38,7 +38,7 @@ impl GameState for State {
                         self.prev_mouse_for_targeting = saved.prev_mouse_for_targeting;
                     }
                     gui::MainMenuResult::New => {
-                        let saved = State::new();
+                        let saved = State::new(0);
                         self.map = saved.map;
                         self.game_state = saved.game_state;
                         self.log = saved.log;
@@ -55,7 +55,7 @@ impl GameState for State {
                 if result == player::PlayerTickResult::NextMap {
                     // Move to next level
                     self.player_mut().dungeon_level += 1;
-                    let mut saved = State::new();
+                    let mut saved = State::new(self.player().dungeon_level);
                     saved.player_mut().copy_from_other_player(self.player());
 
                     self.map = saved.map;
@@ -104,15 +104,15 @@ impl State {
         return loaded;
     }
 
-    pub fn new() -> State {
+    pub fn new(depth: i32) -> State {
         if Path::new("./savegame.json").exists() { std::fs::remove_file("./savegame.json").expect("Unable to delete file"); }
 
         let mut entities : Vec<Box<BaseEntity>> = Vec::new();
         let mut map = Map::new(80, 43);
         let rooms = map_builder::random_rooms_tut3(&mut map);
         let (player_x, player_y) = rooms[0].center();
-        let mobs = map_builder::spawn_mobs(&rooms);
-        let items = map_builder::spawn_items(&rooms, &mobs);       
+        let mobs = map_builder::spawn_mobs(&rooms, depth);
+        let items = map_builder::spawn_items(&rooms, &mobs, depth);
         let mut player = Player::new(player_x, player_y, 64, Color::yellow());
         let stairs_pos = rooms[rooms.len()-1].center();
         map.tiles[((stairs_pos.1 * 80) + stairs_pos.0) as usize] = TileType::Stairs;
