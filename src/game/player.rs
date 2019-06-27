@@ -123,6 +123,11 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
                 }
             }
 
+            // Character Info
+            glfw::Key::C => {
+                gs.game_state = TickType::CharacterMenu;
+            }
+
             _ =>  { }
             }
         }

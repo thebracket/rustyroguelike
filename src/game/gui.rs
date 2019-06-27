@@ -389,3 +389,27 @@ pub fn handle_level_up(ctx : &mut Rltk, gs : &mut State) {
         }
     }
 }
+
+#[allow(non_snake_case)]
+pub fn display_character_info(ctx : &mut Rltk, gs : &mut State) {
+    let console = &mut ctx.con();
+    let player = gs.player();
+    console.draw_box(Point::new(10, 8), 60, 16, Color::white(), Color::black());
+    console.print_color_centered(10, Color::white(), Color::red(), "Character Information");
+    console.print_color_centered(12, Color::white(), Color::black(), "You are not dead yet. That's something.");
+    console.print_color_centered(13, Color::white(), Color::black(), format!("You have beaten {} dungeon levels.", player.dungeon_level));
+    console.print_color_centered(14, Color::white(), Color::black(), format!("You have {} experience points, needing {} to level.", player.xp, player.xp_to_level()));
+    console.print_color_centered(15, Color::white(), Color::black(), format!("You are level {}.", player.level));
+    console.print_color_centered(16, Color::white(), Color::black(), format!("You have {} hit points, out of {}.", player.fighter.hp, player.fighter.max_hp));
+    console.print_color_centered(17, Color::white(), Color::black(), format!("Your hit power is {}.", player.fighter.power));
+    console.print_color_centered(18, Color::white(), Color::black(), format!("Your defense power is {}.", player.fighter.defense));
+
+    console.print_color_centered(20, Color::yellow(), Color::black(), "Press any key to resume dungeon bashing!");
+
+    match ctx.key {
+        None => {}
+        Some(_) => {
+            gs.game_state = TickType::PlayersTurn;
+        }
+    }
+}
