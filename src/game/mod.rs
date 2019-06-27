@@ -47,3 +47,6 @@ mod gui;
 
 mod gamestate;
 pub use gamestate::State;
+
+mod random;
+pub use random::random_choice;

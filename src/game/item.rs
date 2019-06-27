@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Color, Point};
-use super::{BaseEntity, Map};
+use super::{BaseEntity, Map, random_choice};
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
@@ -18,13 +18,13 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new_random(x:i32, y:i32, n:i32) -> Item {
-        match n {
-            1 => { return Item::new_zap_scroll(x,y) }
-            2 => { return Item::new_fireball_scroll(x,y) }
-            3 => { return Item::new_confusion_scroll(x,y) }
-            _ => { return Item::new_health_potion(x,y) }
-        }
+    pub fn new_random(x:i32, y:i32) -> Item {
+        let choice = random_choice(vec![("Health".to_string(), 70), ("Zap".to_string(), 10), ("Fireball".to_string(), 10), ("Confusion".to_string(), 10)]);
+        
+        if choice == "Health".to_string() { return Item::new_health_potion(x,y); }
+        else if choice == "Zap".to_string() { return Item::new_zap_scroll(x,y) }
+        else if choice == "Fireball".to_string() { return Item::new_fireball_scroll(x,y) }
+        else { return Item::new_confusion_scroll(x,y) }
     }
 
     pub fn new_health_potion(x:i32, y:i32) -> Item {

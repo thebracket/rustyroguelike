@@ -96,7 +96,7 @@ pub fn spawn_mobs(rooms: &Vec<Rect>) -> Vec<Mob> {
                 }
 
                 if !found {
-                    let mob = Mob::new_random(mob_x, mob_y, rng.gen_range(1,4));
+                    let mob = Mob::new_random(mob_x, mob_y);
                     mobs.push(mob);
                 }
             }
@@ -124,7 +124,7 @@ pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>) -> Vec<Item> {
                 }
 
                 if !found {
-                    let item = Item::new_random(item_x, item_y, rng.gen_range(1,6));
+                    let item = Item::new_random(item_x, item_y);
                     items.push(item);
                 }
             }

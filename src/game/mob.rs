@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
-use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack};
+use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack, random_choice};
 use rand::Rng;
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -17,12 +17,11 @@ pub struct Mob {
 }
 
 impl Mob {
-    pub fn new_random(x:i32, y:i32, n:i32) -> Mob {
-        match n {
-            1 => { return Mob::new_wight(x,y) }
-            2 => { return Mob::new_iter(x,y) }
-            _ => { return Mob::new_hound(x, y) }
-        }
+    pub fn new_random(x:i32, y:i32) -> Mob {
+        let choice = random_choice(vec![("Wight".to_string(), 10), ("Hound".to_string(), 45), ("Itereater".to_string(), 45)]);
+        if choice == "Wight".to_string() { return Mob::new_wight(x, y); }
+        else if choice == "Hound".to_string() { return Mob::new_hound(x, y); }
+        else { return Mob::new_iter(x, y); }
     }
 
     fn new_wight(x:i32, y:i32) -> Mob {
