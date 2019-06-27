@@ -106,6 +106,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
 
             // Wait
             glfw::Key::Kp5 => { turn_ended = true; }
+            glfw::Key::W => { turn_ended = true; }
 
             // Pick up
             glfw::Key::G => { inventory::pickup(gs); turn_ended = true; }
@@ -124,9 +125,8 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
             }
 
             // Character Info
-            glfw::Key::C => {
-                gs.game_state = TickType::CharacterMenu;
-            }
+            glfw::Key::C => { gs.game_state = TickType::CharacterMenu; }
+            glfw::Key::Slash => { gs.game_state = TickType::HelpMenu; }
 
             _ =>  { }
             }

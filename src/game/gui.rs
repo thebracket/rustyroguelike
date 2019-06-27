@@ -413,3 +413,29 @@ pub fn display_character_info(ctx : &mut Rltk, gs : &mut State) {
         }
     }
 }
+
+#[allow(non_snake_case)]
+pub fn display_help_info(ctx : &mut Rltk, gs : &mut State) {
+    let console = &mut ctx.con();
+    console.draw_box(Point::new(10, 8), 60, 17, Color::white(), Color::black());
+    console.print_color_centered(10, Color::white(), Color::red(), "Controls");
+    console.print_color_centered(12, Color::white(), Color::black(), "Arrow keys or NumPad keys to move.");
+    console.print_color_centered(13, Color::white(), Color::black(), "Walk into a monster to attack it.");
+    console.print_color_centered(14, Color::white(), Color::black(), "NumPad 5, or W to Wait.");
+    console.print_color_centered(15, Color::white(), Color::black(), "G to Get an item from the ground.");
+    console.print_color_centered(16, Color::white(), Color::black(), "U to Use an item from your inventory.");
+    console.print_color_centered(17, Color::white(), Color::black(), "D to Drop an item from your inventory.");
+    console.print_color_centered(18, Color::white(), Color::black(), "> to go down stairs, if you are standing on them.");
+    console.print_color_centered(19, Color::white(), Color::black(), "C for Character Info.");
+    console.print_color_centered(20, Color::white(), Color::black(), "? for this help menu. You've found this one.");
+    console.print_color_centered(21, Color::white(), Color::black(), "ESCAPE to save the game and quit to the menu.");
+
+    console.print_color_centered(23, Color::yellow(), Color::black(), "Press any key to resume dungeon bashing!");
+
+    match ctx.key {
+        None => {}
+        Some(_) => {
+            gs.game_state = TickType::PlayersTurn;
+        }
+    }
+}

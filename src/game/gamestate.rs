@@ -77,6 +77,7 @@ impl GameState for State {
             TickType::TargetingItem => { inventory::item_targeting(self, ctx); }
             TickType::LevelUpMenu => { gui::handle_level_up(ctx, self); }
             TickType::CharacterMenu => { gui::display_character_info(ctx, self); }
+            TickType::HelpMenu => { gui::display_help_info(ctx, self); }
             TickType::None => {}
         }
     }
