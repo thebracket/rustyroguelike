@@ -1,8 +1,7 @@
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize)]
-#[allow(dead_code)]
+#[derive(Serialize, Deserialize, PartialEq)]
 pub enum TickType {
-    None, PlayersTurn, EnemyTurn, GameOver, UseMenu, DropMenu, TargetingItem
+    None, MainMenu, PlayersTurn, EnemyTurn, GameOver, UseMenu, DropMenu, TargetingItem
 }

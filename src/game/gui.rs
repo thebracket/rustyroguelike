@@ -2,6 +2,9 @@ use crate::rltk;
 use rltk::{Rltk, Point, Color};
 use super::{Map, TileType, State};
 use std::cmp::{max, min};
+use serde::{Serialize, Deserialize};
+use rand::Rng;
+use std::path::Path;
 
 pub enum ItemMenuResult { Cancel, NoResponse, Selected }
 
@@ -212,4 +215,140 @@ pub fn handle_item_targeting<S: ToString>(gs : &mut State, ctx: &mut Rltk, title
     }
 
     return ItemMenuResult::NoResponse;
+}
+
+const STORY_TYPES : &'static [&'static str] = &["Tales", "Sagas", "Adventures", "Anecdotes", "Fables", "Narratives"];
+const STORY_NOUNS : &'static [&'static str] = &["Heroism", "Cowardice", "Vengeance", "Heroism", "Exploration", "Delving", "Dungeoneering"];
+
+#[derive(Serialize, Deserialize)]
+pub struct MenuState {
+    random : Vec<usize>,
+    save_exists : bool,
+    current_menu_option : i32,
+    backdrop : Vec<(u8, f32)>
+}
+
+impl MenuState {
+    pub fn new() -> MenuState {
+        let mut rng = rand::thread_rng();
+        let save_exists = Path::new("./savegame.json").exists();
+        let mut cmo = 1;
+        if save_exists { cmo = 0; }
+
+        let mut bd : Vec<(u8, f32)> = Vec::new();
+        for _i in 0..(80*50) {
+            let bg_i = rng.gen_range(0, 192);
+            let bg : f32 = bg_i as f32 / 255.0;
+            bd.push((rng.gen_range(32, 62) as u8, bg));
+        }
+
+        return MenuState{
+            random: vec![rng.gen_range(0, 6), rng.gen_range(0, 7), rng.gen_range(0, 7)],
+            save_exists : save_exists,
+            current_menu_option : cmo,
+            backdrop : bd
+        }
+    }
+}
+
+pub enum MainMenuResult { None, Continue, New, Quit }
+
+#[allow(non_snake_case)]
+pub fn display_main_menu(ctx : &mut Rltk, ms : &mut MenuState) -> MainMenuResult {
+    let mut rng = rand::thread_rng();
+    let console = &mut ctx.con();
+    console.cls();
+
+    // Backdrop
+    for y in 0..50 {
+        for x in 0..80 {
+            let idx = (y*80)+x;
+            console.set(Point::new(x, y), Color::new(0.0, ms.backdrop[idx as usize].1, 0.0), Color::black(), ms.backdrop[idx as usize].0);
+        }
+    }
+
+    for x in 0..80 {
+        for y in (1..50).rev() {
+            let idx = (y * 80) + x;
+            let above_idx = ((y-1) * 80) + x;
+            ms.backdrop[idx] = ms.backdrop[above_idx];
+            ms.backdrop[idx].1 -= 0.02;
+            if ms.backdrop[idx].1 < 0.0 {
+                let bg_i = rng.gen_range(0, 192);
+                let bg : f32 = bg_i as f32 / 255.0;
+                ms.backdrop[idx] = (rng.gen_range(32, 62) as u8, bg);
+            }
+        }
+        let y = 0;
+        let idx = (y * 80) + x;
+        let bg_i = rng.gen_range(0, 192);
+        let bg : f32 = bg_i as f32 / 255.0;
+        ms.backdrop[idx] = (rng.gen_range(32, 62) as u8, bg);
+    }
+
+    // Header
+    console.draw_box(Point::new(15, 8), 50, 11, Color::green(), Color::black());
+    console.print_color_centered(10, Color::white(), Color::black(), "Rusty Roguelike v1.0");
+    console.print_color_centered(12, Color::red(), Color::black(), format!("{} in {} and {}", STORY_TYPES[ms.random[0]], STORY_NOUNS[ms.random[1]], STORY_NOUNS[ms.random[2]]));
+
+    // Menu render
+    let mut y = 15;
+    if ms.save_exists {
+        if ms.current_menu_option == 0 {
+            console.print_color_centered(y, Color::yellow(), Color::black(), "(C)ontinue Saved Game");
+        } else {
+            console.print_color_centered(y, Color::grey(), Color::black(), "(C)ontinue Saved Game");
+        }
+        y += 1;
+    }
+    if ms.current_menu_option == 1 {
+        console.print_color_centered(y, Color::yellow(), Color::black(), "(N)ew Game");
+    } else {
+        console.print_color_centered(y, Color::grey(), Color::black(), "(N)ew Game");
+    }
+    y += 1;
+    if ms.current_menu_option == 2 {
+        console.print_color_centered(y, Color::yellow(), Color::black(), "(Q)uit");
+    } else {
+        console.print_color_centered(y, Color::grey(), Color::black(), "(Q)uit");
+    }
+
+    // Copyright blurb
+    console.print_color_centered(42, Color::grey(), Color::black(), "/r/roguelikedev Roguelike Tutorial Series");
+    console.print_color_centered(43, Color::grey(), Color::black(), "https://github.com/thebracket/rustyroguelike");
+    console.print_color_centered(44, Color::grey(), Color::black(), "(c) 2019 Bracket Productions");
+
+    // Keyboard input
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::Escape => { return MainMenuResult::Quit }
+                glfw::Key::Q => { return MainMenuResult::Quit }
+                glfw::Key::N => { return MainMenuResult::New }
+                glfw::Key::C => { if ms.save_exists { return MainMenuResult::Continue } }
+                glfw::Key::Up => {
+                    ms.current_menu_option -= 1;
+                    if ms.save_exists && ms.current_menu_option < 0 { ms.current_menu_option = 2 }
+                    if (!ms.save_exists) && ms.current_menu_option < 1 { ms.current_menu_option = 1 }
+                }
+                glfw::Key::Down => {
+                    ms.current_menu_option += 1;
+                    if ms.save_exists && ms.current_menu_option > 2 { ms.current_menu_option = 0 }
+                    if (!ms.save_exists) && ms.current_menu_option > 2 { ms.current_menu_option = 1 }
+                }
+                glfw::Key::Enter => {
+                    match ms.current_menu_option {
+                        0 => { return MainMenuResult::Continue }
+                        1 => { return MainMenuResult::New }
+                        2 => { return MainMenuResult::Quit }
+                        _ => {}
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    return MainMenuResult::None;
 }

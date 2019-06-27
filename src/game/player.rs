@@ -51,7 +51,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) {
     match ctx.key {
         Some(key) => {
             match key {
-            glfw::Key::Escape => { gs.save(); ctx.quit(); }
+            glfw::Key::Escape => { gs.save(); gs.game_state = TickType::MainMenu; }
 
             // Numpad
             glfw::Key::Kp8 => { attack_target = move_player(gs, 0, -1); turn_ended = true; }

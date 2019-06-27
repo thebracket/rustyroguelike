@@ -4,7 +4,6 @@ use serde::{Serialize, Deserialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 pub struct State {
@@ -15,13 +14,41 @@ pub struct State {
     pub target_cell : Point,
     pub targeting_item : i32,
     pub prev_mouse_for_targeting : Point,
+    pub menu_state : gui::MenuState
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx : &mut Rltk) {
-        gui::render(self, ctx, &self.map);
+        if self.game_state != TickType::MainMenu { gui::render(self, ctx, &self.map); }
 
         match self.game_state {
+            TickType::MainMenu => { 
+                let result = gui::display_main_menu(ctx, &mut self.menu_state); 
+                match result {
+                    gui::MainMenuResult::Quit => { ctx.quit() }
+                    gui::MainMenuResult::Continue => {
+                        let saved = State::load_saved();
+                        self.map = saved.map;
+                        self.game_state = saved.game_state;
+                        self.log = saved.log;
+                        self.entities = saved.entities;
+                        self.target_cell = saved.target_cell;
+                        self.targeting_item = saved.targeting_item;
+                        self.prev_mouse_for_targeting = saved.prev_mouse_for_targeting;
+                    }
+                    gui::MainMenuResult::New => {
+                        let saved = State::new();
+                        self.map = saved.map;
+                        self.game_state = saved.game_state;
+                        self.log = saved.log;
+                        self.entities = saved.entities;
+                        self.target_cell = saved.target_cell;
+                        self.targeting_item = saved.targeting_item;
+                        self.prev_mouse_for_targeting = saved.prev_mouse_for_targeting;
+                    }
+                    _ => {}
+                }
+            }
             TickType::PlayersTurn => { 
                 player::player_tick(self, ctx);
             }
@@ -40,13 +67,26 @@ impl GameState for State {
 }
 
 impl State {
-    pub fn new() -> State {
-        if Path::new("./savegame.json").exists() {
-            let data = fs::read_to_string("./savegame.json").expect("Unable to read file");
-            let loaded : State = serde_json::from_str(&data).unwrap();
-            return loaded;
-        }
+    pub fn new_menu() -> State {        
+        return State{ 
+            map: Map::new(80, 43), 
+            game_state: TickType::MainMenu, 
+            log: Vec::new(), 
+            entities : Vec::new(),
+            target_cell : Point::new(-1,-1),
+            targeting_item : -1,
+            prev_mouse_for_targeting : Point::new(-1,-1),
+            menu_state: gui::MenuState::new()
+        };
+    }
 
+    pub fn load_saved() -> State {
+        let data = fs::read_to_string("./savegame.json").expect("Unable to read file");
+        let loaded : State = serde_json::from_str(&data).unwrap();
+        return loaded;
+    }
+
+    pub fn new() -> State {
         let mut entities : Vec<Box<BaseEntity>> = Vec::new();
         let mut map = Map::new(80, 43);
         let rooms = map_builder::random_rooms_tut3(&mut map);
@@ -74,7 +114,8 @@ impl State {
             entities : entities,
             target_cell : Point::new(-1,-1),
             targeting_item : -1,
-            prev_mouse_for_targeting : Point::new(-1,-1)
+            prev_mouse_for_targeting : Point::new(-1,-1),
+            menu_state : gui::MenuState::new()
         };
     }
 

@@ -244,9 +244,10 @@ impl Console {
         }
     }
 
-    pub fn print(&mut self, pt:Point, text:String) {
+    pub fn print<S: ToString>(&mut self, pt:Point, output:S) {
         self.is_dirty = true;
         let mut idx = self.at(pt);
+        let text = output.to_string();
 
         let bytes = text.as_bytes();
         for i in 0..bytes.len() {
@@ -257,9 +258,10 @@ impl Console {
         }
     }
 
-    pub fn print_color(&mut self, pt:Point, fg:Color, bg:Color, text:String) {
+    pub fn print_color<S: ToString>(&mut self, pt:Point, fg:Color, bg:Color, output:S) {
         self.is_dirty = true;
         let mut idx = self.at(pt);
+        let text = output.to_string();
 
         let bytes = text.as_bytes();
         for i in 0..bytes.len() {
@@ -274,6 +276,16 @@ impl Console {
                 idx += 1;
             }
         }
+    }
+
+    pub fn print_centered<S: ToString>(&mut self, y:i32, text:S) {
+        self.is_dirty = true;
+        self.print(Point::new((self.width as i32 / 2) - (text.to_string().len() as i32/2), y), text);
+    }
+
+    pub fn print_color_centered<S: ToString>(&mut self, y:i32, fg:Color, bg:Color, text:S) {
+        self.is_dirty = true;
+        self.print_color(Point::new((self.width as i32 / 2) - (text.to_string().len() as i32/2), y), fg, bg, text);
     }
 
     pub fn set(&mut self, pt:Point, fg:Color, bg:Color, glyph:u8) {

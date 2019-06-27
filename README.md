@@ -45,3 +45,7 @@ Nicer tooltips:
 Pick up and use healing potions:
 
 ![Animated GIF](/screenshots/RustyRoguelike8.gif)
+
+Load and Save the game, and a main menu (tutorial 10):
+
+![Animated GIF](/screenshots/RustyRoguelike9.gif)
