@@ -53,3 +53,7 @@ Load and Save the game, and a main menu (tutorial 10):
 Added in nicer wall graphics, using a bitmask to detect the correct tile
 
 ![Animated GIF](/screenshots/RustyRoguelike10.gif)
+
+Added in some basic particle effects to make things prettier.
+
+![Animated GIF](/screenshots/RustyRoguelike11.gif)
