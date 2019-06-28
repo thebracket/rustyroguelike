@@ -49,3 +49,7 @@ Pick up and use healing potions:
 Load and Save the game, and a main menu (tutorial 10):
 
 ![Animated GIF](/screenshots/RustyRoguelike9.gif)
+
+Added in nicer wall graphics, using a bitmask to detect the correct tile
+
+![Animated GIF](/screenshots/RustyRoguelike10.gif)

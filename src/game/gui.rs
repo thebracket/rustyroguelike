@@ -1,5 +1,5 @@
 use crate::rltk;
-use rltk::{Rltk, Point, Color};
+use rltk::{Rltk, Point, Color, Algorithm2D};
 use super::{Map, TileType, State, TickType};
 use std::cmp::{max, min};
 use serde::{Serialize, Deserialize};
@@ -29,13 +29,13 @@ fn draw_map(ctx : &mut Rltk, map : &Map) {
                 if map.visible[idx] {
                     match map.tiles[idx] {
                         TileType::Floor => { console.print_color(coord, Color::dark_green(), Color::black(), ".") }
-                        TileType::Wall => { console.print_color(coord, Color::white(), Color::black(), "#") }
-                        TileType::Stairs => { console.print_color(coord, Color::white(), Color::black(), ">") }
+                        TileType::Wall => { console.set(coord, Color::white(), Color::black(), decorate_wall_tile(map, coord)) }
+                        TileType::Stairs => { console.print_color(coord, Color::magenta(), Color::black(), ">") }
                     }
                 } else {
                     match map.tiles[idx] {
                         TileType::Floor => { console.print_color(coord, Color::grey(), Color::black(), ".") }
-                        TileType::Wall => { console.print_color(coord, Color::grey(), Color::black(), "#") }
+                        TileType::Wall => { console.set(coord, Color::grey(), Color::black(), decorate_wall_tile(map, coord)) }
                         TileType::Stairs => { console.print_color(coord, Color::grey(), Color::black(), ">") }
                     }
                 }
@@ -43,6 +43,39 @@ fn draw_map(ctx : &mut Rltk, map : &Map) {
 
             idx += 1;
         }
+    }
+}
+
+fn is_revealed_and_wall(map : &Map, coord: Point) -> bool {
+    let idx = map.point2d_to_index(coord) as usize;
+    return map.tiles[idx] == TileType::Wall && map.revealed[idx];
+}
+
+fn decorate_wall_tile(map : &Map, coord: Point) -> u8 {
+    if coord.x == 0 || coord.x == map.width || coord.y == 0 || coord.y == map.height { return 35; }
+    let mut mask : u8 = 0;
+    if is_revealed_and_wall(map, Point::new(coord.x, coord.y - 1)) { mask += 1; }
+    if is_revealed_and_wall(map, Point::new(coord.x, coord.y + 1)) { mask += 2; }
+    if is_revealed_and_wall(map, Point::new(coord.x - 1, coord.y)) { mask += 4; }
+    if is_revealed_and_wall(map, Point::new(coord.x + 1, coord.y)) { mask += 8; }
+
+    match mask {
+        0 => { return 9; } // Pillar because we can't see neighbors
+        1 => { return 186; } // Wall only to the north
+        2 => { return 186; } // Wall only to the south
+        3 => { return 186; } // Wall to the north and south
+        4 => { return 205; } // Wall only to the west
+        5 => { return 188; } // Wall to the north and west
+        6 => { return 187; } // Wall to the south and west
+        7 => { return 185; } // Wall to the north, south and west
+        8 => { return 205; } // Wall only to the east
+        9 => { return 200; } // Wall to the north and east
+        10 => { return 201; } // Wall to the south and east
+        11 => { return 204; } // Wall to the north, south and east
+        12 => { return 205; } // Wall to the east and west
+        13 => { return 202; } // Wall to the east, west, and south
+        14 => { return 203; } // Wall to the east, west, and north
+        _ => { return 35; } // We missed one?
     }
 }
 
