@@ -164,6 +164,85 @@ pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) 
     return (ItemMenuResult::NoResponse, 0);
 }
 
+#[allow(non_snake_case)]
+pub fn handle_equippable_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
+    let console = &mut ctx.con();
+    let equippable = gs.player().inventory.get_equippable_items();
+    let count = equippable.len();
+    let mut y = (25 - (count / 2)) as i32;
+    let mut j = 0;
+
+    console.draw_box(Point::new(15, y-2), 31, (count+3) as i32, Color::white(), Color::black());
+    console.print_color(Point::new(18, y-2), Color::yellow(), Color::black(), title.to_string());
+
+    for i in equippable.iter() {
+        console.set(Point::new(17, y), Color::white(), Color::black(), 40);
+        console.set(Point::new(18, y), Color::yellow(), Color::black(), 97+j);
+        console.set(Point::new(19, y), Color::white(), Color::black(), 41);
+
+        console.print(Point::new(21, y), gs.player().inventory.items[*i as usize].name.to_string());
+        y += 1;
+        j += 1;
+    }
+
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::Escape => { return (ItemMenuResult::Cancel, 0) }
+                _ => { 
+                    let selection = Rltk::letter_to_option(KEY);
+                    if selection > -1 && selection < gs.player().inventory.items.len() as i32 {
+                        return (ItemMenuResult::Selected, equippable[selection as usize]);
+                    }  
+                    return (ItemMenuResult::NoResponse, 0);
+                }
+            }
+        }
+    }
+
+    return (ItemMenuResult::NoResponse, 0);
+}
+
+#[allow(non_snake_case)]
+pub fn handle_equipped_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
+    let console = &mut ctx.con();
+    let count = gs.player().inventory.equipped.len();
+    let mut y = (25 - (count / 2)) as i32;
+    let mut j = 0;
+
+    console.draw_box(Point::new(15, y-2), 31, (count+3) as i32, Color::white(), Color::black());
+    console.print_color(Point::new(18, y-2), Color::yellow(), Color::black(), title.to_string());
+
+    for i in gs.player().inventory.equipped.iter() {
+        console.set(Point::new(17, y), Color::white(), Color::black(), 40);
+        console.set(Point::new(18, y), Color::yellow(), Color::black(), 97+j);
+        console.set(Point::new(19, y), Color::white(), Color::black(), 41);
+
+        console.print(Point::new(21, y), i.name.to_string());
+        y += 1;
+        j += 1;
+    }
+
+    match ctx.key {
+        None => {}
+        Some(KEY) => {
+            match KEY {
+                glfw::Key::Escape => { return (ItemMenuResult::Cancel, 0) }
+                _ => { 
+                    let selection = Rltk::letter_to_option(KEY);
+                    if selection > -1 && selection < gs.player().inventory.equipped.len() as i32 {
+                        return (ItemMenuResult::Selected, selection);
+                    }  
+                    return (ItemMenuResult::NoResponse, 0);
+                }
+            }
+        }
+    }
+
+    return (ItemMenuResult::NoResponse, 0);
+}
+
 pub fn display_game_over_and_handle_quit(ctx : &mut Rltk, gs : &mut State) {
     ctx.con().cls();
     ctx.con().print_color(Point::new(33, 25), Color::red(), Color::black(), "You are dead.".to_string());
@@ -424,6 +503,8 @@ pub fn display_help_info(ctx : &mut Rltk, gs : &mut State) {
     console.print_color_centered(14, Color::white(), Color::black(), "NumPad 5, or W to Wait.");
     console.print_color_centered(15, Color::white(), Color::black(), "G to Get an item from the ground.");
     console.print_color_centered(16, Color::white(), Color::black(), "U to Use an item from your inventory.");
+    console.print_color_centered(17, Color::white(), Color::black(), "E to Equip an item from your inventory.");
+    console.print_color_centered(17, Color::white(), Color::black(), "R to Remove an item you are using.");
     console.print_color_centered(17, Color::white(), Color::black(), "D to Drop an item from your inventory.");
     console.print_color_centered(18, Color::white(), Color::black(), "> to go down stairs, if you are standing on them.");
     console.print_color_centered(19, Color::white(), Color::black(), "C for Character Info.");

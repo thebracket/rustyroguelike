@@ -24,7 +24,7 @@ impl Player {
             glyph, fg, 
             visible_tiles: Vec::new(), 
             fighter: Fighter::new(10, 0, 1, 0),
-            inventory: Inventory::new(4),
+            inventory: Inventory::new(26),
             dungeon_level : 0,
             xp : 0,
             level : 1
@@ -108,12 +108,12 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
             glfw::Key::Kp5 => { turn_ended = true; }
             glfw::Key::W => { turn_ended = true; }
 
-            // Pick up
+            // Items
             glfw::Key::G => { inventory::pickup(gs); turn_ended = true; }
-
-            // Use/drop items
             glfw::Key::U => { use_menu(gs); }
             glfw::Key::D => { drop_menu(gs); }
+            glfw::Key::E => { equip_menu(gs); }
+            glfw::Key::R => { unequip_menu(gs); }
 
             // Level Change
             glfw::Key::Period => {  
@@ -189,7 +189,7 @@ fn move_player(gs : &mut State, delta_x : i32, delta_y: i32) -> Option<usize> {
 
 fn use_menu(gs : &mut State) {
     if gs.player().inventory.items.is_empty() {
-        gs.add_log_entry("You don't have any usable items".to_string());
+        gs.add_log_entry("You don't have any usable items.".to_string());
     } else {
         gs.game_state = TickType::UseMenu;
     }
@@ -201,7 +201,23 @@ fn drop_menu(gs : &mut State) {
     } else {
         gs.game_state = TickType::DropMenu;
     }
-}    
+}
+
+fn equip_menu(gs : &mut State) {
+    if gs.player().inventory.get_equippable_items().is_empty() {
+        gs.add_log_entry("You don't have any equippable items.".to_string());
+    } else {
+        gs.game_state = TickType::WieldMenu;
+    }
+}
+
+fn unequip_menu(gs : &mut State) {
+    if gs.player().inventory.equipped.is_empty() {
+        gs.add_log_entry("You don't have any equipped items.".to_string());
+    } else {
+        gs.game_state = TickType::UnequipMenu;
+    }
+}
 
 pub fn use_item(item_index : i32, gs : &mut State) -> Vec<String> {
     let mut result = Vec::new();

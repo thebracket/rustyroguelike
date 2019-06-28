@@ -71,8 +71,22 @@ impl Combat for Player {
         return "Player".to_string();
     }
 
-    fn get_defense(&self) -> i32 { return self.fighter.defense; }
-    fn get_power(&self) -> i32 { return self.fighter.power; }
+    fn get_defense(&self) -> i32 { 
+        let mut defense = self.fighter.defense;
+        for item in self.inventory.equipped.iter() {
+            defense += item.equippable.unwrap().defense_bonus;
+        }
+        return defense; 
+    }
+
+    fn get_power(&self) -> i32 { 
+        let mut power = self.fighter.power;
+        for item in self.inventory.equipped.iter() {
+            power += item.equippable.unwrap().power_bonus;
+        }
+        return power; 
+    }
+
     fn get_hp(&self) -> i32 { return self.fighter.hp; }
     fn kill(&mut self) { self.fighter.dead = true; }
 }
