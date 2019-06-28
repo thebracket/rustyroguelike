@@ -13,6 +13,9 @@ pub fn render(gs : &State, ctx : &mut Rltk, map : &Map) {
     draw_entities(gs, ctx, map);
     draw_user_interface(gs, ctx);
     draw_mouse_info(gs, ctx, map);
+    for p in gs.vfx.iter() {
+        p.render(ctx);
+    }
 }
 
 fn draw_map(ctx : &mut Rltk, map : &Map) {

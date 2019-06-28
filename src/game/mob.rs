@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
-use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack, random_choice};
+use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack, random_choice, Particle};
 use rand::Rng;
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -159,6 +159,7 @@ pub fn mob_tick(gs : &mut State, _console: &mut Console) {
     for id in attacking_mobs {
         let attacker_name = gs.entities[id].get_name();
         let attacker_power = gs.entities[id].as_combat().unwrap().get_power();
+        gs.vfx.push(Particle::new(gs.player().get_position(), Color::red(), Color::black(), 176, 200.0));
         let (_xp, result) = attack(attacker_name, attacker_power, gs.player_as_combat());
         for r in result {
             tmp.push(r);

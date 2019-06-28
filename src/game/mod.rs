@@ -50,3 +50,6 @@ pub use gamestate::State;
 
 mod random;
 pub use random::random_choice;
+
+mod vfx;
+pub use vfx::Particle;

@@ -1,6 +1,6 @@
 use crate::rltk;
 use rltk::{Color, Point, Rltk, field_of_view, Algorithm2D};
-use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects, TileType};
+use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects, TileType, Particle};
 extern crate serde;
 use serde::{Serialize, Deserialize};
 
@@ -136,6 +136,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
 
     match attack_target {
         Some(target) => { 
+            gs.vfx.push(Particle::new(gs.entities[target].get_position(), Color::red(), Color::black(), 176, 200.0));
             let player = gs.player_as_combat();
             let (xp, result) = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
             for s in result {
@@ -144,6 +145,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
             gs.entities.retain(|e| !e.is_dead());
             let p = gs.player_mut();
             p.xp += xp;
+
         }
         _ => {}
     }

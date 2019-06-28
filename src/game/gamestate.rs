@@ -1,4 +1,4 @@
-use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob, TileType};
+use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob, TileType, Particle, vfx};
 use rltk::{Rltk, Color, Point};
 use serde::{Serialize, Deserialize};
 use std::fs;
@@ -15,11 +15,13 @@ pub struct State {
     pub target_cell : Point,
     pub targeting_item : i32,
     pub prev_mouse_for_targeting : Point,
-    pub menu_state : gui::MenuState
+    pub menu_state : gui::MenuState,
+    pub vfx : Vec<Particle>
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx : &mut Rltk) {
+        vfx::age_particles(self, ctx);
         if self.game_state != TickType::MainMenu { gui::render(self, ctx, &self.map); }
 
         match self.game_state {
@@ -95,7 +97,8 @@ impl State {
             target_cell : Point::new(-1,-1),
             targeting_item : -1,
             prev_mouse_for_targeting : Point::new(-1,-1),
-            menu_state: gui::MenuState::new()
+            menu_state: gui::MenuState::new(),
+            vfx : Vec::new()
         };
     }
 
@@ -139,7 +142,8 @@ impl State {
             target_cell : Point::new(-1,-1),
             targeting_item : -1,
             prev_mouse_for_targeting : Point::new(-1,-1),
-            menu_state : gui::MenuState::new()
+            menu_state : gui::MenuState::new(),
+            vfx : Vec::new()
         };
     }
 

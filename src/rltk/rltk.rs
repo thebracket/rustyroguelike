@@ -18,11 +18,12 @@ pub struct Rltk {
     pub width_pixels : u32,
     pub height_pixels : u32,
     pub consoles : Vec<Console>,
-    pub fps: f64,
+    pub fps: f32,
     pub key : Option<Key>,
     pub mouse_pos : Point,
     pub left_click : bool,
-    pub active_console: usize
+    pub active_console: usize,
+    pub frame_time_ms : f32
 }
 
 #[allow(non_snake_case)]
@@ -59,7 +60,8 @@ impl Rltk {
             key: None,
             mouse_pos: Point::new(0,0),
             left_click: false,
-            active_console: 0
+            active_console: 0,
+            frame_time_ms: 0.0
         };
     }
 
@@ -70,6 +72,7 @@ impl Rltk {
     pub fn main_loop(&mut self, gamestate: &mut GameState) {
         let now = Instant::now();
         let mut prev_seconds = now.elapsed().as_secs();
+        let mut prev_ms = now.elapsed().as_millis();
         let mut frames = 0;
 
         while !self.window.should_close() {
@@ -77,9 +80,15 @@ impl Rltk {
             frames += 1;
 
             if now_seconds > prev_seconds {
-                self.fps = frames as f64 / (now_seconds - prev_seconds) as f64;
-                prev_seconds = now_seconds;
+                self.fps = frames as f32 / (now_seconds - prev_seconds) as f32;
                 frames = 0;
+                prev_seconds = now_seconds;
+            }
+
+            let now_ms = now.elapsed().as_millis();
+            if now_ms > prev_ms {
+                self.frame_time_ms = (now_ms - prev_ms) as f32;
+                prev_ms = now_ms;
             }
 
             // events
