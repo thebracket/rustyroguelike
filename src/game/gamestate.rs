@@ -1,5 +1,5 @@
 use super::{gui, TickType, inventory, Map, Player, map_builder, Combat, BaseEntity, GameState, rltk, player, mob, TileType, Particle, vfx};
-use rltk::{Rltk, Color, Point};
+use rltk::{Rltk, RGB, Point};
 use serde::{Serialize, Deserialize};
 use std::fs;
 use std::fs::File;
@@ -66,7 +66,7 @@ impl GameState for State {
                 }
             }
             TickType::EnemyTurn => {
-                mob::mob_tick(self, ctx.con());
+                mob::mob_tick(self);
                 self.game_state = TickType::PlayersTurn;
                 if self.player().fighter.dead { 
                     self.game_state = TickType::GameOver; 
@@ -118,7 +118,7 @@ impl State {
         let (player_x, player_y) = rooms[0].center();
         let mobs = map_builder::spawn_mobs(&rooms, depth);
         let items = map_builder::spawn_items(&rooms, &mobs, depth);
-        let mut player = Player::new(player_x, player_y, 64, Color::yellow());
+        let mut player = Player::new(player_x, player_y, 64, RGB::named(rltk::YELLOW));
         let stairs_pos = rooms[rooms.len()-1].center();
         map.tiles[((stairs_pos.1 * 80) + stairs_pos.0) as usize] = TileType::Stairs;
 

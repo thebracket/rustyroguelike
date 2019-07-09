@@ -1,5 +1,6 @@
 use crate::rltk;
-use rltk::{Point, Color, Rltk};
+use crate ::rltk::Console;
+use rltk::{Point, RGB, Rltk};
 use super::{ State };
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -8,18 +9,18 @@ use serde::{Serialize, Deserialize};
 pub struct Particle {
     position : Point,
     lifetime_ms : f32,
-    fg : Color,
-    bg : Color,
+    fg : RGB,
+    bg : RGB,
     glyph : u8
 }
 
 impl Particle {
-    pub fn new(position:Point, fg:Color, bg:Color, glyph: u8, lifetime_ms : f32) -> Particle {
+    pub fn new(position:Point, fg:RGB, bg:RGB, glyph: u8, lifetime_ms : f32) -> Particle {
         return Particle{ position:position, fg:fg, bg:bg, glyph:glyph, lifetime_ms : lifetime_ms};
     }
 
     pub fn render(&self, ctx : &mut Rltk) {
-        ctx.con().set(self.position, self.fg, self.bg, self.glyph);
+        ctx.set(self.position.x, self.position.y, self.fg, self.bg, self.glyph);
     }
 }
 

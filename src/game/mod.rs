@@ -1,6 +1,6 @@
 
 use crate::rltk;
-use rltk::{ Console, GameState };
+use rltk::{ GameState };
 
 extern crate serde;
 

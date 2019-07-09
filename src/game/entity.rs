@@ -1,17 +1,18 @@
 use crate::rltk;
-use rltk::{Color, Rltk, Point};
+use rltk::{RGB, Rltk, Point, Console};
 use super::{Map, Player, Combat, Mob, Item};
 extern crate typetag;
 
 #[typetag::serde(tag = "BaseEntity")]
 pub trait BaseEntity {
     fn get_position(&self) -> Point;
-    fn get_fg_color(&self) -> Color;
+    fn get_fg_color(&self) -> RGB;
     fn get_glyph(&self) -> u8;
 
     fn draw_to_map(&self, ctx : &mut Rltk, map : &Map) {
         if map.is_tile_visible(self.get_position()) {
-            ctx.con().set(self.get_position(), self.get_fg_color(), Color::black(), self.get_glyph());
+            let pos = self.get_position();     
+            ctx.set(pos.x, pos.y, self.get_fg_color(), RGB::named(rltk::BLACK), self.get_glyph());
         }
     }
 

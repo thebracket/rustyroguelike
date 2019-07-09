@@ -1,8 +1,6 @@
 use super::{State, BaseEntity, TickType, Combat, Particle};
 use crate::rltk;
-use rltk::{Color, Point};
-extern crate bresenham;
-use bresenham::Bresenham;
+use rltk::{RGB};
 
 pub fn use_health_potion(item_index : i32, gs : &mut State, result : &mut Vec<String>) {
     let player = &mut gs.player_mut();
@@ -38,9 +36,9 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
         let target = &mut gs.entities[possible_targets[0].0].as_mob_mut().unwrap();
 
         let tp = target.get_position();
-        let line = Bresenham::new((tp.x as isize, tp.y as isize), (my_pos.x as isize, my_pos.y as isize));
+        let line = rltk::line2d(tp, my_pos);
         for zap in line {
-            gs.vfx.push(Particle::new(Point::new(zap.0 as i32, zap.1 as i32), Color::cyan(), Color::black(), 15, 200.0));
+            gs.vfx.push(Particle::new(zap, RGB::named(rltk::CYAN), RGB::named(rltk::BLACK), 15, 200.0));
         }
 
         result.push(format!("Lightning from the scroll zaps {} for 8 points of damage.", target.name));
@@ -65,7 +63,7 @@ pub fn use_fireball_scroll(gs : &mut State, result : &mut Vec<String>) {
 
     let area_of_effect = rltk::field_of_view(target, 3, &gs.map);
     for pos in area_of_effect.iter() {
-        gs.vfx.push(Particle::new(*pos, Color::red(), Color::yellow(), 176, 200.0));
+        gs.vfx.push(Particle::new(*pos, RGB::named(rltk::RED), RGB::named(rltk::YELLOW), 176, 200.0));
     }
     let mut targets : Vec<usize> = Vec::new();
     let mut i : usize = 0;

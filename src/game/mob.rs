@@ -1,6 +1,6 @@
 use crate::rltk;
-use rltk::{Color, Point, Algorithm2D, a_star_search, field_of_view};
-use super::{fighter::Fighter, Map, Combat, BaseEntity, State, Console, attack, random_choice, Particle};
+use rltk::{RGB, Point, Algorithm2D, a_star_search, field_of_view};
+use super::{fighter::Fighter, Map, Combat, BaseEntity, State, attack, random_choice, Particle};
 use rand::Rng;
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -9,7 +9,7 @@ use serde::{Serialize, Deserialize};
 pub struct Mob {
     pub position : Point,
     pub glyph: u8,
-    pub fg : Color,
+    pub fg : RGB,
     pub visible_tiles : Vec<Point>,
     pub name : String,
     pub fighter : Fighter,
@@ -28,7 +28,7 @@ impl Mob {
         Mob{ 
             position: Point::new(x, y), 
             glyph: 38, 
-            fg: Color::red(), 
+            fg: RGB::named(rltk::RED), 
             visible_tiles: Vec::new(), 
             name: "Borrow Wight".to_string(),
             fighter: Fighter::new(2, 0, 1, 60),
@@ -40,7 +40,7 @@ impl Mob {
         Mob{ 
             position: Point::new(x, y), 
             glyph: 109, 
-            fg: Color::red(), 
+            fg: RGB::named(rltk::RED), 
             visible_tiles: Vec::new(), 
             name: "Mut Hound".to_string(),
             fighter: Fighter::new(1, 0, 1, 30),
@@ -52,7 +52,7 @@ impl Mob {
         Mob{ 
             position: Point::new(x, y), 
             glyph: 105, 
-            fg: Color::red(), 
+            fg: RGB::named(rltk::RED), 
             visible_tiles: Vec::new(), 
             name: "Itereater Beast".to_string(),
             fighter: Fighter::new(1, 0, 1, 30),
@@ -113,7 +113,7 @@ impl Mob {
 #[typetag::serde(name = "BEMob")]
 impl BaseEntity for Mob {
     fn get_position(&self) -> Point { self.position }
-    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_fg_color(&self) -> RGB { self.fg }
     fn get_glyph(&self) -> u8 { self.glyph }
     fn as_combat(&mut self) -> Option<&mut Combat> { Some(self) }
     fn plot_visibility(&mut self, map : &Map) {
@@ -128,7 +128,7 @@ impl BaseEntity for Mob {
     fn get_name(&self) -> String { self.name.to_string() }
 }
 
-pub fn mob_tick(gs : &mut State, _console: &mut Console) {
+pub fn mob_tick(gs : &mut State) {
     // Build the master map of unavailable tiles
     gs.map.refresh_blocked();
     for e in gs.entities.iter() {
@@ -159,7 +159,7 @@ pub fn mob_tick(gs : &mut State, _console: &mut Console) {
     for id in attacking_mobs {
         let attacker_name = gs.entities[id].get_name();
         let attacker_power = gs.entities[id].as_combat().unwrap().get_power();
-        gs.vfx.push(Particle::new(gs.player().get_position(), Color::red(), Color::black(), 176, 200.0));
+        gs.vfx.push(Particle::new(gs.player().get_position(), RGB::named(rltk::RED), RGB::named(rltk::BLACK), 176, 200.0));
         let (_xp, result) = attack(attacker_name, attacker_power, gs.player_as_combat());
         for r in result {
             tmp.push(r);

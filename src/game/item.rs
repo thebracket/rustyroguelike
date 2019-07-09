@@ -1,5 +1,5 @@
 use crate::rltk;
-use rltk::{Color, Point};
+use rltk::{RGB, Point};
 use super::{BaseEntity, Map, random_choice};
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -21,7 +21,7 @@ pub struct Equippable {
 pub struct Item {
     pub position : Point,
     pub glyph: u8,
-    pub fg : Color,
+    pub fg : RGB,
     pub name : String,
     pub item_type : ItemType,
     pub requires_targeting_mode : bool,
@@ -53,7 +53,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 173, 
-            fg: Color::magenta(), 
+            fg: RGB::named(rltk::MAGENTA), 
             name: "Health Potion".to_string(),
             item_type: ItemType::HealthPotion,
             requires_targeting_mode : false,
@@ -65,7 +65,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 63, 
-            fg: Color::cyan(), 
+            fg: RGB::named(rltk::CYAN), 
             name: "Zap Scroll".to_string(),
             item_type: ItemType::ZapScroll,
             requires_targeting_mode : false,
@@ -77,7 +77,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 63, 
-            fg: Color::orange(), 
+            fg: RGB::named(rltk::ORANGE), 
             name: "Fireball Scroll".to_string(),
             item_type: ItemType::FireballScroll,
             requires_targeting_mode : true,
@@ -89,7 +89,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 63, 
-            fg: Color::blue(), 
+            fg: RGB::named(rltk::BLUE), 
             name: "Confusion Scroll".to_string(),
             item_type: ItemType::ConfusionScroll,
             requires_targeting_mode : false,
@@ -101,7 +101,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 47, 
-            fg: Color::cyan(), 
+            fg: RGB::named(rltk::CYAN), 
             name: "Sword".to_string(),
             item_type: ItemType::Sword,
             requires_targeting_mode : false,
@@ -113,7 +113,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 47, 
-            fg: Color::green(), 
+            fg: RGB::named(rltk::GREEN), 
             name: "Dagger".to_string(),
             item_type: ItemType::Sword,
             requires_targeting_mode : false,
@@ -125,7 +125,7 @@ impl Item {
         Item{ 
             position: Point::new(x, y), 
             glyph: 93, 
-            fg: Color::brown(), 
+            fg: RGB::named(rltk::BROWN1), 
             name: "Shield".to_string(),
             item_type: ItemType::Shield,
             requires_targeting_mode : false,
@@ -137,7 +137,7 @@ impl Item {
 #[typetag::serde(name = "BEItem")]
 impl BaseEntity for Item {
     fn get_position(&self) -> Point { self.position }
-    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_fg_color(&self) -> RGB { self.fg }
     fn get_glyph(&self) -> u8 { self.glyph }
     fn plot_visibility(&mut self, _map : &Map) {}
     fn get_tooltip_text(&self) -> String { format!("Item: {}", self.name) }

@@ -1,8 +1,9 @@
-mod rltk;
+extern crate rltk;
+use rltk::Rltk;
 mod game;
 
 fn main() {
-    let mut gs = game::State::new_menu();
-    let mut rltk = rltk::init_with_simple_console(80, 50, "Rusty Roguelike");
-    rltk.main_loop(&mut gs);
+    let gs = game::State::new_menu();
+    let context = Rltk::init_simple8x8(80, 50, "Hello RLTK World", "resources");
+    rltk::main_loop(context, Box::new(gs));
 }

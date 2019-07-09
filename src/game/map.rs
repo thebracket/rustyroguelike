@@ -148,7 +148,7 @@ impl Map {
 }
 
 impl BaseMap for Map {
-    fn can_see_through_tile(&self, idx: i32) -> bool {
+    fn is_opaque(&self, idx: i32) -> bool {
         return self.is_transparent(idx % self.width, idx / self.width);
     }
 

@@ -1,5 +1,5 @@
 use crate::rltk;
-use rltk::{Color, Point, Rltk, field_of_view, Algorithm2D};
+use rltk::{RGB, Point, Rltk, field_of_view, Algorithm2D, VirtualKeyCode};
 use super::{fighter::Fighter, Inventory, BaseEntity, Combat, Map, ItemType, State, attack, TickType, inventory, item_effects, TileType, Particle};
 extern crate serde;
 use serde::{Serialize, Deserialize};
@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 pub struct Player {
     pub position : Point,
     pub glyph: u8,
-    pub fg : Color,
+    pub fg : RGB,
     pub visible_tiles : Vec<Point>,
     pub fighter : Fighter,
     pub inventory : Inventory,
@@ -18,7 +18,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(x:i32, y:i32, glyph:u8, fg : Color) -> Player {
+    pub fn new(x:i32, y:i32, glyph:u8, fg : RGB) -> Player {
         Player{ 
             position: Point::new(x, y), 
             glyph, fg, 
@@ -49,7 +49,7 @@ impl Player {
 #[typetag::serde(name = "BEPlayer")]
 impl BaseEntity for Player {
     fn get_position(&self) -> Point { self.position }
-    fn get_fg_color(&self) -> Color { self.fg }
+    fn get_fg_color(&self) -> RGB { self.fg }
     fn get_glyph(&self) -> u8 { self.glyph }
     fn as_player(&self) -> Option<&Player> { Some(self) }
     fn as_player_mut(&mut self) -> Option<&mut Player> { Some(self) }
@@ -85,38 +85,38 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
     match ctx.key {
         Some(key) => {
             match key {
-            glfw::Key::Escape => { gs.save(); gs.game_state = TickType::MainMenu; }
+            VirtualKeyCode::Escape => { gs.save(); gs.game_state = TickType::MainMenu; }
 
             // Numpad
-            glfw::Key::Kp8 => { attack_target = move_player(gs, 0, -1); turn_ended = true; }
-            glfw::Key::Kp4 => { attack_target = move_player(gs, -1, 0); turn_ended = true; }
-            glfw::Key::Kp6 => { attack_target = move_player(gs, 1, 0); turn_ended = true; }
-            glfw::Key::Kp2 => { attack_target = move_player(gs, 0, 1); turn_ended = true; }
+            VirtualKeyCode::Numpad8 => { attack_target = move_player(gs, 0, -1); turn_ended = true; }
+            VirtualKeyCode::Numpad4 => { attack_target = move_player(gs, -1, 0); turn_ended = true; }
+            VirtualKeyCode::Numpad6 => { attack_target = move_player(gs, 1, 0); turn_ended = true; }
+            VirtualKeyCode::Numpad2 => { attack_target = move_player(gs, 0, 1); turn_ended = true; }
 
-            glfw::Key::Kp7 => { attack_target = move_player(gs, -1, -1); turn_ended = true; }
-            glfw::Key::Kp9 => { attack_target = move_player(gs, 1, -1); turn_ended = true; }
-            glfw::Key::Kp1 => { attack_target = move_player(gs, -1, 1); turn_ended = true; }
-            glfw::Key::Kp3 => { attack_target = move_player(gs, 1, 1); turn_ended = true; }
+            VirtualKeyCode::Numpad7 => { attack_target = move_player(gs, -1, -1); turn_ended = true; }
+            VirtualKeyCode::Numpad9 => { attack_target = move_player(gs, 1, -1); turn_ended = true; }
+            VirtualKeyCode::Numpad1 => { attack_target = move_player(gs, -1, 1); turn_ended = true; }
+            VirtualKeyCode::Numpad3 => { attack_target = move_player(gs, 1, 1); turn_ended = true; }
 
             // Cursors
-            glfw::Key::Up => { attack_target = move_player(gs, 0, -1); turn_ended = true; }
-            glfw::Key::Down => { attack_target = move_player(gs, 0, 1); turn_ended = true; }
-            glfw::Key::Left => { attack_target = move_player(gs, -1, 0); turn_ended = true; }
-            glfw::Key::Right => { attack_target = move_player(gs, 1, 0); turn_ended = true; }
+            VirtualKeyCode::Up => { attack_target = move_player(gs, 0, -1); turn_ended = true; }
+            VirtualKeyCode::Down => { attack_target = move_player(gs, 0, 1); turn_ended = true; }
+            VirtualKeyCode::Left => { attack_target = move_player(gs, -1, 0); turn_ended = true; }
+            VirtualKeyCode::Right => { attack_target = move_player(gs, 1, 0); turn_ended = true; }
 
             // Wait
-            glfw::Key::Kp5 => { turn_ended = true; }
-            glfw::Key::W => { turn_ended = true; }
+            VirtualKeyCode::Numpad5 => { turn_ended = true; }
+            VirtualKeyCode::W => { turn_ended = true; }
 
             // Items
-            glfw::Key::G => { inventory::pickup(gs); turn_ended = true; }
-            glfw::Key::U => { use_menu(gs); }
-            glfw::Key::D => { drop_menu(gs); }
-            glfw::Key::E => { equip_menu(gs); }
-            glfw::Key::R => { unequip_menu(gs); }
+            VirtualKeyCode::G => { inventory::pickup(gs); turn_ended = true; }
+            VirtualKeyCode::U => { use_menu(gs); }
+            VirtualKeyCode::D => { drop_menu(gs); }
+            VirtualKeyCode::E => { equip_menu(gs); }
+            VirtualKeyCode::R => { unequip_menu(gs); }
 
             // Level Change
-            glfw::Key::Period => {  
+            VirtualKeyCode::Period => {  
                 if gs.map.tiles[gs.map.point2d_to_index(gs.player().position) as usize] == TileType::Stairs {
                     return PlayerTickResult::NextMap;
                 } else {
@@ -125,8 +125,8 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
             }
 
             // Character Info
-            glfw::Key::C => { gs.game_state = TickType::CharacterMenu; }
-            glfw::Key::Slash => { gs.game_state = TickType::HelpMenu; }
+            VirtualKeyCode::C => { gs.game_state = TickType::CharacterMenu; }
+            VirtualKeyCode::Slash => { gs.game_state = TickType::HelpMenu; }
 
             _ =>  { }
             }
@@ -136,7 +136,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
 
     match attack_target {
         Some(target) => { 
-            gs.vfx.push(Particle::new(gs.entities[target].get_position(), Color::red(), Color::black(), 176, 200.0));
+            gs.vfx.push(Particle::new(gs.entities[target].get_position(), RGB::named(rltk::RED), RGB::named(rltk::BLACK), 176, 200.0));
             let player = gs.player_as_combat();
             let (xp, result) = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
             for s in result {

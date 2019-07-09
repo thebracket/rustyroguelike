@@ -1,17 +1,12 @@
 [package]
-name = "rltk"
-version = "0.1.0"
+name = "rusty_roguelike"
+version = "0.2.0"
 authors = ["Herbert Wolverson <herberticus@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-cgmath = "0.16.1"
-glfw = "0.29.0"
-glm = "0.2.3"
-gl = "0.12.0"
-image = "0.19.0"
+rltk = { path = "../rltk_rs", features = ["serde"] }
 rand = "0.7.0-pre.1"
-bresenham = "0.1.1"
 serde= { version = "1.0.93", features = ["derive"] }
 serde_json = "1.0.39"
 typetag = "0.1.3"
