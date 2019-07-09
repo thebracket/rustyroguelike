@@ -5,7 +5,7 @@ authors = ["Herbert Wolverson <herberticus@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rltk = { path = "../rltk_rs", features = ["serde"] }
+rltk = { git = "https://github.com/thebracket/rltk_rs", features = ["serialization"] }
 rand = "0.7.0-pre.1"
 serde= { version = "1.0.93", features = ["derive"] }
 serde_json = "1.0.39"

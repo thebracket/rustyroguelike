@@ -1087,6 +1087,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rltk"
 version = "0.2.0"
+source = "git+https://github.com/thebracket/rltk_rs#713c07df2e3306335e04b65168757e6eb5541cfd"
 dependencies = [
  "bresenham 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cgmath 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1129,7 +1130,7 @@ name = "rusty_roguelike"
 version = "0.2.0"
 dependencies = [
  "rand 0.7.0-pre.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "rltk 0.2.0",
+ "rltk 0.2.0 (git+https://github.com/thebracket/rltk_rs)",
  "serde 1.0.93 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
  "typetag 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1680,6 +1681,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum rayon-core 1.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b055d1e92aba6877574d8fe604a63c8b5df60f60e5982bf7ccbb1338ea527356"
 "checksum rdrand 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "678054eb77286b51581ba43620cc911abf02758c91f93f479767aed0f90458b2"
 "checksum redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)" = "2439c63f3f6139d1b57529d16bc3b8bb855230c8efcc5d3a896c8bea7c3b1e84"
+"checksum rltk 0.2.0 (git+https://github.com/thebracket/rltk_rs)" = "<none>"
 "checksum rustc-demangle 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)" = "a7f4dccf6f4891ebcc0c39f9b6eb1a83b9bf5d747cb439ec6fba4f3b977038af"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum rusttype 0.7.7 (registry+https://github.com/rust-lang/crates.io-index)" = "654103d61a05074b268a107cf6581ce120f0fc0115f2610ed9dfea363bb81139"
