@@ -8,6 +8,8 @@ The fine folks over at [/r/roguelikedev](https://www.reddit.com/r/roguelikedev/n
 
 It's cheating to build both the library AND the game - but I don't know a better way to learn the language.
 
+**Update**: Now that I've finished spinning it off into its own project, Rusty Roguelike uses `rltk_rs` for all the back-end features. You can see the library side of things [in the rltk_rs repo](https://github.com/thebracket/rltk_rs).
+
 **Progress**
 
 Hello world with an OpenGL console pretending to be CP437:
