@@ -22,7 +22,7 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
-                possible_targets.push((i, rltk::distance2d(my_pos, target_pos)));
+                possible_targets.push((i, rltk::distance2d(rltk::DistanceAlg::Pythagoras, my_pos, target_pos)));
             }
         }
         i += 1;
@@ -36,7 +36,7 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
         let target = &mut gs.entities[possible_targets[0].0].as_mob_mut().unwrap();
 
         let tp = target.get_position();
-        let line = rltk::line2d(tp, my_pos);
+        let line = rltk::line2d(rltk::LineAlg::Bresenham, tp, my_pos);
         for zap in line {
             gs.vfx.push(Particle::new(zap, RGB::named(rltk::CYAN), RGB::named(rltk::BLACK), 15, 200.0));
         }
@@ -108,7 +108,7 @@ pub fn use_confusion_scroll(item_index : i32, gs : &mut State, result : &mut Vec
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
-                possible_targets.push((i, rltk::distance2d(my_pos, target_pos)));
+                possible_targets.push((i, rltk::distance2d(rltk::DistanceAlg::Pythagoras, my_pos, target_pos)));
             }
         }
         i += 1;
