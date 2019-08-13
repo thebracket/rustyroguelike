@@ -22,7 +22,7 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
-                possible_targets.push((i, rltk::distance2d(rltk::DistanceAlg::Pythagoras, my_pos, target_pos)));
+                possible_targets.push((i, rltk::DistanceAlg::Pythagoras.distance2d(my_pos, target_pos)));
             }
         }
         i += 1;
@@ -108,7 +108,7 @@ pub fn use_confusion_scroll(item_index : i32, gs : &mut State, result : &mut Vec
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
-                possible_targets.push((i, rltk::distance2d(rltk::DistanceAlg::Pythagoras, my_pos, target_pos)));
+                possible_targets.push((i, rltk::DistanceAlg::Pythagoras.distance2d(my_pos, target_pos)));
             }
         }
         i += 1;

@@ -86,14 +86,14 @@ impl Mob {
         let can_see_player = self.visible_tiles.contains(&player_pos);
 
         if can_see_player {
-            let distance = rltk::distance2d(rltk::DistanceAlg::Pythagoras, player_pos, self.position);
+            let distance = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, self.position);
             if distance < 1.5 {
                 return true;
             } else {
                 self.path_to_player(player_pos, map);
             }
         }
-        return false;
+        false
     }
 
     fn path_to_player(&mut self, player_pos : Point, map : &mut Map) {
