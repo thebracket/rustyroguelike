@@ -43,7 +43,7 @@ pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
             rooms.push(room_candidate);
         }
     }
-    return rooms;
+    rooms
 }
 
 // Applies a rectangle room to the map
@@ -100,7 +100,7 @@ pub fn spawn_mobs(rooms: &Vec<Rect>, dungeon_level : i32) -> Vec<Mob> {
             }
         }
     }
-    return mobs;
+    mobs
 }
 
 pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>, dungeon_level : i32) -> Vec<Item> {
@@ -129,5 +129,5 @@ pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>, dungeon_level : i32) -> V
         }
     }
 
-    return items;
+    items
 }

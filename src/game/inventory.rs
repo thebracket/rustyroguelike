@@ -13,7 +13,7 @@ pub struct Inventory {
 
 impl Inventory {
     pub fn new(capacity : i32) -> Inventory {
-        return Inventory{ items: Vec::new(), capacity: capacity, equipped: Vec::new() };
+        Inventory{ items: Vec::new(), capacity, equipped: Vec::new() }
     }
 
     pub fn add_item(&mut self, item : Item) -> Vec<String> {
@@ -24,39 +24,35 @@ impl Inventory {
             result.push(format!("You pick up the {}", item.name));
             self.items.push(item);
         }
-        return result;
+        result
     }
 
     pub fn remove_item_return_clone(&mut self, item_index: i32) -> Item {
         let item_copy = self.items[item_index as usize].clone();
         self.items.remove(item_index as usize);
-        return item_copy;
+        item_copy
     }
 
     pub fn get_equippable_items(&self) -> Vec<i32> {
         let mut result = Vec::new();
-        let mut i = 0;
-        for item in self.items.iter() {
+        for (i,item) in self.items.iter().enumerate() {
             match item.equippable {
                 None => {}
-                Some(_) => { result.push(i); }
+                Some(_) => { result.push(i as i32); }
             }
-            i += 1;
         }
-        return result;
+        result
     }
 }
 
 pub fn pickup(gs : &mut State) {
-    let mut i = 0;
     let mut item_index = 0;
     let ppos = gs.player().position;
-    for e in gs.entities.iter_mut() {
+    for (i,e) in gs.entities.iter_mut().enumerate() {
         if e.can_pickup() && e.get_position() == ppos {
             // We can do it!
             item_index = i;
         }
-        i += 1;
     }
 
     if item_index > 0 {
@@ -139,7 +135,7 @@ fn wield_item_final(item_index : i32, gs : &mut State) -> Vec<String> {
     gs.player_mut().inventory.equipped.push(item);
     gs.game_state = TickType::EnemyTurn;
 
-    return result;
+    result
 }
 
 pub fn unequip_item(gs : &mut State, ctx : &mut Rltk) {
@@ -165,7 +161,7 @@ fn unequip_item_final(item_index : i32, gs : &mut State) -> Vec<String> {
     gs.player_mut().inventory.items.push(item);
     gs.game_state = TickType::EnemyTurn;
 
-    return result;
+    result
 }
 
 pub fn item_targeting(gs : &mut State, ctx : &mut Rltk) {

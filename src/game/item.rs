@@ -40,13 +40,13 @@ impl Item {
             ("Dagger".to_string(), 5),
         ]);
         
-        if choice == "Health".to_string() { return Item::new_health_potion(x,y); }
-        else if choice == "Zap".to_string() { return Item::new_zap_scroll(x,y) }
-        else if choice == "Fireball".to_string() { return Item::new_fireball_scroll(x,y) }
-        else if choice == "Sword".to_string() { return Item::new_sword(x,y) }
-        else if choice == "Shield".to_string() { return Item::new_shield(x,y) }
-        else if choice == "Dagger".to_string() { return Item::new_dagger(x,y) }
-        else { return Item::new_confusion_scroll(x,y) }
+        if choice == "Health".to_string() { Item::new_health_potion(x,y) }
+        else if choice == "Zap".to_string() { Item::new_zap_scroll(x,y) }
+        else if choice == "Fireball".to_string() { Item::new_fireball_scroll(x,y) }
+        else if choice == "Sword".to_string() { Item::new_sword(x,y) }
+        else if choice == "Shield".to_string() { Item::new_shield(x,y) }
+        else if choice == "Dagger".to_string() { Item::new_dagger(x,y) }
+        else { Item::new_confusion_scroll(x,y) }
     }
 
     pub fn new_health_potion(x:i32, y:i32) -> Item {

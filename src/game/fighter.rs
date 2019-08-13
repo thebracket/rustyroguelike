@@ -15,14 +15,14 @@ pub struct Fighter {
 
 impl Fighter {
     pub fn new(max_hp: i32, defense: i32, power: i32, xp:i32) -> Fighter {
-        return Fighter{
-            max_hp: max_hp,
+        Fighter{
+            max_hp,
             hp: max_hp,
-            defense: defense,
-            power: power,
+            defense,
+            power,
             dead: false,
             xp_value : xp
-        };
+        }
     }    
 }
 
@@ -55,7 +55,7 @@ pub fn attack(instigator_name: String, instigator_power : i32, target: &mut Comb
         results.push(format!("{} attacks {}, but lacks the power to do anything useful.", instigator_name, target.get_name()));
     }
 
-    return (xp, results);
+    (xp, results)
 }
 
 impl Combat for Player {
@@ -68,7 +68,7 @@ impl Combat for Player {
     }
 
     fn get_name(&self) -> String {
-        return "Player".to_string();
+        "Player".to_string()
     }
 
     fn get_defense(&self) -> i32 { 
@@ -76,7 +76,7 @@ impl Combat for Player {
         for item in self.inventory.equipped.iter() {
             defense += item.equippable.unwrap().defense_bonus;
         }
-        return defense; 
+        defense
     }
 
     fn get_power(&self) -> i32 { 
@@ -84,10 +84,10 @@ impl Combat for Player {
         for item in self.inventory.equipped.iter() {
             power += item.equippable.unwrap().power_bonus;
         }
-        return power; 
+        power
     }
 
-    fn get_hp(&self) -> i32 { return self.fighter.hp; }
+    fn get_hp(&self) -> i32 { self.fighter.hp }
     fn kill(&mut self) { self.fighter.dead = true; }
 }
 
@@ -101,12 +101,12 @@ impl Combat for Mob {
     }
 
     fn get_name(&self) -> String {
-        return self.name.clone();
+        self.name.clone()
     }
 
-    fn get_defense(&self) -> i32 { return self.fighter.defense; }
-    fn get_power(&self) -> i32 { return self.fighter.power; }
-    fn get_hp(&self) -> i32 { return self.fighter.hp; }
+    fn get_defense(&self) -> i32 { self.fighter.defense }
+    fn get_power(&self) -> i32 { self.fighter.power }
+    fn get_hp(&self) -> i32 { self.fighter.hp }
     fn kill(&mut self) { self.fighter.dead = true; }
     fn xp_value(&self)->i32 { self.fighter.xp_value }
 }

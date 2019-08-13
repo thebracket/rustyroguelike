@@ -7,15 +7,15 @@ pub struct Rect {
 
 impl Rect {
     pub fn new(x1:i32, y1: i32, x2:i32, y2:i32) -> Rect {
-        return Rect{x1: x1, y1: y1, x2: x2, y2: y2};
+        Rect{x1, y1, x2, y2}
     }
 
     // Returns true if this overlaps with other
     pub fn intersect(&self, other:&Rect) -> bool {
-        return self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1;
+        self.x1 <= other.x2 && self.x2 >= other.x1 && self.y1 <= other.y2 && self.y2 >= other.y1
     }
 
     pub fn center(&self) -> (i32, i32) {
-        return ((self.x1 + self.x2)/2, (self.y1 + self.y2)/2);
+        ((self.x1 + self.x2)/2, (self.y1 + self.y2)/2)
     }
 }

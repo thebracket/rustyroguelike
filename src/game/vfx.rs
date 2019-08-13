@@ -16,7 +16,7 @@ pub struct Particle {
 
 impl Particle {
     pub fn new(position:Point, fg:RGB, bg:RGB, glyph: u8, lifetime_ms : f32) -> Particle {
-        return Particle{ position:position, fg:fg, bg:bg, glyph:glyph, lifetime_ms : lifetime_ms};
+        Particle{ position, fg, bg, glyph, lifetime_ms }
     }
 
     pub fn render(&self, ctx : &mut Rltk) {

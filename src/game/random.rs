@@ -9,5 +9,5 @@ pub fn random_choice(table : Vec<(String, i32)>) -> String {
         if n < chance+running_sum { return opt.to_string() }
         running_sum += chance;
     }
-    return table[0].0.to_string();
+    table[0].0.to_string()
 }

@@ -50,7 +50,7 @@ fn draw_map(ctx : &mut Rltk, map : &Map) {
 
 fn is_revealed_and_wall(map : &Map, coord: Point) -> bool {
     let idx = map.point2d_to_index(coord) as usize;
-    return map.tiles[idx] == TileType::Wall && map.revealed[idx];
+    map.tiles[idx] == TileType::Wall && map.revealed[idx]
 }
 
 fn decorate_wall_tile(map : &Map, coord: Point) -> u8 {
@@ -62,22 +62,22 @@ fn decorate_wall_tile(map : &Map, coord: Point) -> u8 {
     if is_revealed_and_wall(map, Point::new(coord.x + 1, coord.y)) { mask += 8; }
 
     match mask {
-        0 => { return 9; } // Pillar because we can't see neighbors
-        1 => { return 186; } // Wall only to the north
-        2 => { return 186; } // Wall only to the south
-        3 => { return 186; } // Wall to the north and south
-        4 => { return 205; } // Wall only to the west
-        5 => { return 188; } // Wall to the north and west
-        6 => { return 187; } // Wall to the south and west
-        7 => { return 185; } // Wall to the north, south and west
-        8 => { return 205; } // Wall only to the east
-        9 => { return 200; } // Wall to the north and east
-        10 => { return 201; } // Wall to the south and east
-        11 => { return 204; } // Wall to the north, south and east
-        12 => { return 205; } // Wall to the east and west
-        13 => { return 202; } // Wall to the east, west, and south
-        14 => { return 203; } // Wall to the east, west, and north
-        _ => { return 35; } // We missed one?
+        0 => { 9 } // Pillar because we can't see neighbors
+        1 => { 186 } // Wall only to the north
+        2 => { 186 } // Wall only to the south
+        3 => { 186 } // Wall to the north and south
+        4 => { 205 } // Wall only to the west
+        5 => { 188 } // Wall to the north and west
+        6 => { 187 } // Wall to the south and west
+        7 => { 185 } // Wall to the north, south and west
+        8 => { 205 } // Wall only to the east
+        9 => { 200 } // Wall to the north and east
+        10 => { 201 } // Wall to the south and east
+        11 => { 204 } // Wall to the north, south and east
+        12 => { 205 } // Wall to the east and west
+        13 => { 202 } // Wall to the east, west, and south
+        14 => { 203 } // Wall to the east, west, and north
+        _ => { 35 } // We missed one?
     }
 }
 
@@ -133,7 +133,7 @@ fn draw_mouse_info(gs : &State, ctx : &mut Rltk, map: &Map) {
                 let left_x = mouse_pos.0 - width;
                 let mut y = mouse_pos.1;
                 for s in tooltip.iter() {
-                    ctx.print_color(left_x, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &format!("{}", s));
+                    ctx.print_color(left_x, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &s.to_string());
                     let padding = (width - s.len() as i32)-1;
                     for i in 0..padding {
                         ctx.print_color(arrow_pos.x - i, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &" ".to_string());
@@ -146,7 +146,7 @@ fn draw_mouse_info(gs : &State, ctx : &mut Rltk, map: &Map) {
                 let left_x = mouse_pos.0 +3;
                 let mut y = mouse_pos.1;
                 for s in tooltip.iter() {
-                    ctx.print_color(left_x, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &format!("{}", s));
+                    ctx.print_color(left_x, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &s.to_string());
                     let padding = (width - s.len() as i32)-1;
                     for i in 0..padding {
                         ctx.print_color(left_x + s.len() as i32 + i, y, RGB::named(rltk::WHITE), RGB::named(rltk::GREY), &" ".to_string());
@@ -163,19 +163,17 @@ fn draw_mouse_info(gs : &State, ctx : &mut Rltk, map: &Map) {
 pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
     let count = gs.player().inventory.items.len();
     let mut y = (25 - (count / 2)) as i32;
-    let mut j = 0;
 
     ctx.draw_box(15, y-2, 31, (count+3) as i32, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK));
     ctx.print_color(18, y-2, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), &title.to_string());
 
-    for i in gs.player().inventory.items.iter() {
+    for (j,i) in gs.player().inventory.items.iter().enumerate() {
         ctx.set(17, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 40);
-        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j);
+        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j as u8);
         ctx.set(19, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 41);
 
         ctx.print(21, y, &i.name.to_string());
         y += 1;
-        j += 1;
     }
 
     match ctx.key {
@@ -194,7 +192,7 @@ pub fn handle_item_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) 
         }
     }
 
-    return (ItemMenuResult::NoResponse, 0);
+    (ItemMenuResult::NoResponse, 0)
 }
 
 #[allow(non_snake_case)]
@@ -202,19 +200,17 @@ pub fn handle_equippable_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, titl
     let equippable = gs.player().inventory.get_equippable_items();
     let count = equippable.len();
     let mut y = (25 - (count / 2)) as i32;
-    let mut j = 0;
 
     ctx.draw_box(15, y-2, 31, (count+3) as i32, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK));
     ctx.print_color(18, y-2, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), &title.to_string());
 
-    for i in equippable.iter() {
+    for (j,i) in equippable.iter().enumerate() {
         ctx.set(17, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 40);
-        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j);
+        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j as u8);
         ctx.set(19, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 41);
 
         ctx.print(21, y, &gs.player().inventory.items[*i as usize].name.to_string());
         y += 1;
-        j += 1;
     }
 
     match ctx.key {
@@ -233,26 +229,24 @@ pub fn handle_equippable_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, titl
         }
     }
 
-    return (ItemMenuResult::NoResponse, 0);
+    (ItemMenuResult::NoResponse, 0)
 }
 
 #[allow(non_snake_case)]
 pub fn handle_equipped_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title: S) -> (ItemMenuResult, i32) {
     let count = gs.player().inventory.equipped.len();
     let mut y = (25 - (count / 2)) as i32;
-    let mut j = 0;
 
     ctx.draw_box(15, y-2, 31, (count+3) as i32, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK));
     ctx.print_color(18, y-2, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), &title.to_string());
 
-    for i in gs.player().inventory.equipped.iter() {
+    for (j,i) in gs.player().inventory.equipped.iter().enumerate() {
         ctx.set(17, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 40);
-        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j);
+        ctx.set(18, y, RGB::named(rltk::YELLOW), RGB::named(rltk::BLACK), 97+j as u8);
         ctx.set(19, y, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), 41);
 
         ctx.print(21, y, &i.name.to_string());
         y += 1;
-        j += 1;
     }
 
     match ctx.key {
@@ -271,7 +265,7 @@ pub fn handle_equipped_menu<S: ToString>(gs : &mut State, ctx: &mut Rltk, title:
         }
     }
 
-    return (ItemMenuResult::NoResponse, 0);
+    (ItemMenuResult::NoResponse, 0)
 }
 
 pub fn display_game_over_and_handle_quit(ctx : &mut Rltk, gs : &mut State) {
@@ -331,11 +325,11 @@ pub fn handle_item_targeting<S: ToString>(gs : &mut State, ctx: &mut Rltk, title
         }
     }
 
-    return ItemMenuResult::NoResponse;
+    ItemMenuResult::NoResponse
 }
 
-const STORY_TYPES : &'static [&'static str] = &["Tales", "Sagas", "Adventures", "Anecdotes", "Fables", "Narratives"];
-const STORY_NOUNS : &'static [&'static str] = &["Heroism", "Cowardice", "Vengeance", "Heroism", "Exploration", "Delving", "Dungeoneering"];
+const STORY_TYPES : & [& str] = &["Tales", "Sagas", "Adventures", "Anecdotes", "Fables", "Narratives"];
+const STORY_NOUNS : & [& str] = &["Heroism", "Cowardice", "Vengeance", "Heroism", "Exploration", "Delving", "Dungeoneering"];
 
 #[derive(Serialize, Deserialize)]
 pub struct MenuState {
@@ -359,9 +353,9 @@ impl MenuState {
             bd.push((rng.gen_range(32, 62) as u8, bg));
         }
 
-        return MenuState{
+        MenuState{
             random: vec![rng.gen_range(0, 6), rng.gen_range(0, 7), rng.gen_range(0, 7)],
-            save_exists : save_exists,
+            save_exists,
             current_menu_option : cmo,
             backdrop : bd
         }
@@ -466,7 +460,7 @@ pub fn display_main_menu(ctx : &mut Rltk, ms : &mut MenuState) -> MainMenuResult
         }
     }
 
-    return MainMenuResult::None;
+    MainMenuResult::None
 }
 
 #[allow(non_snake_case)]

@@ -155,7 +155,7 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
         gs.game_state = TickType::EnemyTurn; 
     }
 
-    return PlayerTickResult::None;    
+    PlayerTickResult::None
 }
 
 // Returns the ID of the target if we're attacking
@@ -168,8 +168,7 @@ fn move_player(gs : &mut State, delta_x : i32, delta_y: i32) -> Option<usize> {
 
         // Lets see if we are bumping a mob
         let new_pos = Point::new(new_x, new_y);
-        let mut i : usize = 0;
-        for e in gs.entities.iter_mut() {
+        for (i,e) in gs.entities.iter_mut().enumerate() {
             if e.get_position() == new_pos && e.blocks_tile() {
                 // Tile is indeed blocked
                 can_move = false;
@@ -178,7 +177,6 @@ fn move_player(gs : &mut State, delta_x : i32, delta_y: i32) -> Option<usize> {
                     result = Some(i);
                 }
             }
-            i += 1;
         }
 
         if can_move {
@@ -186,7 +184,7 @@ fn move_player(gs : &mut State, delta_x : i32, delta_y: i32) -> Option<usize> {
             gs.player_mut().position.y = new_y;
         }
     }
-    return result;
+    result
 }
 
 fn use_menu(gs : &mut State) {
@@ -242,14 +240,13 @@ pub fn use_item(item_index : i32, gs : &mut State) -> Vec<String> {
 
     gs.game_state = TickType::PlayersTurn;
 
-    return result;
+    result
 }
 
 pub fn use_area_item(gs : &mut State) {
     let mut result = Vec::new(); 
     let item_type = gs.player().inventory.items[gs.targeting_item as usize].item_type;
-    match item_type {
-        ItemType::FireballScroll => { item_effects::use_fireball_scroll(gs, &mut result) }
-        _ => {} // There's lots of items that aren't area, so we do the blanket ignore
+    if let ItemType::FireballScroll = item_type {
+        item_effects::use_fireball_scroll(gs, &mut result)
     }
 }

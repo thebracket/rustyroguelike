@@ -89,7 +89,7 @@ impl GameState for State {
 
 impl State {
     pub fn new_menu() -> State {        
-        return State{ 
+        State{ 
             map: Map::new(80, 43), 
             game_state: TickType::MainMenu, 
             log: Vec::new(), 
@@ -99,14 +99,14 @@ impl State {
             prev_mouse_for_targeting : Point::new(-1,-1),
             menu_state: gui::MenuState::new(),
             vfx : Vec::new()
-        };
+        }
     }
 
     pub fn load_saved() -> State {
         let data = fs::read_to_string("./savegame.json").expect("Unable to read file");
         let loaded : State = serde_json::from_str(&data).unwrap();
         std::fs::remove_file("./savegame.json").expect("Unable to delete file");
-        return loaded;
+        loaded
     }
 
     pub fn new(depth: i32) -> State {
@@ -134,29 +134,29 @@ impl State {
             entities.push(Box::new(i));
         }
 
-        return State{ 
-            map: map, 
+        State{ 
+            map, 
             game_state: TickType::PlayersTurn, 
             log: Vec::new(), 
-            entities : entities,
+            entities,
             target_cell : Point::new(-1,-1),
             targeting_item : -1,
             prev_mouse_for_targeting : Point::new(-1,-1),
             menu_state : gui::MenuState::new(),
             vfx : Vec::new()
-        };
+        }
     }
 
     pub fn player(&self) -> &Player {
-        return self.entities[0].as_player().unwrap();
+        self.entities[0].as_player().unwrap()
     }
 
     pub fn player_mut(&mut self) -> &mut Player {
-        return self.entities[0].as_player_mut().unwrap();
+        self.entities[0].as_player_mut().unwrap()
     }
 
     pub fn player_as_combat(&mut self) -> &mut Combat {
-        return self.entities[0].as_combat().unwrap();
+        self.entities[0].as_combat().unwrap()
     }
 
     pub fn update_visibility(&mut self) {
