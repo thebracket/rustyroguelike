@@ -28,7 +28,7 @@ pub fn random_rooms_tut3(map : &mut Map) -> Vec<Rect> {
         if !collides {
             apply_room(map, &room_candidate);
 
-            if rooms.len() > 0 {
+            if !rooms.is_empty() {
                 let (new_x, new_y) = room_candidate.center();
                 let (prev_x, prev_y) = rooms[rooms.len()-1].center();
                 if rng.gen_range(0,1)==1 {
@@ -59,7 +59,7 @@ fn apply_room(map : &mut Map, rect : &Rect) {
 }
 
 fn apply_horizontal_tunnel(map: &mut Map, x1:i32, x2:i32, y:i32) {
-    for x in min(x1,x2) .. max(x1,x2)+1 {
+    for x in min(x1,x2) ..= max(x1,x2) {
         let idx = (y * map.width) + x;
         if idx > 0 && idx < map.width*map.height {
             map.tiles[idx as usize] = TileType::Floor;
@@ -68,7 +68,7 @@ fn apply_horizontal_tunnel(map: &mut Map, x1:i32, x2:i32, y:i32) {
 }
 
 fn apply_vertical_tunnel(map: &mut Map, y1:i32, y2:i32, x:i32) {
-    for y in min(y1,y2) .. max(y1,y2)+1 {
+    for y in min(y1,y2) ..= max(y1,y2) {
         let idx = (y * map.width) + x;
         if idx > 0 && idx < map.width*map.height {
             map.tiles[idx as usize] = TileType::Floor;
@@ -76,7 +76,7 @@ fn apply_vertical_tunnel(map: &mut Map, y1:i32, y2:i32, x:i32) {
     }
 }
 
-pub fn spawn_mobs(rooms: &Vec<Rect>, dungeon_level : i32) -> Vec<Mob> {
+pub fn spawn_mobs(rooms: &[Rect], dungeon_level : i32) -> Vec<Mob> {
     let mut rng = rand::thread_rng();
     let mut mobs : Vec<Mob> = Vec::new();
     for i in 1 .. rooms.len() {
@@ -103,7 +103,7 @@ pub fn spawn_mobs(rooms: &Vec<Rect>, dungeon_level : i32) -> Vec<Mob> {
     mobs
 }
 
-pub fn spawn_items(rooms: &Vec<Rect>, mobs: &Vec<Mob>, dungeon_level : i32) -> Vec<Item> {
+pub fn spawn_items(rooms: &[Rect], mobs: &[Mob], dungeon_level : i32) -> Vec<Item> {
     let mut rng = rand::thread_rng();
     let mut items : Vec<Item> = Vec::new();
 

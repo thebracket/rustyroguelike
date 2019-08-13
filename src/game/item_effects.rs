@@ -17,15 +17,13 @@ pub fn use_zap_scroll(item_index : i32, gs : &mut State, result : &mut Vec<Strin
     let mut possible_targets : Vec<(usize, f32)> = Vec::new();
     let visible_tiles = gs.player().visible_tiles.clone();
     let my_pos = gs.player().get_position();
-    let mut i : usize = 0;
-    for potential_target in gs.entities.iter() {
+    for (i,potential_target) in gs.entities.iter().enumerate() {
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
                 possible_targets.push((i, rltk::DistanceAlg::Pythagoras.distance2d(my_pos, target_pos)));
             }
         }
-        i += 1;
     }
 
     if possible_targets.is_empty() {
@@ -66,10 +64,8 @@ pub fn use_fireball_scroll(gs : &mut State, result : &mut Vec<String>) {
         gs.vfx.push(Particle::new(*pos, RGB::named(rltk::RED), RGB::named(rltk::YELLOW), 176, 200.0));
     }
     let mut targets : Vec<usize> = Vec::new();
-    let mut i : usize = 0;
-    for e in gs.entities.iter() {
+    for (i,e) in gs.entities.iter().enumerate() {
         if area_of_effect.contains(&e.get_position()) && e.can_be_attacked() { targets.push(i); }
-        i += 1;
     }
 
     for target_id in targets {
@@ -103,15 +99,13 @@ pub fn use_confusion_scroll(item_index : i32, gs : &mut State, result : &mut Vec
     let mut possible_targets : Vec<(usize, f32)> = Vec::new();
     let visible_tiles = gs.player().visible_tiles.clone();
     let my_pos = gs.player().get_position();
-    let mut i : usize = 0;
-    for potential_target in gs.entities.iter() {
+    for (i,potential_target) in gs.entities.iter().enumerate() {
         if potential_target.is_mob() {
             let target_pos = potential_target.get_position();
             if visible_tiles.contains(&target_pos) {
                 possible_targets.push((i, rltk::DistanceAlg::Pythagoras.distance2d(my_pos, target_pos)));
             }
         }
-        i += 1;
     }
 
     if possible_targets.is_empty() {

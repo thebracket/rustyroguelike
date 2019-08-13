@@ -27,35 +27,32 @@ impl Map {
             blocked.push(false);
         }
 
-        return Map{tiles : blank_map, visible: visible, revealed: revealed, width: w, height: h, blocked: blocked};
+        Map{tiles : blank_map, visible, revealed, width: w, height: h, blocked }
     }
 
-    pub fn set_visibility(&mut self, vis : &Vec<Point>) {
+    pub fn set_visibility(&mut self, vis : &[Point]) {
         for v in self.visible.iter_mut() {
             *v = false;
         }
 
         for pt in vis {
             let idx = self.tile_idx(pt.x, pt.y);
-            match idx {
-                Some(x) => { self.visible[x] = true; self.revealed[x] = true; }
-                None => {}
-            }
+            if let Some(x) = idx { self.visible[x] = true; self.revealed[x] = true; }
         }
     }    
 
     // Utility function: find the index of a tile at x/y
     fn tile_idx(&self, x:i32, y:i32) -> Option<usize> {
         if self.valid_tile(x, y) {
-            return Some(((y*self.width)+x) as usize);
+            Some(((y*self.width)+x) as usize)
         } else {
-            return None;
+            None
         }
     }
 
     // Utility function: bounds checking
     fn valid_tile(&self, x:i32, y:i32) -> bool {
-        return x > 0 && x < self.width-1 && y > 0 && y < self.height-1;
+        x > 0 && x < self.width-1 && y > 0 && y < self.height-1
     }
 
     // Utility function: is a tile walkable
@@ -64,14 +61,14 @@ impl Map {
         match idx {
             Some(idx) => {
                 match self.tiles[idx] {
-                    TileType::Floor => { return true }
-                    TileType::Wall => { return false }
-                    TileType::Stairs => { return true }
+                    TileType::Floor => { true }
+                    TileType::Wall => { false }
+                    TileType::Stairs => { true }
                 }
             }
 
             None => {
-                return false;
+                false
             }
         }
     }
@@ -82,14 +79,14 @@ impl Map {
         match idx {
             Some(idx) => {
                 match self.tiles[idx] {
-                    TileType::Floor => { return false }
-                    TileType::Wall => { return true }
-                    TileType::Stairs => { return false }
+                    TileType::Floor => { false }
+                    TileType::Wall => { true }
+                    TileType::Stairs => { false }
                 }
             }
 
             None => {
-                return false;
+                false
             }
         }
     }
@@ -97,8 +94,8 @@ impl Map {
     pub fn is_tile_visible(&self, pos : Point) -> bool {
         let idx = self.tile_idx(pos.x, pos.y);
         match idx {
-            None => { return false; }
-            Some(x) => { return self.visible[x]; }
+            None => { false }
+            Some(x) => { self.visible[x] }
         }
     }
 
@@ -116,7 +113,7 @@ impl Map {
                 }
             }
         }
-        return "".to_string();
+        "".to_string()
     }
 
     pub fn refresh_blocked(&mut self) {
@@ -139,17 +136,17 @@ impl Map {
     pub fn is_exit_valid(&self, x:i32, y:i32) -> bool {
         if x < 1 || x > self.width-1 || y < 1 || y > self.height-1 { return false; }
         let idx = (y * self.width) + x;
-        return !self.blocked[idx as usize];
+        !self.blocked[idx as usize]
     }
 
     pub fn is_tile_blocked(&self, idx: i32) -> bool {
-        return self.blocked[idx as usize];
+        self.blocked[idx as usize]
     }    
 }
 
 impl BaseMap for Map {
     fn is_opaque(&self, idx: i32) -> bool {
-        return self.is_transparent(idx % self.width, idx / self.width);
+        self.is_transparent(idx % self.width, idx / self.width)
     }
 
     fn get_available_exits(&self, idx:i32) -> Vec<(i32, f32)> {
@@ -169,7 +166,7 @@ impl BaseMap for Map {
         if self.is_exit_valid(x-1, y+1) { exits.push(((idx+self.width)-1, 1.4)); }
         if self.is_exit_valid(x+1, y+1) { exits.push(((idx+self.width)+1, 1.4)); }
 
-        return exits;
+        exits
     }
 
     fn get_pathing_distance(&self, idx1:i32, idx2:i32) -> f32 {
@@ -181,10 +178,10 @@ impl BaseMap for Map {
 
 impl Algorithm2D for Map {
     fn point2d_to_index(&self, pt : Point) -> i32 {
-        return (pt.y * self.width) + pt.x;
+        (pt.y * self.width) + pt.x
     }    
 
     fn index_to_point2d(&self, idx:i32) -> Point {
-        return Point{ x: idx % self.width, y: idx / self.width };
+        Point{ x: idx % self.width, y: idx / self.width }
     }    
 }

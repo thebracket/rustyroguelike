@@ -272,10 +272,7 @@ pub fn display_game_over_and_handle_quit(ctx : &mut Rltk, gs : &mut State) {
     ctx.cls();
     ctx.print_color(33, 25, RGB::named(rltk::RED), RGB::named(rltk::BLACK), &"You are dead.".to_string());
     ctx.print_color(28, 27, RGB::named(rltk::WHITE), RGB::named(rltk::BLACK), &"Press any key for the menu.".to_string());
-    match ctx.key {
-        Some(_) => { gs.game_state = TickType::MainMenu }
-        None => {}
-    }
+    if let Some(_) = ctx.key { gs.game_state = TickType::MainMenu }
 }
 
 #[allow(non_snake_case)]

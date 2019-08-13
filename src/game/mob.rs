@@ -19,9 +19,9 @@ pub struct Mob {
 impl Mob {
     pub fn new_random(x:i32, y:i32) -> Mob {
         let choice = random_choice(vec![("Wight".to_string(), 10), ("Hound".to_string(), 45), ("Itereater".to_string(), 45)]);
-        if choice == "Wight".to_string() { return Mob::new_wight(x, y); }
-        else if choice == "Hound".to_string() { return Mob::new_hound(x, y); }
-        else { return Mob::new_iter(x, y); }
+        if choice == "Wight" { Mob::new_wight(x, y) }
+        else if choice == "Hound" { Mob::new_hound(x, y) }
+        else { Mob::new_iter(x, y) }
     }
 
     fn new_wight(x:i32, y:i32) -> Mob {
@@ -61,26 +61,23 @@ impl Mob {
     }
 
     pub fn turn_tick(&mut self, player_pos : Point, map : &mut Map) -> bool {
-        match self.confused {
-            Some(turns) => {
-                let new_turns = turns-1;
-                if new_turns == 0 {
-                    self.confused = None;
-                } else {
-                    self.confused = Some(new_turns);
-                }
-
-                let mut rng = rand::thread_rng();
-                let delta_x = rng.gen_range(0, 3)-1;
-                let delta_y = rng.gen_range(0, 3)-1;
-                let new_loc = Point::new(self.position.x + delta_x, self.position.y + delta_y);
-                if map.is_walkable(new_loc.x, new_loc.y) && !map.is_tile_blocked(map.point2d_to_index(new_loc)) {
-                    self.position = new_loc;
-                }
-
-                return false;
+        if let Some(turns) = self.confused {
+            let new_turns = turns-1;
+            if new_turns == 0 {
+                self.confused = None;
+            } else {
+                self.confused = Some(new_turns);
             }
-            None => {}
+
+            let mut rng = rand::thread_rng();
+            let delta_x = rng.gen_range(0, 3)-1;
+            let delta_y = rng.gen_range(0, 3)-1;
+            let new_loc = Point::new(self.position.x + delta_x, self.position.y + delta_y);
+            if map.is_walkable(new_loc.x, new_loc.y) && !map.is_tile_blocked(map.point2d_to_index(new_loc)) {
+                self.position = new_loc;
+            }
+
+            return false;
         }
 
         let can_see_player = self.visible_tiles.contains(&player_pos);
@@ -138,11 +135,9 @@ pub fn mob_tick(gs : &mut State) {
         }
     }
 
-    let mut i : usize = 0;
     let mut active_mobs : Vec<usize> = Vec::new();
-    for e in gs.entities.iter_mut() {
+    for (i,e) in gs.entities.iter_mut().enumerate() {
         if e.is_mob() { active_mobs.push(i); }
-        i += 1;
     }
 
     let ppos = gs.player().position;

@@ -42,7 +42,7 @@ impl Player {
     }
 
     pub fn xp_to_level(&self) -> i32 {
-        return 200 + (self.level * 150);
+        200 + (self.level * 150)
     }
 }
 
@@ -82,9 +82,8 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
     let mut turn_ended = false;
     let mut attack_target : Option<usize> = None;
 
-    match ctx.key {
-        Some(key) => {
-            match key {
+    if let Some(key) = ctx.key {
+        match key {
             VirtualKeyCode::Escape => { gs.save(); gs.game_state = TickType::MainMenu; }
 
             // Numpad
@@ -127,27 +126,20 @@ pub fn player_tick(gs : &mut State, ctx : &mut Rltk) -> PlayerTickResult {
             // Character Info
             VirtualKeyCode::C => { gs.game_state = TickType::CharacterMenu; }
             VirtualKeyCode::Slash => { gs.game_state = TickType::HelpMenu; }
-
-            _ =>  { }
-            }
+            _ => {}
         }
-        None => {}
     }
 
-    match attack_target {
-        Some(target) => { 
-            gs.vfx.push(Particle::new(gs.entities[target].get_position(), RGB::named(rltk::RED), RGB::named(rltk::BLACK), 176, 200.0));
-            let player = gs.player_as_combat();
-            let (xp, result) = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
-            for s in result {
-                gs.add_log_entry(s.to_string());
-            }
-            gs.entities.retain(|e| !e.is_dead());
-            let p = gs.player_mut();
-            p.xp += xp;
-
+    if let Some(target) = attack_target {
+        gs.vfx.push(Particle::new(gs.entities[target].get_position(), RGB::named(rltk::RED), RGB::named(rltk::BLACK), 176, 200.0));
+        let player = gs.player_as_combat();
+        let (xp, result) = attack(player.get_name(), player.get_power(), gs.entities[target].as_combat().unwrap());
+        for s in result {
+            gs.add_log_entry(s.to_string());
         }
-        _ => {}
+        gs.entities.retain(|e| !e.is_dead());
+        let p = gs.player_mut();
+        p.xp += xp;
     }
 
     if turn_ended {
